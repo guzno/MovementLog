@@ -3,24 +3,20 @@ package se.magnulund.dev.movementlog;
 import android.app.Activity;
 import android.app.Dialog;
 import android.app.DialogFragment;
-import android.app.Fragment;
 import android.app.PendingIntent;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.view.ViewGroup;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesClient;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.location.ActivityRecognitionClient;
 
-public class MainActivity extends Activity implements GooglePlayServicesClient.ConnectionCallbacks, GooglePlayServicesClient.OnConnectionFailedListener {
+public class MainActivity extends Activity implements GooglePlayServicesClient.ConnectionCallbacks, GooglePlayServicesClient.OnConnectionFailedListener, MainFragment.MainFragmentListener {
 
 
     // Constants that define the activity detection interval
@@ -45,9 +41,7 @@ public class MainActivity extends Activity implements GooglePlayServicesClient.C
         setContentView(R.layout.activity_main);
 
         if (savedInstanceState == null) {
-            getFragmentManager().beginTransaction()
-                    .add(R.id.container, new PlaceholderFragment())
-                    .commit();
+            getFragmentManager().beginTransaction().add(R.id.container, MainFragment.newInstance()).commit();
         }
 
         mInProgress = false;
@@ -287,6 +281,15 @@ public class MainActivity extends Activity implements GooglePlayServicesClient.C
         return super.onOptionsItemSelected(item);
     }
 
+    @Override
+    public void stopButtonClicked() {
+        stopUpdates();
+    }
+
+    @Override
+    public void startButtonClicked() {
+        startUpdates();
+    }
 
     public enum REQUEST_TYPE {START, STOP}
 
@@ -310,38 +313,6 @@ public class MainActivity extends Activity implements GooglePlayServicesClient.C
         @Override
         public Dialog onCreateDialog(Bundle savedInstanceState) {
             return mDialog;
-        }
-    }
-
-    /**
-     * A placeholder fragment containing a simple view.
-     */
-    public class PlaceholderFragment extends Fragment {
-
-        public PlaceholderFragment() {
-
-        }
-
-        @Override
-        public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                                 Bundle savedInstanceState) {
-            View rootView = inflater.inflate(R.layout.fragment_main, container, false);
-
-            rootView.findViewById(R.id.start_button).setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    startUpdates();
-                }
-            });
-
-            rootView.findViewById(R.id.stop_button).setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    stopUpdates();
-                }
-            });
-
-            return rootView;
         }
     }
 
