@@ -10,10 +10,10 @@ import com.google.android.gms.location.DetectedActivity;
 
 public class ActivityRecognitionIntentService extends IntentService {
 
-    private String TAG = ActivityRecognitionIntentService.class.getSimpleName();
+    private static final String TAG = "ActivityRecognitionIntentService";
 
-    public ActivityRecognitionIntentService(String name) {
-        super(name);
+    public ActivityRecognitionIntentService() {
+        super(TAG);
     }
 
     @Override
