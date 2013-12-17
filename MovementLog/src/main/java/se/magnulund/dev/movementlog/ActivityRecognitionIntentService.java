@@ -28,11 +28,9 @@ public class ActivityRecognitionIntentService extends IntentService {
         if (ActivityRecognitionResult.hasResult(intent)) {
 
             // Get the update
-            ActivityRecognitionResult result =
-                    ActivityRecognitionResult.extractResult(intent);
+            ActivityRecognitionResult result = ActivityRecognitionResult.extractResult(intent);
             // Get the most probable activity
-            DetectedActivity mostProbableActivity =
-                    result.getMostProbableActivity();
+            DetectedActivity mostProbableActivity = result.getMostProbableActivity();
             /*
              * Get the probability that this activity is the
              * the user's actual activity

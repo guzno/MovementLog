@@ -23,11 +23,9 @@ public class MainActivity extends Activity implements GooglePlayServicesClient.C
     public static final int MILLISECONDS_PER_SECOND = 1000;
     public static final int DETECTION_INTERVAL_SECONDS = 2;
     public static final int DETECTION_INTERVAL_MILLISECONDS = MILLISECONDS_PER_SECOND * DETECTION_INTERVAL_SECONDS;
-    private final static int
-            CONNECTION_FAILURE_RESOLUTION_REQUEST = 9000;
+    private final static int CONNECTION_FAILURE_RESOLUTION_REQUEST = 9000;
     /*
-     * Store the PendingIntent used to send activity recognition events
-     * back to the app
+     * Store the PendingIntent used to send activity recognition events back to the app
      */
     private PendingIntent mActivityRecognitionPendingIntent;
     // Store the current activity recognition client
@@ -69,11 +67,9 @@ public class MainActivity extends Activity implements GooglePlayServicesClient.C
      * by Google Play services
      */
     @Override
-    protected void onActivityResult(
-            int requestCode, int resultCode, Intent data) {
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         // Decide what to do based on the original request code
         switch (requestCode) {
-            //...
             case CONNECTION_FAILURE_RESOLUTION_REQUEST:
             /*
              * If the result code is Activity.RESULT_OK, try
@@ -84,33 +80,24 @@ public class MainActivity extends Activity implements GooglePlayServicesClient.C
                     /*
                      * Try the request again
                      */
-                        //...
                         break;
                 }
-                //...
         }
-        //...
     }
 
     private boolean servicesConnected() {
         // Check that Google Play services is available
-        int resultCode =
-                GooglePlayServicesUtil.
-                        isGooglePlayServicesAvailable(this);
+        int resultCode = GooglePlayServicesUtil.isGooglePlayServicesAvailable(this);
         // If Google Play services is available
         if (ConnectionResult.SUCCESS == resultCode) {
             // In debug mode, log the status
-            Log.d("Activity Recognition",
-                    "Google Play services is available.");
+            Log.d("Activity Recognition", "Google Play services is available.");
             // Continue
             return true;
             // Google Play services was not available for some reason
         } else {
             // Get the error dialog from Google Play services
-            Dialog errorDialog = GooglePlayServicesUtil.getErrorDialog(
-                    resultCode,
-                    this,
-                    CONNECTION_FAILURE_RESOLUTION_REQUEST);
+            Dialog errorDialog = GooglePlayServicesUtil.getErrorDialog(resultCode, this, CONNECTION_FAILURE_RESOLUTION_REQUEST);
 
             // If Google Play services can provide an error dialog
             if (errorDialog != null) {
@@ -183,7 +170,6 @@ public class MainActivity extends Activity implements GooglePlayServicesClient.C
              * request.
              */
         }
-        //...
     }
 
     @Override
@@ -195,17 +181,13 @@ public class MainActivity extends Activity implements GooglePlayServicesClient.C
                  * preset detection interval and PendingIntent.
                  * This call is synchronous.
                  */
-                mActivityRecognitionClient.requestActivityUpdates(
-                        DETECTION_INTERVAL_MILLISECONDS,
-                        mActivityRecognitionPendingIntent);
+                mActivityRecognitionClient.requestActivityUpdates(DETECTION_INTERVAL_MILLISECONDS, mActivityRecognitionPendingIntent);
                 break;
 
             case STOP:
-                mActivityRecognitionClient.removeActivityUpdates(
-                        mActivityRecognitionPendingIntent);
+                mActivityRecognitionClient.removeActivityUpdates(mActivityRecognitionPendingIntent);
                 break;
 
-            //...
                 /*
                  * An enum was added to the definition of REQUEST_TYPE,
                  * but it doesn't match a known case. Throw an exception.
@@ -248,15 +230,13 @@ public class MainActivity extends Activity implements GooglePlayServicesClient.C
             // If Google Play services can provide an error dialog
             if (errorDialog != null) {
                 // Create a new DialogFragment for the error dialog
-                ErrorDialogFragment errorFragment =
-                        new ErrorDialogFragment();
+                ErrorDialogFragment errorFragment = new ErrorDialogFragment();
                 // Set the dialog in the DialogFragment
                 errorFragment.setDialog(errorDialog);
                 // Show the error dialog in the DialogFragment
                 errorFragment.show(getFragmentManager(), "Activity Recognition");
             }
         }
-        //...
     }
 
     @Override
