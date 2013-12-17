@@ -62,8 +62,6 @@ public class MainActivity extends Activity implements GooglePlayServicesClient.C
          * Return a PendingIntent that starts the IntentService.
          */
         mActivityRecognitionPendingIntent = PendingIntent.getService(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-
-
     }
 
     /*

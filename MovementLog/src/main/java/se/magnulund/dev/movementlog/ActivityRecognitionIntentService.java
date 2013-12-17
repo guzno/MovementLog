@@ -26,6 +26,7 @@ public class ActivityRecognitionIntentService extends IntentService {
     protected void onHandleIntent(Intent intent) {
         // If the incoming intent contains an update
         if (ActivityRecognitionResult.hasResult(intent)) {
+
             // Get the update
             ActivityRecognitionResult result =
                     ActivityRecognitionResult.extractResult(intent);
@@ -61,11 +62,12 @@ public class ActivityRecognitionIntentService extends IntentService {
 
     /**
      * Map detected activity types to strings
-     *@param activityType The detected activity type
-     *@return A user-readable name for the type
+     *
+     * @param activityType The detected activity type
+     * @return A user-readable name for the type
      */
     private String getNameFromType(int activityType) {
-        switch(activityType) {
+        switch (activityType) {
             case DetectedActivity.IN_VEHICLE:
                 return "in_vehicle";
             case DetectedActivity.ON_BICYCLE:
