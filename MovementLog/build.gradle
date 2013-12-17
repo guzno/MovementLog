@@ -28,7 +28,7 @@ android {
     }
     productFlavors {
         defaultFlavor {
-            proguardFile 'proguard-rules.txt'
+            proguardFile 'proguard-project.txt'
         }
     }
 }
