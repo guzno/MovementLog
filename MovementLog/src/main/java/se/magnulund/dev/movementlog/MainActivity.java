@@ -25,9 +25,10 @@ public class MainActivity extends Activity implements GooglePlayServicesClient.C
 
     // Constants that define the activity detection interval
     public static final int MILLISECONDS_PER_SECOND = 1000;
-    public static final int DETECTION_INTERVAL_SECONDS = 20;
+    public static final int DETECTION_INTERVAL_SECONDS = 2;
     public static final int DETECTION_INTERVAL_MILLISECONDS = MILLISECONDS_PER_SECOND * DETECTION_INTERVAL_SECONDS;
-
+    private final static int
+            CONNECTION_FAILURE_RESOLUTION_REQUEST = 9000;
     /*
      * Store the PendingIntent used to send activity recognition events
      * back to the app
@@ -36,9 +37,6 @@ public class MainActivity extends Activity implements GooglePlayServicesClient.C
     // Store the current activity recognition client
     private ActivityRecognitionClient mActivityRecognitionClient;
     private boolean mInProgress;
-
-    public enum REQUEST_TYPE {START, STOP}
-
     private REQUEST_TYPE mRequestType;
 
     @Override
@@ -72,32 +70,6 @@ public class MainActivity extends Activity implements GooglePlayServicesClient.C
         mActivityRecognitionPendingIntent = PendingIntent.getService(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
 
 
-    }
-
-    private final static int
-            CONNECTION_FAILURE_RESOLUTION_REQUEST = 9000;
-
-    // Define a DialogFragment that displays the error dialog
-    public static class ErrorDialogFragment extends DialogFragment {
-        // Global field to contain the error dialog
-        private Dialog mDialog;
-
-        // Default constructor. Sets the dialog field to null
-        public ErrorDialogFragment() {
-            super();
-            mDialog = null;
-        }
-
-        // Set the dialog to display
-        public void setDialog(Dialog dialog) {
-            mDialog = dialog;
-        }
-
-        // Return a Dialog to the DialogFragment.
-        @Override
-        public Dialog onCreateDialog(Bundle savedInstanceState) {
-            return mDialog;
-        }
     }
 
     /*
@@ -160,7 +132,6 @@ public class MainActivity extends Activity implements GooglePlayServicesClient.C
             return false;
         }
     }
-
 
     public void startUpdates() {
         // Set the request type to START
@@ -237,7 +208,7 @@ public class MainActivity extends Activity implements GooglePlayServicesClient.C
                         mActivityRecognitionPendingIntent);
                 break;
 
-            case STOP :
+            case STOP:
                 mActivityRecognitionClient.removeActivityUpdates(
                         mActivityRecognitionPendingIntent);
                 break;
@@ -296,7 +267,6 @@ public class MainActivity extends Activity implements GooglePlayServicesClient.C
         //...
     }
 
-
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
 
@@ -317,18 +287,60 @@ public class MainActivity extends Activity implements GooglePlayServicesClient.C
         return super.onOptionsItemSelected(item);
     }
 
+
+    public enum REQUEST_TYPE {START, STOP}
+
+    // Define a DialogFragment that displays the error dialog
+    public static class ErrorDialogFragment extends DialogFragment {
+        // Global field to contain the error dialog
+        private Dialog mDialog;
+
+        // Default constructor. Sets the dialog field to null
+        public ErrorDialogFragment() {
+            super();
+            mDialog = null;
+        }
+
+        // Set the dialog to display
+        public void setDialog(Dialog dialog) {
+            mDialog = dialog;
+        }
+
+        // Return a Dialog to the DialogFragment.
+        @Override
+        public Dialog onCreateDialog(Bundle savedInstanceState) {
+            return mDialog;
+        }
+    }
+
     /**
      * A placeholder fragment containing a simple view.
      */
-    public static class PlaceholderFragment extends Fragment {
+    public class PlaceholderFragment extends Fragment {
 
         public PlaceholderFragment() {
+
         }
 
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
                                  Bundle savedInstanceState) {
             View rootView = inflater.inflate(R.layout.fragment_main, container, false);
+
+            rootView.findViewById(R.id.start_button).setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    startUpdates();
+                }
+            });
+
+            rootView.findViewById(R.id.stop_button).setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    stopUpdates();
+                }
+            });
+
             return rootView;
         }
     }
