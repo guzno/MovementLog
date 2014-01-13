@@ -8,6 +8,8 @@ import android.location.Location;
 import android.net.Uri;
 import android.provider.BaseColumns;
 
+import java.util.Calendar;
+
 /**
  * A provider of movement raw data (MovementDataContract.RawData) and
  * driving/biking data (MovementDataContract.Trips)
@@ -25,33 +27,30 @@ public class MovementDataContract {
     public static final Uri CONTENT_URI = Uri.parse("content://" + AUTHORITY);
 
     /**
-     * Contains the user defined words.
+     * Contains raw data from activity recognition.
      */
     public static class RawData implements BaseColumns {
-        /**
-         * The content:// style URL for this table
-         */
-        public static final Uri CONTENT_URI =
-                Uri.parse("content://" + AUTHORITY + "/rawdata");
-
+        public static final String URI_PART_ALL_CONTENT = "rawdata";
+        public static final String URI_PART_SINGLE_ITEM = URI_PART_ALL_CONTENT + "/#";
         /**
          * The MIME type of {@link #CONTENT_URI} providing the full raw data log.
          */
         public static final String CONTENT_TYPE = "vnd.android.cursor.dir/vnd.magnulund.rawdata";
-
+        /**
+         * The content:// style URL for this table
+         */
+        public static final Uri CONTENT_URI =
+                Uri.parse("content://" + AUTHORITY + "/" + URI_PART_ALL_CONTENT);
         /**
          * The MIME type of a {@link #CONTENT_URI} sub-directory of a single rawdata log entry.
          */
         public static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd.magnulund.rawdata";
-
         public static final String _ID = BaseColumns._ID;
-
         /**
          * The timestamp column. The timestamp for the detected activity in milliseconds.
          * <p>TYPE: INTEGER</p>
          */
         public static final String TIMESTAMP = "timestamp";
-
         /**
          * The activity type column. An integer corresponding to the detected activity (walking, driving, etc...)
          * according to [com.google.android.gms.location.DetectedActivity].
@@ -60,68 +59,79 @@ public class MovementDataContract {
         // --------IMPLEMENT OWN MAPPING BASED ON DetectedActivity SO WE CAN SHARE WITH APPS -------
         // -----------------------------WITHOUT PLAY SERVICES DEPENDENCIES????----------------------
         public static final String ACTIVITY_TYPE = "activity_type";
-
         /**
          * The confidence column. A value between 0 and 100. Higher values imply higher confidence.
          * <p>TYPE: INTEGER</p>
          */
         public static final String CONFIDENCE = "confidence";
-
         public static final String DEFAULT_SORT_ORDER = TIMESTAMP + " DESC " + CONFIDENCE + " DESC";
+        /**
+         * The confidence rank column. Ranking of activities for a certain timestamp with 0 being the highest rank.
+         * <p>TYPE: INTEGER</p>
+         */
+        public static final String CONFIDENCE_RANK = "confidence_rank";
+
         /**
          * Adds an entry to the rawdata log, with the given timestamp, activity type and confidence.
          *
-         * @param context       the current application context
-         * @param timestamp     the timestamp of the data entry
-         * @param activityType  the activity type
-         * @param confidence    the confidence
-        */
-        public static Uri addRawDataEntry(Context context, int timestamp,
-                                   int activityType, int confidence) {
+         * @param context        the current application context
+         * @param timestamp      the timestamp of the data entry
+         * @param activityType   the activity type
+         * @param confidence     the confidence
+         * @param confidenceRank the confidence rank
+         */
+        public static Uri addEntry(Context context, int timestamp,
+                                   int activityType, int confidence, int confidenceRank) {
             final ContentResolver resolver = context.getContentResolver();
 
-            final int COLUMN_COUNT = 3;
+            final int COLUMN_COUNT = 4;
             ContentValues values = new ContentValues(COLUMN_COUNT);
 
             values.put(TIMESTAMP, timestamp);
             values.put(ACTIVITY_TYPE, activityType);
             values.put(CONFIDENCE, confidence);
+            values.put(CONFIDENCE_RANK, confidenceRank);
 
             return resolver.insert(CONTENT_URI, values);
         }
+
+
     }
 
+    /**
+     * Contains data for detected trips.
+     */
     public static class Trips implements BaseColumns {
-        /**
-         * The content:// style URL for this table
-         */
-        public static final Uri CONTENT_URI =
-                Uri.parse("content://" + AUTHORITY + "/trips");
 
+
+        public static final String URI_PART_ALL_CONTENT = "trips";
+        public static final String URI_PART_SINGLE_ITEM = URI_PART_ALL_CONTENT + "/#";
         /**
          * The MIME type of {@link #CONTENT_URI} providing the full trip log.
          */
         public static final String CONTENT_TYPE = "vnd.android.cursor.dir/vnd.magnulund.trips";
-
+        /**
+         * The content:// style URL for this table
+         */
+        public static final Uri CONTENT_URI =
+                Uri.parse("content://" + AUTHORITY + "/" + URI_PART_ALL_CONTENT);
         /**
          * The MIME type of a {@link #CONTENT_URI} sub-directory of a single trip log entry.
          */
         public static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd.magnulund.trips";
 
         public static final String _ID = BaseColumns._ID;
-
         /**
          * The START_TIME column. The timestamp for the start of the trip in milliseconds.
          * <p>TYPE: INTEGER</p>
          */
         public static final String START_TIME = "start_time";
-
         /**
          * The END_TIME column. The timestamp for the end of the trip in milliseconds.
          * <p>TYPE: INTEGER</p>
          */
         public static final String END_TIME = "end_time";
-
+        public static final String DEFAULT_SORT_ORDER = END_TIME + " DESC ";
         /**
          * The trip type column. An integer corresponding to the detected trip (1 = DRIVING, 2 = BIKING).
          * <p>TYPE: INTEGER</p>
@@ -152,10 +162,8 @@ public class MovementDataContract {
          */
         public static final String END_LONGITUDE = "end_longitude";
 
-        public static final String DEFAULT_SORT_ORDER = END_TIME + " DESC ";
-
         /**
-         * Adds an entry to the rawdata log, with the given timestamp, activity type and confidence.
+         * Adds an entry to the trip database.
          *
          * @param context       the current application context
          * @param startTime     the timestamp of when the trip started
@@ -164,10 +172,10 @@ public class MovementDataContract {
          * @param startLocation the start location
          * @param endLocation   the end location (optional). end Location or null.
          */
-        public static Uri addTrip(Context context, int startTime,
-                                  Integer endTime, int tripType,
-                                  Location startLocation,
-                                  Location endLocation) {
+        protected static Uri addTrip(Context context, int startTime,
+                                     Integer endTime, int tripType,
+                                     Location startLocation,
+                                     Location endLocation) {
             final ContentResolver resolver = context.getContentResolver();
 
             final int COLUMN_COUNT = 7;
@@ -188,5 +196,64 @@ public class MovementDataContract {
                             Location.convert(endLocation.getLongitude(), Location.FORMAT_DEGREES));
             return resolver.insert(CONTENT_URI, values);
         }
+
+        /**
+         * Deletes an entry with a specific id from the Trip database.
+         *
+         * @param context the current application context
+         * @param tripID  the ID of the trip to be deleted
+         */
+        protected static int deleteTripByID(Context context, int tripID) {
+            final ContentResolver resolver = context.getContentResolver();
+
+            String selection = _ID + " = ?";
+
+            String[] selectionArgs = {Integer.toString(tripID)};
+
+            Uri uri = Uri.parse("content://" + AUTHORITY + URI_PART_SINGLE_ITEM);
+
+            return resolver.delete(uri, selection, selectionArgs);
+        }
+
+        /**
+         * Deletes all entries from the Trip database.
+         *
+         * @param context the current application context
+         */
+        protected static int deleteAllTrips(Context context) {
+            final ContentResolver resolver = context.getContentResolver();
+
+            String selection = "*";
+
+            String[] selectionArgs = {};
+
+            Uri uri = Uri.parse("content://" + AUTHORITY + URI_PART_ALL_CONTENT);
+
+            return resolver.delete(uri, selection, selectionArgs);
+        }
+
+        /**
+         * Deletes entries older than a specified age from the trip database.
+         *
+         * @param context           the current application context
+         * @param maxAllowedTripAge the maximum allowed trip age in milliseconds
+         */
+        protected static int deleteOldTrips(Context context, int maxAllowedTripAge) {
+            final ContentResolver resolver = context.getContentResolver();
+
+            String selection = END_TIME + " < ?";
+
+            Calendar now = Calendar.getInstance();
+
+            final int dateCutoff = (int) now.getTimeInMillis() - maxAllowedTripAge;
+
+            String[] selectionArgs = {Integer.toString(dateCutoff)};
+
+            Uri uri = Uri.parse("content://" + AUTHORITY + URI_PART_ALL_CONTENT);
+
+            return resolver.delete(uri, selection, selectionArgs);
+        }
+
+
     }
 }

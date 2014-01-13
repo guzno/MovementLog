@@ -23,17 +23,9 @@ public class MovementDataProvider extends ContentProvider {
     public static final String AUTHORITY = MovementDataContract.AUTHORITY;
 
     public static final Uri CONTENT_URI = MovementDataContract.CONTENT_URI;
-
-    private SQLiteDatabase db;
-
     private static final String DATABASE_NAME = "movement_data.db";
-
     private static final String RAWDATA_TABLE_NAME = "rawdata";
-
     private static final String TRIPS_TABLE_NAME = "trips";
-
-    private static final int DATABASE_VERSION = 1;
-
     private static final String DATABASE_CREATE =
             "create table " + RAWDATA_TABLE_NAME + "("
                     + MovementDataContract.RawData._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
@@ -51,47 +43,16 @@ public class MovementDataProvider extends ContentProvider {
                     + MovementDataContract.Trips.END_LATITUDE + " TEXT, "
                     + MovementDataContract.Trips.END_LONGITUDE + " TEXT)"
                     + ");";
-
-    private static HashMap<String, String> rawdataProjectionMap;
-
-    private static HashMap<String, String> tripsProjectionMap;
-
+    private static final int DATABASE_VERSION = 1;
     private static final UriMatcher uriMatcher;
-
     private static final int RAWDATA = 1;
-
     private static final int RAWDATA_ENTRY = 2;
-
     private static final int TRIPS = 3;
-
     private static final int TRIP_ENTRY = 4;
-
+    private static HashMap<String, String> rawdataProjectionMap;
+    private static HashMap<String, String> tripsProjectionMap;
+    private SQLiteDatabase db;
     private DatabaseHelper dbHelper;
-
-    /**
-     * Helper class that actually creates and manages the provider's underlying data repository.
-     */
-    private static class DatabaseHelper extends SQLiteOpenHelper {
-        DatabaseHelper(Context context) {
-            super(context, DATABASE_NAME, null, DATABASE_VERSION);
-        }
-
-        @Override
-        public void onCreate(SQLiteDatabase db) {
-            db.execSQL(DATABASE_CREATE);
-        }
-
-        @Override
-        public void onUpgrade(SQLiteDatabase db, int oldVersion,
-                              int newVersion) {
-            Log.w("Content provider database",
-                    "Upgrading database from version " +
-                            oldVersion + " to " + newVersion +
-                            ", which will destroy all old data");
-            db.execSQL("DROP TABLE IF EXISTS titles");
-            onCreate(db);
-        }
-    }
 
     @Override
     public boolean onCreate() {
@@ -172,7 +133,6 @@ public class MovementDataProvider extends ContentProvider {
         return cursor;
     }
 
-
     @Override
     public String getType(Uri uri) {
         switch (uriMatcher.match(uri)) {
@@ -191,7 +151,6 @@ public class MovementDataProvider extends ContentProvider {
                 throw new IllegalArgumentException("Unsupported URI: " + uri);
         }
     }
-
 
     // create/open the database
     private void getDatabase() {
@@ -286,7 +245,6 @@ public class MovementDataProvider extends ContentProvider {
 
         throw new SQLException("Failed to insert row into " + uri + " - " + TAG);
     }
-
 
     @Override
     public int delete(Uri uri, String selection, String[] selectionArgs) {
@@ -398,16 +356,17 @@ public class MovementDataProvider extends ContentProvider {
 
     static {
         uriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
-        uriMatcher.addURI(AUTHORITY, "rawdata", RAWDATA);
-        uriMatcher.addURI(AUTHORITY, "rawdata/#", RAWDATA_ENTRY);
-        uriMatcher.addURI(AUTHORITY, "trips", TRIPS);
-        uriMatcher.addURI(AUTHORITY, "trips/#", TRIP_ENTRY);
+        uriMatcher.addURI(AUTHORITY, MovementDataContract.RawData.URI_PART_ALL_CONTENT, RAWDATA);
+        uriMatcher.addURI(AUTHORITY, MovementDataContract.RawData.URI_PART_SINGLE_ITEM, RAWDATA_ENTRY);
+        uriMatcher.addURI(AUTHORITY, MovementDataContract.Trips.URI_PART_ALL_CONTENT, TRIPS);
+        uriMatcher.addURI(AUTHORITY, MovementDataContract.Trips.URI_PART_SINGLE_ITEM, TRIP_ENTRY);
 
         rawdataProjectionMap = new HashMap<String, String>();
         rawdataProjectionMap.put(MovementDataContract.RawData._ID, MovementDataContract.RawData._ID);
         rawdataProjectionMap.put(MovementDataContract.RawData.TIMESTAMP, MovementDataContract.RawData.TIMESTAMP);
         rawdataProjectionMap.put(MovementDataContract.RawData.ACTIVITY_TYPE, MovementDataContract.RawData.ACTIVITY_TYPE);
         rawdataProjectionMap.put(MovementDataContract.RawData.CONFIDENCE, MovementDataContract.RawData.CONFIDENCE);
+        rawdataProjectionMap.put(MovementDataContract.RawData.CONFIDENCE_RANK, MovementDataContract.RawData.CONFIDENCE_RANK);
 
         tripsProjectionMap = new HashMap<String, String>();
         tripsProjectionMap.put(MovementDataContract.Trips._ID, MovementDataContract.Trips._ID);
@@ -419,6 +378,31 @@ public class MovementDataProvider extends ContentProvider {
         tripsProjectionMap.put(MovementDataContract.Trips.END_LATITUDE, MovementDataContract.Trips.END_LATITUDE);
         tripsProjectionMap.put(MovementDataContract.Trips.END_LONGITUDE, MovementDataContract.Trips.END_LONGITUDE);
 
+    }
+
+    /**
+     * Helper class that actually creates and manages the provider's underlying data repository.
+     */
+    private static class DatabaseHelper extends SQLiteOpenHelper {
+        DatabaseHelper(Context context) {
+            super(context, DATABASE_NAME, null, DATABASE_VERSION);
+        }
+
+        @Override
+        public void onCreate(SQLiteDatabase db) {
+            db.execSQL(DATABASE_CREATE);
+        }
+
+        @Override
+        public void onUpgrade(SQLiteDatabase db, int oldVersion,
+                              int newVersion) {
+            Log.w("Content provider database",
+                    "Upgrading database from version " +
+                            oldVersion + " to " + newVersion +
+                            ", which will destroy all old data");
+            db.execSQL("DROP TABLE IF EXISTS titles");
+            onCreate(db);
+        }
     }
 
 }
