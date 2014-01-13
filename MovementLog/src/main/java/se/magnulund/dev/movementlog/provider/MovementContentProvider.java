@@ -1,4 +1,4 @@
-package se.magnulund.dev.movementlog;
+package se.magnulund.dev.movementlog.provider;
 
 import android.content.ContentProvider;
 import android.content.ContentUris;
@@ -83,7 +83,7 @@ public class MovementContentProvider extends ContentProvider {
          * Notice that the database itself isn't created or opened
          * until SQLiteOpenHelper.getWritableDatabase is called
          */
-        DatabaseHelper dbHelper = new DatabaseHelper(getContext());
+        dbHelper = new DatabaseHelper(getContext());
         return true;
     }
 

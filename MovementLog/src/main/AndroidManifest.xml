@@ -38,7 +38,7 @@
             android:exported="false" />
 
         <provider
-            android:name="se.magnulund.dev.movementlog.MovementContentProvider"
+            android:name=".provider.MovementContentProvider"
             android:authorities="se.magnulund.dev.movementlog.provider"
             android:enabled="true"
             android:exported="true" >
