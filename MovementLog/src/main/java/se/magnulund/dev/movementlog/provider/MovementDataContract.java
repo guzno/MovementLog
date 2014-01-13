@@ -9,10 +9,10 @@ import android.net.Uri;
 import android.provider.BaseColumns;
 
 /**
- * A provider of movement raw data (MovementProviderContract.RawData) and
- * driving/biking data (MovementProviderContract.Trips)
+ * A provider of movement raw data (MovementDataContract.RawData) and
+ * driving/biking data (MovementDataContract.Trips)
  */
-public class MovementProviderContract {
+public class MovementDataContract {
 
     /**
      * Authority string for this provider.
@@ -68,9 +68,8 @@ public class MovementProviderContract {
         public static final String CONFIDENCE = "confidence";
 
         public static final String DEFAULT_SORT_ORDER = TIMESTAMP + " DESC " + CONFIDENCE + " DESC";
-/*
         /**
-         * Adds an entry to the raw data log, with the given timestamp, activity type and confidence.
+         * Adds an entry to the rawdata log, with the given timestamp, activity type and confidence.
          *
          * @param context       the current application context
          * @param timestamp     the timestamp of the data entry
@@ -156,7 +155,7 @@ public class MovementProviderContract {
         public static final String DEFAULT_SORT_ORDER = END_TIME + " DESC ";
 
         /**
-         * Adds an entry to the raw data log, with the given timestamp, activity type and confidence.
+         * Adds an entry to the rawdata log, with the given timestamp, activity type and confidence.
          *
          * @param context       the current application context
          * @param startTime     the timestamp of when the trip started
