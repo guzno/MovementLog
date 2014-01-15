@@ -4,18 +4,22 @@ package se.magnulund.dev.movementlog.provider;// Created by Gustav on 12/01/2014
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
+import android.database.Cursor;
 import android.location.Location;
 import android.net.Uri;
 import android.provider.BaseColumns;
+import android.util.Log;
 
 import java.util.Calendar;
+
+import se.magnulund.dev.movementlog.DetectedMovement;
 
 /**
  * A provider of movement raw data (MovementDataContract.RawData) and
  * driving/biking data (MovementDataContract.Trips)
  */
 public class MovementDataContract {
-
+    private static final String TAG = "MovementDataContract";
     /**
      * Authority string for this provider.
      */
@@ -45,6 +49,7 @@ public class MovementDataContract {
          * The MIME type of a {@link #CONTENT_URI} sub-directory of a single rawdata log entry.
          */
         public static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd.magnulund.rawdata";
+
         public static final String _ID = BaseColumns._ID;
         /**
          * The timestamp column. The timestamp for the detected activity in milliseconds.
@@ -64,35 +69,56 @@ public class MovementDataContract {
          * <p>TYPE: INTEGER</p>
          */
         public static final String CONFIDENCE = "confidence";
-        public static final String DEFAULT_SORT_ORDER = TIMESTAMP + " DESC " + CONFIDENCE + " DESC";
         /**
          * The confidence rank column. Ranking of activities for a certain timestamp with 0 being the highest rank.
          * <p>TYPE: INTEGER</p>
          */
         public static final String CONFIDENCE_RANK = "confidence_rank";
 
+        public static final String DEFAULT_SORT_ORDER = TIMESTAMP + " DESC, " + CONFIDENCE + " DESC";
+
+        public static final String[] DEFAULT_PROJECTION = {_ID, TIMESTAMP, ACTIVITY_TYPE, CONFIDENCE, CONFIDENCE_RANK};
+
         /**
          * Adds an entry to the rawdata log, with the given timestamp, activity type and confidence.
          *
-         * @param context        the current application context
-         * @param timestamp      the timestamp of the data entry
-         * @param activityType   the activity type
-         * @param confidence     the confidence
-         * @param confidenceRank the confidence rank
+         * @param context           the current application context
+         * @param detectedMovement  the detected movement
          */
-        public static Uri addEntry(Context context, int timestamp,
-                                   int activityType, int confidence, int confidenceRank) {
+        public static Uri addEntry(Context context, DetectedMovement detectedMovement) {
             final ContentResolver resolver = context.getContentResolver();
 
             final int COLUMN_COUNT = 4;
             ContentValues values = new ContentValues(COLUMN_COUNT);
 
-            values.put(TIMESTAMP, timestamp);
-            values.put(ACTIVITY_TYPE, activityType);
-            values.put(CONFIDENCE, confidence);
-            values.put(CONFIDENCE_RANK, confidenceRank);
+            values.put(TIMESTAMP, detectedMovement.getTimestamp());
+            values.put(ACTIVITY_TYPE, detectedMovement.getType());
+            values.put(CONFIDENCE, detectedMovement.getConfidence());
+            values.put(CONFIDENCE_RANK, detectedMovement.getRank());
 
             return resolver.insert(CONTENT_URI, values);
+        }
+
+        public static Cursor getEntryByID(Context context, int id) {
+            final ContentResolver resolver = context.getContentResolver();
+
+            Uri uri = CONTENT_URI.buildUpon().appendPath(Integer.toString(id)).build();
+            Log.e(TAG, "getEntryByID - "+uri);
+            if (uri != null){
+                return resolver.query(uri, DEFAULT_PROJECTION, null, null, DEFAULT_SORT_ORDER);
+            }
+
+            return null;
+        }
+
+        public static Cursor getEntry(Context context, Uri singleEntryUri) {
+            final ContentResolver resolver = context.getContentResolver();
+
+            if (singleEntryUri != null){
+                return resolver.query(singleEntryUri, DEFAULT_PROJECTION, null, null, DEFAULT_SORT_ORDER);
+            }
+
+            return null;
         }
 
 
@@ -131,7 +157,6 @@ public class MovementDataContract {
          * <p>TYPE: INTEGER</p>
          */
         public static final String END_TIME = "end_time";
-        public static final String DEFAULT_SORT_ORDER = END_TIME + " DESC ";
         /**
          * The trip type column. An integer corresponding to the detected trip (1 = DRIVING, 2 = BIKING).
          * <p>TYPE: INTEGER</p>
@@ -161,6 +186,8 @@ public class MovementDataContract {
          * <p>TYPE: STRING</p>
          */
         public static final String END_LONGITUDE = "end_longitude";
+
+        public static final String DEFAULT_SORT_ORDER = END_TIME + " DESC";
 
         /**
          * Adds an entry to the trip database.

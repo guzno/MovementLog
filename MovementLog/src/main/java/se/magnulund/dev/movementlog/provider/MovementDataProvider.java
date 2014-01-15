@@ -26,14 +26,16 @@ public class MovementDataProvider extends ContentProvider {
     private static final String DATABASE_NAME = "movement_data.db";
     private static final String RAWDATA_TABLE_NAME = "rawdata";
     private static final String TRIPS_TABLE_NAME = "trips";
-    private static final String DATABASE_CREATE =
+    private static final String RAWDATA_TABLE_CREATE =
             "create table " + RAWDATA_TABLE_NAME + "("
                     + MovementDataContract.RawData._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
                     + MovementDataContract.RawData.TIMESTAMP + " INTEGER, "
                     + MovementDataContract.RawData.ACTIVITY_TYPE + " INTEGER, "
-                    + MovementDataContract.RawData.CONFIDENCE + "INTEGER"
-                    + ");"
-                    + "create table " + TRIPS_TABLE_NAME + "("
+                    + MovementDataContract.RawData.CONFIDENCE + " INTEGER, "
+                    + MovementDataContract.RawData.CONFIDENCE_RANK + " INTEGER"
+                    + ");";
+    private static final String TRIPS_TABLE_CREATE =
+                    "create table " + TRIPS_TABLE_NAME + "("
                     + MovementDataContract.Trips._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
                     + MovementDataContract.Trips.START_TIME + " INTEGER, "
                     + MovementDataContract.Trips.END_TIME + " INTEGER, "
@@ -41,7 +43,7 @@ public class MovementDataProvider extends ContentProvider {
                     + MovementDataContract.Trips.START_LATITUDE + " TEXT, "
                     + MovementDataContract.Trips.START_LONGITUDE + " TEXT, "
                     + MovementDataContract.Trips.END_LATITUDE + " TEXT, "
-                    + MovementDataContract.Trips.END_LONGITUDE + " TEXT)"
+                    + MovementDataContract.Trips.END_LONGITUDE + " TEXT"
                     + ");";
     private static final int DATABASE_VERSION = 1;
     private static final UriMatcher uriMatcher;
@@ -76,18 +78,22 @@ public class MovementDataProvider extends ContentProvider {
             case RAWDATA_ENTRY:
                 qb.setTables(RAWDATA_TABLE_NAME);
                 qb.setProjectionMap(rawdataProjectionMap);
+                Log.e(TAG, "RAWDATA_ENTRY");
                 if (uri.getPathSegments() != null) {
                     qb.appendWhere(
                             MovementDataContract.RawData._ID + " = " + uri.getPathSegments().get(1));
+                    Log.e(TAG, MovementDataContract.RawData._ID + " = " + uri.getPathSegments().get(1));
                 }
                 break;
             case RAWDATA:
                 qb.setTables(RAWDATA_TABLE_NAME);
                 qb.setProjectionMap(rawdataProjectionMap);
+                Log.e(TAG, "RAWDATA");
                 break;
             case TRIP_ENTRY:
                 qb.setTables(TRIPS_TABLE_NAME);
                 qb.setProjectionMap(tripsProjectionMap);
+                Log.e(TAG, "TRIP_ENTRY");
                 if (uri.getPathSegments() != null) {
                     qb.appendWhere(
                             MovementDataContract.Trips._ID + " = " + uri.getPathSegments().get(1));
@@ -96,6 +102,7 @@ public class MovementDataProvider extends ContentProvider {
             case TRIPS:
                 qb.setTables(RAWDATA_TABLE_NAME);
                 qb.setProjectionMap(tripsProjectionMap);
+                Log.e(TAG, "TRIPS");
                 break;
             default:
         }
@@ -236,7 +243,7 @@ public class MovementDataProvider extends ContentProvider {
         // if added successfully
         if (rowID > 0) {
             // Get uri and notify about change
-            Uri insertUri = ContentUris.withAppendedId(CONTENT_URI, rowID);
+            Uri insertUri = ContentUris.withAppendedId(uri, rowID);
             if (getContext() != null) {
                 getContext().getContentResolver().notifyChange(insertUri, null);
             }
@@ -390,7 +397,9 @@ public class MovementDataProvider extends ContentProvider {
 
         @Override
         public void onCreate(SQLiteDatabase db) {
-            db.execSQL(DATABASE_CREATE);
+            db.execSQL(RAWDATA_TABLE_CREATE);
+            db.execSQL(TRIPS_TABLE_CREATE);
+            Log.e(TAG, "DATABASE CREATED");
         }
 
         @Override
