@@ -40,6 +40,16 @@ public class MovementLogProviderTestCase extends ProviderTestCase2<MovementDataP
      * Raw data provider tests (MovementDataContract.RawData)
      */
 
+
+    /**
+     * Tests insert of single item and checks the inserted data against the original data using 3
+     * separate query methods.
+     * Methods:
+     *      MovementDataContract.RawData.addEntry()
+     *      MovementDataContract.RawData.getEntryByID()
+     *      MovementDataContract.RawData.getEntry()
+     *      resolver.query() on single item URI
+     */
     public void test_mdcRawData_insertRowAndCheckResult() {
 
         DetectedActivity detectedActivity = new DetectedActivity(DetectedActivity.IN_VEHICLE, 100);

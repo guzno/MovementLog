@@ -133,24 +133,7 @@ public class MovementDataContract {
         }
 
         /**
-         * Deletes an entry with a specific id from the Trip database.
-         *
-         * @param context the current application context
-         * @param tripID  the ID of the trip to be deleted
-         */
-        public static int deleteEntryByID(Context context, long tripID) {
-            final ContentResolver resolver = context.getContentResolver();
-
-            Uri uri = ContentUris.withAppendedId(CONTENT_URI, tripID);
-
-            if (uri != null) {
-                return resolver.delete(uri, null, null);
-            }
-            return -1;
-        }
-
-        /**
-         * Deletes all entries from the Trip database.
+         * Deletes all entries from the raw data database.
          *
          * @param context the current application context
          */
@@ -161,21 +144,17 @@ public class MovementDataContract {
         }
 
         /**
-         * Deletes entries older than a specified age from the trip database.
+         * Deletes entries older than a specified time from the raw data database.
          *
-         * @param context            the current application context
-         * @param maxAllowedEntryAge the maximum allowed trip age in milliseconds
+         * @param context               the current application context
+         * @param maxAllowedEntryTime   the maximum allowed raw data timestamp in milliseconds
          */
-        public static int deleteOldEntries(Context context, int maxAllowedEntryAge) {
+        public static int deleteOldEntries(Context context, int maxAllowedEntryTime) {
             final ContentResolver resolver = context.getContentResolver();
 
             String selection = TIMESTAMP + " < ?";
 
-            Calendar now = Calendar.getInstance();
-
-            final int dateCutoff = (int) now.getTimeInMillis() - maxAllowedEntryAge;
-
-            String[] selectionArgs = {Integer.toString(dateCutoff)};
+            String[] selectionArgs = {Integer.toString(maxAllowedEntryTime)};
 
             return resolver.delete(CONTENT_URI, selection, selectionArgs);
         }
