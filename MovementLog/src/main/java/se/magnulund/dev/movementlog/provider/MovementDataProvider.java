@@ -37,9 +37,9 @@ public class MovementDataProvider extends ContentProvider {
     private static final String TRIPS_TABLE_CREATE =
                     "create table " + TRIPS_TABLE_NAME + "("
                     + MovementDataContract.Trips._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
-                    + MovementDataContract.Trips.START_TIME + " INTEGER, "
+                    + MovementDataContract.Trips.START_TIME + " INTEGER NOT NULL, "
                     + MovementDataContract.Trips.END_TIME + " INTEGER, "
-                    + MovementDataContract.Trips.TRIP_TYPE + " INTEGER,"
+                    + MovementDataContract.Trips.TRIP_TYPE + " INTEGER NOT NULL,"
                     + MovementDataContract.Trips.START_LATITUDE + " TEXT, "
                     + MovementDataContract.Trips.START_LONGITUDE + " TEXT, "
                     + MovementDataContract.Trips.END_LATITUDE + " TEXT, "
@@ -192,42 +192,48 @@ public class MovementDataProvider extends ContentProvider {
 
         switch (match) {
             case RAWDATA:
-                if (contentValues.containsKey(MovementDataContract.RawData.TIMESTAMP) == false) {
+                if (!contentValues.containsKey(MovementDataContract.RawData.TIMESTAMP)) {
                     throw new SQLException("Timestamp must be specified");
                 }
-                if (contentValues.containsKey(MovementDataContract.RawData.ACTIVITY_TYPE) == false) {
+                if (!contentValues.containsKey(MovementDataContract.RawData.ACTIVITY_TYPE)) {
                     throw new SQLException("Activity type must be specified");
                 }
-                if (contentValues.containsKey(MovementDataContract.RawData.CONFIDENCE) == false) {
+                if (!contentValues.containsKey(MovementDataContract.RawData.CONFIDENCE)) {
                     throw new SQLException("Confidence must be specified");
+                }
+                if (!contentValues.containsKey(MovementDataContract.RawData.CONFIDENCE_RANK)) {
+                    throw new SQLException("Confidence rank must be specified");
                 }
 
                 dbTable = RAWDATA_TABLE_NAME;
 
                 break;
             case TRIPS:
-                if (contentValues.containsKey(MovementDataContract.Trips.START_TIME) == false) {
+                if (!contentValues.containsKey(MovementDataContract.Trips.START_TIME)) {
                     throw new SQLException("Start time must be specified");
                 }
-                if (contentValues.containsKey(MovementDataContract.Trips.TRIP_TYPE) == false) {
+                if (!contentValues.containsKey(MovementDataContract.Trips.TRIP_TYPE)) {
                     throw new SQLException("Trip type must be specified");
                 }
-                if (contentValues.containsKey(MovementDataContract.Trips.START_LATITUDE) == false) {
-                    throw new SQLException("Start latitude must be specified");
+
+                // probably not needed...
+/*                if (!contentValues.containsKey(MovementDataContract.Trips.START_LATITUDE)) {
+                    contentValues.put(MovementDataContract.Trips.START_LATITUDE, (String) null);
                 }
-                if (contentValues.containsKey(MovementDataContract.Trips.START_LONGITUDE) == false) {
-                    throw new SQLException("Start longitude must be specified");
+                if (!contentValues.containsKey(MovementDataContract.Trips.START_LONGITUDE)) {
+                    contentValues.put(MovementDataContract.Trips.START_LONGITUDE, (String) null);
                 }
 
-                if (contentValues.containsKey(MovementDataContract.Trips.END_TIME) == false) {
+                if (!contentValues.containsKey(MovementDataContract.Trips.END_TIME)) {
                     contentValues.put(MovementDataContract.Trips.END_TIME, (String) null);
                 }
-                if (contentValues.containsKey(MovementDataContract.Trips.END_LATITUDE) == false) {
+
+                if (!contentValues.containsKey(MovementDataContract.Trips.END_LATITUDE)) {
                     contentValues.put(MovementDataContract.Trips.END_LATITUDE, (String) null);
                 }
-                if (contentValues.containsKey(MovementDataContract.Trips.END_LONGITUDE) == false) {
+                if (!contentValues.containsKey(MovementDataContract.Trips.END_LONGITUDE)) {
                     contentValues.put(MovementDataContract.Trips.END_LONGITUDE, (String) null);
-                }
+                } */
 
                 dbTable = TRIPS_TABLE_NAME;
 
@@ -314,15 +320,17 @@ public class MovementDataProvider extends ContentProvider {
         int count = 0;
         switch (uriMatcher.match(uri)) {
             case RAWDATA:
-                count = db.delete(
+                count = db.update(
                         RAWDATA_TABLE_NAME,
+                        values,
                         selection,
                         selectionArgs);
                 break;
             case RAWDATA_ENTRY:
                 if (uri.getPathSegments() != null) {
-                    count = db.delete(
+                    count = db.update(
                             RAWDATA_TABLE_NAME,
+                            values,
                             MovementDataContract.RawData._ID + " = "
                                     + uri.getPathSegments().get(1)
                                     + (!TextUtils.isEmpty(selection) ?
@@ -333,15 +341,17 @@ public class MovementDataProvider extends ContentProvider {
 
                 break;
             case TRIPS:
-                count = db.delete(
+                count = db.update(
                         TRIPS_TABLE_NAME,
+                        values,
                         selection,
                         selectionArgs);
                 break;
             case TRIP_ENTRY:
                 if (uri.getPathSegments() != null) {
-                    count = db.delete(
+                    count = db.update(
                             TRIPS_TABLE_NAME,
+                            values,
                             MovementDataContract.Trips._ID + " = "
                                     + uri.getPathSegments().get(1)
                                     + (!TextUtils.isEmpty(selection) ?
@@ -353,7 +363,7 @@ public class MovementDataProvider extends ContentProvider {
                 break;
             default:
                 throw new IllegalArgumentException(
-                        "Unknown URI " + selection);
+                        "Unknown URI " + uri);
         }
         if (getContext() != null && count > 0) {
             getContext().getContentResolver().notifyChange(uri, null);

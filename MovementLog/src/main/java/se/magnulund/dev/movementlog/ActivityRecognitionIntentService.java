@@ -1,12 +1,18 @@
 package se.magnulund.dev.movementlog;
 
 import android.app.IntentService;
+import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.IBinder;
 import android.util.Log;
 
 import com.google.android.gms.location.ActivityRecognitionResult;
 import com.google.android.gms.location.DetectedActivity;
+
+import java.util.Calendar;
+
+import se.magnulund.dev.movementlog.provider.MovementDataContract;
 
 public class ActivityRecognitionIntentService extends IntentService {
 
@@ -31,16 +37,29 @@ public class ActivityRecognitionIntentService extends IntentService {
             ActivityRecognitionResult result = ActivityRecognitionResult.extractResult(intent);
             // Get the most probable activity
             DetectedActivity mostProbableActivity = result.getMostProbableActivity();
+
+            int timestamp = (int) Calendar.getInstance().getTimeInMillis();
+
+            DetectedMovement detectedMovement = new DetectedMovement(mostProbableActivity, timestamp, 0);
+
+            Uri dataEntry = MovementDataContract.RawData.addEntry(this, detectedMovement);
+
+            if (dataEntry != null && dataEntry.getPathSegments() != null){
+                Log.d(TAG, "woho! I data entered with ID: " + dataEntry.getPathSegments().get(1));
+            } else {
+                Log.d(TAG, "krep! Data entry failed!");
+            }
+
             /*
              * Get the probability that this activity is the
              * the user's actual activity
              */
-            int confidence = mostProbableActivity.getConfidence();
+            //int confidence = mostProbableActivity.getConfidence();
             /*
              * Get an integer describing the type of activity
              */
-            int activityType = mostProbableActivity.getType();
-            String activityName = getNameFromType(activityType);
+            //int activityType = mostProbableActivity.getType();
+            //String activityName = getNameFromType(activityType);
             /*
              * At this point, you have retrieved all the information
              * for the current update. You can display this
@@ -48,7 +67,8 @@ public class ActivityRecognitionIntentService extends IntentService {
              * send it to an Activity or Service in a broadcast
              * Intent.
              */
-            Log.d(TAG, "woho! I has datas! " + confidence + " and name " + activityName);
+
+            //Log.d(TAG, "woho! I has datas! " + confidence + " and name " + activityName);
         } else {
             /*
              * This implementation ignores intents that don't contain

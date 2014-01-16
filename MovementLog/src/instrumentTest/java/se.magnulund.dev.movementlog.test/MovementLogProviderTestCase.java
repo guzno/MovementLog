@@ -1,6 +1,7 @@
 package se.magnulund.dev.movementlog.test;// Created by Gustav on 14/01/2014.
 
 import android.content.ContentResolver;
+import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 import android.test.ProviderTestCase2;
@@ -58,79 +59,37 @@ public class MovementLogProviderTestCase extends ProviderTestCase2<MovementDataP
 
         // check if getEntryByID works
 
-        Cursor cursorByID = MovementDataContract.RawData.getEntryByID(getMockContext(), resultID);
+        Cursor cursor = MovementDataContract.RawData.getEntryByID(getMockContext(), resultID);
 
-        Log.e(TAG, "cols: "+cursorByID.getColumnCount());
+        assertNotNull("MovementDataContract.RawData.getEntryByID() returned a null Cursor", cursor);
 
-        int i = cursorByID.getColumnIndex(MovementDataContract.RawData.ACTIVITY_TYPE);
+        cursor.moveToFirst();
 
-        assertTrue(i > -1);
+        DetectedMovement storedMovement = DetectedMovement.fromCursor(cursor);
 
-        cursorByID.moveToFirst();
-
-        int activity_type = cursorByID.getInt(i);
-
-        i = cursorByID.getColumnIndex(MovementDataContract.RawData.CONFIDENCE);
-
-        assertTrue(i > -1);
-
-        int confidence = cursorByID.getInt(i);
-
-        i = cursorByID.getColumnIndex(MovementDataContract.RawData.TIMESTAMP);
-
-        assertTrue(i > -1);
-
-        int timestamp = cursorByID.getInt(i);
-
-        i = cursorByID.getColumnIndex(MovementDataContract.RawData.CONFIDENCE_RANK);
-
-        assertTrue(i > -1);
-
-        int confidence_rank = cursorByID.getInt(i);
-
-        assertEquals(detectedMovement.getType(), activity_type);
-        assertEquals(detectedMovement.getConfidence(), confidence);
-        assertEquals(detectedMovement.getTimestamp(), timestamp);
-        assertEquals(detectedMovement.getRank(), confidence_rank);
+        assertEquals(detectedMovement.getType(), storedMovement.getType());
+        assertEquals(detectedMovement.getConfidence(), storedMovement.getConfidence());
+        assertEquals(detectedMovement.getTimestamp(), storedMovement.getTimestamp());
+        assertEquals(detectedMovement.getRank(), storedMovement.getRank());
 
         // check if getEntry works
 
-        Cursor cursorByUri = MovementDataContract.RawData.getEntry(getMockContext(), result);
+        cursor = MovementDataContract.RawData.getEntry(getMockContext(), result);
 
-        cursorByUri.moveToFirst();
+        assertNotNull("MovementDataContract.RawData.getEntry() returned a null Cursor", cursor);
 
-        i = cursorByUri.getColumnIndex(MovementDataContract.RawData.ACTIVITY_TYPE);
+        cursor.moveToFirst();
 
-        assertTrue(i > -1);
+        storedMovement = DetectedMovement.fromCursor(cursor);
 
-        activity_type = cursorByUri.getInt(i);
-
-        i = cursorByUri.getColumnIndex(MovementDataContract.RawData.CONFIDENCE);
-
-        assertTrue(i > -1);
-
-        confidence = cursorByUri.getInt(i);
-
-        i = cursorByUri.getColumnIndex(MovementDataContract.RawData.TIMESTAMP);
-
-        assertTrue(i > -1);
-
-        timestamp = cursorByUri.getInt(i);
-
-        i = cursorByUri.getColumnIndex(MovementDataContract.RawData.CONFIDENCE_RANK);
-
-        assertTrue(i > -1);
-
-        confidence_rank = cursorByUri.getInt(i);
-
-        assertEquals(detectedMovement.getType(), activity_type);
-        assertEquals(detectedMovement.getConfidence(), confidence);
-        assertEquals(detectedMovement.getTimestamp(), timestamp);
-        assertEquals(detectedMovement.getRank(), confidence_rank);
+        assertEquals(detectedMovement.getType(), storedMovement.getType());
+        assertEquals(detectedMovement.getConfidence(), storedMovement.getConfidence());
+        assertEquals(detectedMovement.getTimestamp(), storedMovement.getTimestamp());
+        assertEquals(detectedMovement.getRank(), storedMovement.getRank());
 
         //check ContentResolver
 
-        Cursor cursor = resolver.query(
+        cursor = resolver.query(
                 result,
                 MovementDataContract.RawData.DEFAULT_PROJECTION,
                 null,
@@ -138,38 +97,16 @@ public class MovementLogProviderTestCase extends ProviderTestCase2<MovementDataP
                 MovementDataContract.RawData.DEFAULT_SORT_ORDER
         );
 
-        assertNotNull(cursor);
+        assertNotNull("Contentresolver returned a null Cursor", cursor);
 
         cursor.moveToFirst();
 
-        i = cursor.getColumnIndex(MovementDataContract.RawData.ACTIVITY_TYPE);
+        storedMovement = DetectedMovement.fromCursor(cursor);
 
-        assertTrue(i > -1);
-
-        activity_type = cursor.getInt(i);
-
-        i = cursor.getColumnIndex(MovementDataContract.RawData.CONFIDENCE);
-
-        assertTrue(i > -1);
-
-        confidence = cursor.getInt(i);
-
-        i = cursor.getColumnIndex(MovementDataContract.RawData.TIMESTAMP);
-
-        assertTrue(i > -1);
-
-        timestamp = cursor.getInt(i);
-
-        i = cursor.getColumnIndex(MovementDataContract.RawData.CONFIDENCE_RANK);
-
-        assertTrue(i > -1);
-
-        confidence_rank = cursor.getInt(i);
-
-        assertEquals(detectedMovement.getType(), activity_type);
-        assertEquals(detectedMovement.getConfidence(), confidence);
-        assertEquals(detectedMovement.getTimestamp(), timestamp);
-        assertEquals(detectedMovement.getRank(), confidence_rank);
+        assertEquals(detectedMovement.getType(), storedMovement.getType());
+        assertEquals(detectedMovement.getConfidence(), storedMovement.getConfidence());
+        assertEquals(detectedMovement.getTimestamp(), storedMovement.getTimestamp());
+        assertEquals(detectedMovement.getRank(), storedMovement.getRank());
 
     }
 
