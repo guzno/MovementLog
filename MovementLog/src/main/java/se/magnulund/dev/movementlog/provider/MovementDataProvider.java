@@ -78,22 +78,20 @@ public class MovementDataProvider extends ContentProvider {
             case RAWDATA_ENTRY:
                 qb.setTables(RAWDATA_TABLE_NAME);
                 qb.setProjectionMap(rawdataProjectionMap);
-                Log.e(TAG, "RAWDATA_ENTRY");
+
                 if (uri.getPathSegments() != null) {
                     qb.appendWhere(
                             MovementDataContract.RawData._ID + " = " + uri.getPathSegments().get(1));
-                    Log.e(TAG, MovementDataContract.RawData._ID + " = " + uri.getPathSegments().get(1));
                 }
                 break;
             case RAWDATA:
                 qb.setTables(RAWDATA_TABLE_NAME);
                 qb.setProjectionMap(rawdataProjectionMap);
-                Log.e(TAG, "RAWDATA");
                 break;
             case TRIP_ENTRY:
                 qb.setTables(TRIPS_TABLE_NAME);
                 qb.setProjectionMap(tripsProjectionMap);
-                Log.e(TAG, "TRIP_ENTRY");
+
                 if (uri.getPathSegments() != null) {
                     qb.appendWhere(
                             MovementDataContract.Trips._ID + " = " + uri.getPathSegments().get(1));
@@ -102,7 +100,6 @@ public class MovementDataProvider extends ContentProvider {
             case TRIPS:
                 qb.setTables(RAWDATA_TABLE_NAME);
                 qb.setProjectionMap(tripsProjectionMap);
-                Log.e(TAG, "TRIPS");
                 break;
             default:
         }
@@ -123,6 +120,8 @@ public class MovementDataProvider extends ContentProvider {
         } else {
             orderBy = sortOrder;
         }
+
+        getDatabase();
 
         Cursor cursor = qb.query(
                 db,

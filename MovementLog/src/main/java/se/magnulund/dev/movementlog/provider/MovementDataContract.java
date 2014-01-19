@@ -10,6 +10,7 @@ import android.location.Location;
 import android.net.Uri;
 import android.provider.BaseColumns;
 
+import java.util.Arrays;
 import java.util.Calendar;
 
 import se.magnulund.dev.movementlog.DetectedMovement;
@@ -70,13 +71,16 @@ public class MovementDataContract {
          * <p>TYPE: INTEGER</p>
          */
         public static final String CONFIDENCE = "confidence";
-        public static final String DEFAULT_SORT_ORDER = TIMESTAMP + " DESC, " + CONFIDENCE + " DESC";
+
         /**
          * The confidence rank column. Ranking of activities for a certain timestamp with 0 being the highest rank.
          * <p>TYPE: INTEGER</p>
          */
         public static final String CONFIDENCE_RANK = "confidence_rank";
+
         public static final String[] DEFAULT_PROJECTION = {_ID, TIMESTAMP, ACTIVITY_TYPE, CONFIDENCE, CONFIDENCE_RANK};
+
+        public static final String DEFAULT_SORT_ORDER = TIMESTAMP + " DESC, " + CONFIDENCE + " DESC";
 
         /**
          * Adds an entry to the rawdata log, with the given timestamp, activity type and confidence.
@@ -133,6 +137,56 @@ public class MovementDataContract {
         }
 
         /**
+         * Returns a cursor to the full RawData table.
+         *
+         * @param context        the current application context
+         */
+        public static Cursor getCursor(Context context) {
+            final ContentResolver resolver = context.getContentResolver();
+            return resolver.query(CONTENT_URI, DEFAULT_PROJECTION, null, null, DEFAULT_SORT_ORDER);
+        }
+
+        /**
+         * Updates the stored information about a specific trip
+         *
+         * @param context          the current application context
+         * @param id               the id of the entry to be updated
+         * @param detectedMovement the DetectedMovement object containing the data to be stored
+         */
+        public static boolean updateEntry(Context context, long id, DetectedMovement detectedMovement) {
+            final ContentResolver resolver = context.getContentResolver();
+
+            Uri uri = ContentUris.withAppendedId(CONTENT_URI, id);
+
+            final int COLUMN_COUNT = 4;
+            ContentValues values = new ContentValues(COLUMN_COUNT);
+
+            values.put(TIMESTAMP, detectedMovement.getTimestamp());
+            values.put(ACTIVITY_TYPE, detectedMovement.getType());
+            values.put(CONFIDENCE, detectedMovement.getConfidence());
+            values.put(CONFIDENCE_RANK, detectedMovement.getRank());
+
+            return uri != null && resolver.update(uri, values, null, null) > 0;
+        }
+
+        /**
+         * Deletes an entry with a specific id from the RawData database.
+         *
+         * @param context the current application context
+         * @param id  the ID of the entry to be deleted
+         */
+        public static int deleteEntryByID(Context context, long id) {
+            final ContentResolver resolver = context.getContentResolver();
+
+            Uri uri = ContentUris.withAppendedId(CONTENT_URI, id);
+
+            if (uri != null) {
+                return resolver.delete(uri, null, null);
+            }
+            return -1;
+        }
+
+        /**
          * Deletes all entries from the raw data database.
          *
          * @param context the current application context
@@ -146,8 +200,8 @@ public class MovementDataContract {
         /**
          * Deletes entries older than a specified time from the raw data database.
          *
-         * @param context               the current application context
-         * @param maxAllowedEntryTime   the maximum allowed raw data timestamp in milliseconds
+         * @param context             the current application context
+         * @param maxAllowedEntryTime the maximum allowed raw data timestamp in milliseconds
          */
         public static int deleteOldEntries(Context context, int maxAllowedEntryTime) {
             final ContentResolver resolver = context.getContentResolver();
@@ -159,6 +213,17 @@ public class MovementDataContract {
             return resolver.delete(CONTENT_URI, selection, selectionArgs);
         }
 
+        public static boolean isValidCursor(Cursor cursor) {
+            String[] validColumns = {
+                    _ID,
+                    TIMESTAMP,
+                    ACTIVITY_TYPE,
+                    CONFIDENCE,
+                    CONFIDENCE_RANK
+            };
+
+            return cursor.getColumnNames() != null && Arrays.equals(cursor.getColumnNames(), validColumns);
+        }
 
     }
 
@@ -196,7 +261,7 @@ public class MovementDataContract {
          * <p>TYPE: INTEGER</p>
          */
         public static final String END_TIME = "end_time";
-        public static final String DEFAULT_SORT_ORDER = END_TIME + " DESC";
+
         /**
          * The trip type column. An integer corresponding to the detected trip (1 = DRIVING, 2 = BIKING).
          * <p>TYPE: INTEGER</p>
@@ -226,7 +291,10 @@ public class MovementDataContract {
          * <p>TYPE: STRING</p>
          */
         public static final String END_LONGITUDE = "end_longitude";
+
         public static final String[] DEFAULT_PROJECTION = {_ID, START_TIME, END_TIME, TRIP_TYPE, START_LATITUDE, START_LONGITUDE, END_LATITUDE, END_LONGITUDE};
+
+        public static final String DEFAULT_SORT_ORDER = START_TIME + " DESC, " + END_TIME + " DESC";
 
         /**
          * Adds an entry to the trip database.
@@ -292,6 +360,82 @@ public class MovementDataContract {
             }
 
             return null;
+        }
+
+        /**
+         * Returns a cursor to the full Trips table.
+         *
+         * @param context        the current application context
+         */
+        public static Cursor getCursor(Context context) {
+            final ContentResolver resolver = context.getContentResolver();
+            return resolver.query(CONTENT_URI, DEFAULT_PROJECTION, null, null, DEFAULT_SORT_ORDER);
+        }
+
+        /**
+         * Retrieves a specific trip from the trips log using the URI of that trip
+         *
+         * @param context the current application context
+         */
+        public static Trip getLatestUnfinishedTrip(Context context) {
+            final ContentResolver resolver = context.getContentResolver();
+
+            String selection = END_TIME + " = ?";
+
+            String[] selectionArgs = {"0"};
+
+            String sortOrderWithLimit = DEFAULT_SORT_ORDER + " LIMIT 1";
+
+            Cursor c = resolver.query(CONTENT_URI, DEFAULT_PROJECTION, selection, selectionArgs, sortOrderWithLimit);
+
+            Trip trip;
+
+            if (c != null && c.getCount() > 0) {
+                c.moveToFirst();
+                try {
+                    trip = Trip.fromCursor(c);
+                } catch (Exception e) {
+                    trip = null;
+                    e.printStackTrace();
+                }
+            } else {
+                trip = null;
+            }
+
+            return trip;
+        }
+
+        /**
+         * Updates the stored information about a specific trip
+         *
+         * @param context the current application context
+         * @param trip    the trip
+         */
+        public static boolean updateTrip(Context context, Trip trip) {
+            final ContentResolver resolver = context.getContentResolver();
+
+            Uri uri = ContentUris.withAppendedId(CONTENT_URI, trip.getID());
+
+            final int COLUMN_COUNT = 7;
+            ContentValues values = new ContentValues(COLUMN_COUNT);
+
+            values.put(START_TIME, trip.getStartTime());
+            values.put(END_TIME, trip.getEndTime());
+            values.put(TRIP_TYPE, trip.getType());
+
+            Location start = trip.getStartLocation();
+            if (start != null) {
+                values.put(START_LATITUDE, Location.convert(start.getLatitude(), Location.FORMAT_DEGREES));
+                values.put(START_LONGITUDE, Location.convert(start.getLongitude(), Location.FORMAT_DEGREES));
+            }
+
+            Location end = trip.getStartLocation();
+            if (end != null) {
+                values.put(END_LATITUDE, Location.convert(end.getLatitude(), Location.FORMAT_DEGREES));
+                values.put(END_LONGITUDE, Location.convert(end.getLongitude(), Location.FORMAT_DEGREES));
+            }
+
+            return uri != null && resolver.update(uri, values, null, null) > 0;
         }
 
         /**
@@ -401,6 +545,19 @@ public class MovementDataContract {
             return resolver.delete(CONTENT_URI, selection, selectionArgs);
         }
 
+        public static boolean isValidCursor(Cursor cursor) {
+            String[] validColumns = {
+                    _ID,
+                    START_TIME,
+                    END_TIME,
+                    TRIP_TYPE,
+                    START_LATITUDE,
+                    START_LONGITUDE,
+                    END_LATITUDE,
+                    END_LONGITUDE
+            };
 
+            return cursor.getColumnNames() != null && Arrays.equals(cursor.getColumnNames(), validColumns);
+        }
     }
 }
