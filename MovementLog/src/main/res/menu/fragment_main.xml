@@ -1,0 +1,17 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="se.magnulund.dev.movementlog.MainActivity">
+
+    <item
+        android:id="@+id/start_button"
+        android:title="@string/start_bish"
+        android:icon="@drawable/ic_action_play"
+        android:orderInCategory="1"
+        android:showAsAction="always" />
+    <item
+        android:id="@+id/stop_button"
+        android:title="@string/stop_krep"
+        android:icon="@drawable/ic_action_stop"
+        android:orderInCategory="2"
+        android:showAsAction="always" />
+</menu>

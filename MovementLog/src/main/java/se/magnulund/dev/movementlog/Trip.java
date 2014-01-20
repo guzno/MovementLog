@@ -3,18 +3,20 @@ package se.magnulund.dev.movementlog;// Created by Gustav on 16/01/2014.
 import android.database.Cursor;
 import android.location.Location;
 
+import com.google.android.gms.location.DetectedActivity;
+
 import se.magnulund.dev.movementlog.provider.MovementDataContract;
 
 public class Trip {
     private static final String TAG = "Trip";
-    int startTime;
+    long startTime;
     int type;
-    int endTime;
+    long endTime;
     long _id;
     Location startLocation;
     Location endLocation;
 
-    public Trip(int startTime, int tripType, int endTime, Location startLocation, Location endLocation) {
+    public Trip(long startTime, int tripType, long endTime, Location startLocation, Location endLocation) {
         this.startTime = startTime;
         this.type = tripType;
         this.endTime = endTime;
@@ -22,7 +24,7 @@ public class Trip {
         this.endLocation = endLocation;
     }
 
-    public Trip(int startTime, int tripType) {
+    public Trip(long startTime, int tripType) {
         this.startTime = startTime;
         this.type = tripType;
     }
@@ -38,13 +40,13 @@ public class Trip {
 
         final int tripType = cursor.getInt(cursor.getColumnIndex(MovementDataContract.Trips.TRIP_TYPE));
 
-        final int startTime = cursor.getInt(cursor.getColumnIndex(MovementDataContract.Trips.START_TIME));
+        final long startTime = cursor.getLong(cursor.getColumnIndex(MovementDataContract.Trips.START_TIME));
 
         trip = new Trip(startTime, tripType);
 
         trip.setID(_id);
 
-        final int endTime = cursor.getInt(cursor.getColumnIndex(MovementDataContract.Trips.END_TIME));
+        final long endTime = cursor.getLong(cursor.getColumnIndex(MovementDataContract.Trips.END_TIME));
 
         trip.setEndTime(endTime);
 
@@ -95,7 +97,7 @@ public class Trip {
         this._id = id;
     }
 
-    public int getStartTime() {
+    public long getStartTime() {
         return startTime;
     }
 
@@ -103,11 +105,11 @@ public class Trip {
         return type;
     }
 
-    public int getEndTime() {
+    public long getEndTime() {
         return endTime;
     }
 
-    public void setEndTime(int endTime) {
+    public void setEndTime(long endTime) {
         this.endTime = endTime;
     }
 
@@ -125,5 +127,19 @@ public class Trip {
 
     public void setEndLocation(Location endLocation) {
         this.endLocation = endLocation;
+    }
+
+    public String getTripTypeName(){
+        return getNameFromType(this.getType());
+    }
+
+    private String getNameFromType(int activityType) {
+        switch (activityType) {
+            case DetectedActivity.IN_VEHICLE:
+                return "in_vehicle";
+            case DetectedActivity.ON_BICYCLE:
+                return "on_bicycle";
+        }
+        return "unknown";
     }
 }

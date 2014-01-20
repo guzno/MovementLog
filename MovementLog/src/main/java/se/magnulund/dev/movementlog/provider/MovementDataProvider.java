@@ -22,7 +22,7 @@ public class MovementDataProvider extends ContentProvider {
 
     public static final String AUTHORITY = MovementDataContract.AUTHORITY;
 
-    public static final Uri CONTENT_URI = MovementDataContract.CONTENT_URI;
+    //public static final Uri CONTENT_URI = MovementDataContract.CONTENT_URI;
     private static final String DATABASE_NAME = "movement_data.db";
     private static final String RAWDATA_TABLE_NAME = "rawdata";
     private static final String TRIPS_TABLE_NAME = "trips";
@@ -37,9 +37,9 @@ public class MovementDataProvider extends ContentProvider {
     private static final String TRIPS_TABLE_CREATE =
                     "create table " + TRIPS_TABLE_NAME + "("
                     + MovementDataContract.Trips._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
-                    + MovementDataContract.Trips.START_TIME + " INTEGER NOT NULL, "
+                    + MovementDataContract.Trips.START_TIME + " INTEGER, "
                     + MovementDataContract.Trips.END_TIME + " INTEGER, "
-                    + MovementDataContract.Trips.TRIP_TYPE + " INTEGER NOT NULL,"
+                    + MovementDataContract.Trips.TRIP_TYPE + " INTEGER,"
                     + MovementDataContract.Trips.START_LATITUDE + " TEXT, "
                     + MovementDataContract.Trips.START_LONGITUDE + " TEXT, "
                     + MovementDataContract.Trips.END_LATITUDE + " TEXT, "
@@ -98,7 +98,7 @@ public class MovementDataProvider extends ContentProvider {
                 }
                 break;
             case TRIPS:
-                qb.setTables(RAWDATA_TABLE_NAME);
+                qb.setTables(TRIPS_TABLE_NAME);
                 qb.setProjectionMap(tripsProjectionMap);
                 break;
             default:

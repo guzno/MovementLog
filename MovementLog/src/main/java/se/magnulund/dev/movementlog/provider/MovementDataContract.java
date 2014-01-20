@@ -9,6 +9,7 @@ import android.database.Cursor;
 import android.location.Location;
 import android.net.Uri;
 import android.provider.BaseColumns;
+import android.util.Log;
 
 import java.util.Arrays;
 import java.util.Calendar;
@@ -139,7 +140,7 @@ public class MovementDataContract {
         /**
          * Returns a cursor to the full RawData table.
          *
-         * @param context        the current application context
+         * @param context the current application context
          */
         public static Cursor getCursor(Context context) {
             final ContentResolver resolver = context.getContentResolver();
@@ -173,7 +174,7 @@ public class MovementDataContract {
          * Deletes an entry with a specific id from the RawData database.
          *
          * @param context the current application context
-         * @param id  the ID of the entry to be deleted
+         * @param id      the ID of the entry to be deleted
          */
         public static int deleteEntryByID(Context context, long id) {
             final ContentResolver resolver = context.getContentResolver();
@@ -365,7 +366,7 @@ public class MovementDataContract {
         /**
          * Returns a cursor to the full Trips table.
          *
-         * @param context        the current application context
+         * @param context the current application context
          */
         public static Cursor getCursor(Context context) {
             final ContentResolver resolver = context.getContentResolver();

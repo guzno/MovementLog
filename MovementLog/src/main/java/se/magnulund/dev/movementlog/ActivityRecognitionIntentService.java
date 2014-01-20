@@ -1,7 +1,6 @@
 package se.magnulund.dev.movementlog;
 
 import android.app.IntentService;
-import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.IBinder;
@@ -9,8 +8,8 @@ import android.util.Log;
 
 import com.google.android.gms.location.ActivityRecognitionResult;
 import com.google.android.gms.location.DetectedActivity;
-
-import java.util.Calendar;
+import java.util.ArrayList;
+import java.util.List;
 
 import se.magnulund.dev.movementlog.provider.MovementDataContract;
 
@@ -36,39 +35,58 @@ public class ActivityRecognitionIntentService extends IntentService {
             // Get the update
             ActivityRecognitionResult result = ActivityRecognitionResult.extractResult(intent);
             // Get the most probable activity
-            DetectedActivity mostProbableActivity = result.getMostProbableActivity();
+            DetectedMovement mostProbableMovement = new DetectedMovement(result.getMostProbableActivity());
 
-            int timestamp = (int) Calendar.getInstance().getTimeInMillis();
+            long timestamp = System.currentTimeMillis();
 
-            DetectedMovement detectedMovement = new DetectedMovement(mostProbableActivity, timestamp, 0);
+            List<DetectedActivity> detectedActivities = result.getProbableActivities();
 
-            Uri dataEntry = MovementDataContract.RawData.addEntry(this, detectedMovement);
+            ArrayList<DetectedMovement> detectedMovements = new ArrayList<DetectedMovement>();
 
-            if (dataEntry != null && dataEntry.getPathSegments() != null){
-                Log.d(TAG, "woho! I data entered with ID: " + dataEntry.getPathSegments().get(1));
-            } else {
-                Log.d(TAG, "krep! Data entry failed!");
+            for (int i = 0; i < detectedActivities.size(); i++){
+
+                DetectedMovement detectedMovement = new DetectedMovement(detectedActivities.get(i));
+
+                detectedMovement.setTimestamp(timestamp);
+
+                detectedMovement.setRank(i);
+
+                detectedMovements.add(detectedMovement);
+
+                Uri dataEntry = MovementDataContract.RawData.addEntry(this, detectedMovement);
+
+                if (dataEntry != null && dataEntry.getPathSegments() != null){
+                    Log.d(TAG, "woho! I entered data for: " + detectedMovement.getActivityName() + " with ID: " + dataEntry.getPathSegments().get(1));
+                } else {
+                    Log.d(TAG, "krep! Data entry failed!");
+                }
             }
 
-            /*
-             * Get the probability that this activity is the
-             * the user's actual activity
-             */
-            //int confidence = mostProbableActivity.getConfidence();
-            /*
-             * Get an integer describing the type of activity
-             */
-            //int activityType = mostProbableActivity.getType();
-            //String activityName = getNameFromType(activityType);
-            /*
-             * At this point, you have retrieved all the information
-             * for the current update. You can display this
-             * information to the user in a notification, or
-             * send it to an Activity or Service in a broadcast
-             * Intent.
-             */
+            Trip onGoingTrip = MovementDataContract.Trips.getLatestUnfinishedTrip(this);
 
-            //Log.d(TAG, "woho! I has datas! " + confidence + " and name " + activityName);
+            int activityType = mostProbableMovement.getType();
+
+            if (onGoingTrip != null) {
+                if (activityType == DetectedActivity.ON_FOOT) {
+                    onGoingTrip.setEndTime(timestamp);
+                    MovementDataContract.Trips.updateTrip(this, onGoingTrip);
+                }
+            } else {
+
+                switch (activityType){
+                    case DetectedActivity.IN_VEHICLE:
+                    case DetectedActivity.ON_BICYCLE:
+                        Trip startedTrip = new Trip(timestamp, activityType);
+                        Uri tripEntry = MovementDataContract.Trips.addTrip(this, startedTrip);
+                        if (tripEntry != null && tripEntry.getPathSegments() != null){
+                            Log.d(TAG, "woho! I started a " + mostProbableMovement.getActivityName() + " trip with ID: " + tripEntry.getPathSegments().get(1));
+                        } else {
+                            Log.d(TAG, "krep! Data entry failed!");
+                        }
+                        break;
+                    default:
+                }
+            }
         } else {
             /*
              * This implementation ignores intents that don't contain
@@ -76,29 +94,5 @@ public class ActivityRecognitionIntentService extends IntentService {
              * errors.
              */
         }
-    }
-
-    /**
-     * Map detected activity types to strings
-     *
-     * @param activityType The detected activity type
-     * @return A user-readable name for the type
-     */
-    private String getNameFromType(int activityType) {
-        switch (activityType) {
-            case DetectedActivity.IN_VEHICLE:
-                return "in_vehicle";
-            case DetectedActivity.ON_BICYCLE:
-                return "on_bicycle";
-            case DetectedActivity.ON_FOOT:
-                return "on_foot";
-            case DetectedActivity.STILL:
-                return "still";
-            case DetectedActivity.UNKNOWN:
-                return "unknown";
-            case DetectedActivity.TILTING:
-                return "tilting";
-        }
-        return "unknown";
     }
 }

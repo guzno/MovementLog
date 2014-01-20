@@ -38,11 +38,12 @@
             android:exported="false" />
 
         <provider
-            android:name=".provider.MovementDataProvider"
+            android:name="se.magnulund.dev.movementlog.provider.MovementDataProvider"
             android:authorities="se.magnulund.dev.movementlog.provider"
             android:enabled="true"
             android:exported="true" >
         </provider>
+
     </application>
 
 </manifest>

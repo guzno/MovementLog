@@ -9,7 +9,7 @@
     android:orientation="vertical"
     tools:context="se.magnulund.dev.movementlog.MainActivity$PlaceholderFragment">
 
-    <Button
+    <!--<Button
         android:id="@+id/start_button"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -19,7 +19,7 @@
         android:id="@+id/stop_button"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/stop_krep" />
+        android:text="@string/stop_krep" />-->
 
     <ListView
         android:id="@+id/listview"

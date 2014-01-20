@@ -18,6 +18,7 @@ import com.google.android.gms.location.ActivityRecognitionClient;
 
 public class MainActivity extends Activity implements GooglePlayServicesClient.ConnectionCallbacks, GooglePlayServicesClient.OnConnectionFailedListener, MainFragment.MainFragmentListener {
 
+    private static final String TAG = "MainActivity";
 
     // Constants that define the activity detection interval
     public static final int MILLISECONDS_PER_SECOND = 1000;
@@ -33,13 +34,27 @@ public class MainActivity extends Activity implements GooglePlayServicesClient.C
     private boolean mInProgress;
     private REQUEST_TYPE mRequestType;
 
+    private int currentFragment;
+
+    MainFragment rawDataFragment;
+    MainFragment tripsFragment;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
         if (savedInstanceState == null) {
-            getFragmentManager().beginTransaction().add(R.id.container, MainFragment.newInstance()).commit();
+            rawDataFragment = MainFragment.newInstance();
+
+            Bundle arguments = new Bundle();
+            arguments.putInt(MainFragment.FRAGMENT_TYPE, MainFragment.TYPE_RAWDATA);
+
+            rawDataFragment.setArguments(arguments);
+
+            getFragmentManager().beginTransaction().add(R.id.container, rawDataFragment).commit();
+
+            currentFragment = MainFragment.TYPE_RAWDATA;
         }
 
         mInProgress = false;
@@ -138,6 +153,9 @@ public class MainActivity extends Activity implements GooglePlayServicesClient.C
              * re-setting the flag, and then re-trying the
              * request.
              */
+            mActivityRecognitionClient.disconnect();
+            mInProgress = false;
+            startUpdates();
         }
     }
 
@@ -169,6 +187,9 @@ public class MainActivity extends Activity implements GooglePlayServicesClient.C
              * re-setting the flag, and then re-trying the
              * request.
              */
+            mActivityRecognitionClient.disconnect();
+            mInProgress = false;
+            stopUpdates();
         }
     }
 
@@ -182,10 +203,12 @@ public class MainActivity extends Activity implements GooglePlayServicesClient.C
                  * This call is synchronous.
                  */
                 mActivityRecognitionClient.requestActivityUpdates(DETECTION_INTERVAL_MILLISECONDS, mActivityRecognitionPendingIntent);
+                Log.d(TAG, "Registered for activity detection");
                 break;
 
             case STOP:
                 mActivityRecognitionClient.removeActivityUpdates(mActivityRecognitionPendingIntent);
+                Log.d(TAG, "Unregistered for activity detection");
                 break;
 
                 /*
@@ -239,6 +262,47 @@ public class MainActivity extends Activity implements GooglePlayServicesClient.C
         }
     }
 
+    private void switchFragment() {
+        int newFragmentType = -1;
+        MainFragment newFragment;
+
+        switch (currentFragment){
+            case MainFragment.TYPE_RAWDATA:
+                newFragmentType = MainFragment.TYPE_TRIPS;
+                newFragment = tripsFragment;
+                break;
+            case MainFragment.TYPE_TRIPS:
+                newFragmentType = MainFragment.TYPE_RAWDATA;
+                newFragment = rawDataFragment;
+                break;
+            default:
+                newFragment = null;
+        }
+        if (newFragmentType >= 0) {
+            if (newFragment == null) {
+                newFragment = MainFragment.newInstance();
+
+                Bundle arguments = new Bundle();
+                arguments.putInt(MainFragment.FRAGMENT_TYPE, newFragmentType);
+
+                newFragment.setArguments(arguments);
+
+                switch (newFragmentType){
+                    case MainFragment.TYPE_RAWDATA:
+                        rawDataFragment = newFragment;
+                        break;
+                    case MainFragment.TYPE_TRIPS:
+                        tripsFragment = newFragment;
+                        break;
+                }
+            }
+
+            getFragmentManager().beginTransaction().replace(R.id.container, newFragment).commit();
+
+            currentFragment = newFragmentType;
+        }
+    }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
 
@@ -253,9 +317,15 @@ public class MainActivity extends Activity implements GooglePlayServicesClient.C
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
-        if (id == R.id.action_settings) {
-            startActivity(new Intent(this, SettingsActivity.class), null);
+        switch (id) {
+            case R.id.action_settings:
+                startActivity(new Intent(this, SettingsActivity.class), null);
+                break;
+            case R.id.switch_fragment:
+                switchFragment();
+                break;
         }
+
         return super.onOptionsItemSelected(item);
     }
 
@@ -294,4 +364,9 @@ public class MainActivity extends Activity implements GooglePlayServicesClient.C
         }
     }
 
+    @Override
+    protected void onStop() {
+        //stopUpdates();
+        super.onStop();
+    }
 }
