@@ -2,8 +2,6 @@ package se.magnulund.dev.movementlog;// Created by Gustav on 19/01/2014.
 
 import android.content.Context;
 import android.database.Cursor;
-import android.text.format.DateFormat;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,7 +10,6 @@ import android.widget.TextView;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.Locale;
 
 public class RawDataAdapter extends CursorAdapter {
     private static final String TAG = "RawDataAdapter";
@@ -25,7 +22,6 @@ public class RawDataAdapter extends CursorAdapter {
         TextView timeTextView;
         TextView typeTextView;
         TextView confidenceTextView;
-
     }
 
     @Override
@@ -43,7 +39,6 @@ public class RawDataAdapter extends CursorAdapter {
 
             view.setTag(holder);
         }
-
         return view;
     }
 
@@ -59,11 +54,10 @@ public class RawDataAdapter extends CursorAdapter {
 
         Date date = new Date(detectedMovement.getTimestamp());
 
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSSZ");
+        SimpleDateFormat dateFormat = new SimpleDateFormat("MMM d - kk:mm:ss");
 
         String time = dateFormat.format(date);
 
         holder.timeTextView.setText(time);
-
     }
 }

@@ -11,5 +11,11 @@
     <string name="title_section2">Section 2</string>
     <string name="title_section3">Section 3</string>
     <string name="switch_fragment">Switch</string>
+    <string name="rawdata_title">Raw Data</string>
+    <string name="trips_title">Trips</string>
+    <string name="trip_type_in_vehicle">Car Trip</string>
+    <string name="trip_type_on_bike">Bike Trip</string>
+    <string name="trip_start_label">Start:</string>
+    <string name="trip_end_label">End:</string>
 
 </resources>

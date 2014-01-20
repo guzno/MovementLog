@@ -9,7 +9,6 @@ import android.database.Cursor;
 import android.location.Location;
 import android.net.Uri;
 import android.provider.BaseColumns;
-import android.util.Log;
 
 import java.util.Arrays;
 import java.util.Calendar;
@@ -64,8 +63,7 @@ public class MovementDataContract {
          * according to [com.google.android.gms.location.DetectedActivity].
          * <p>TYPE: INTEGER</p>
          */
-        // --------IMPLEMENT OWN MAPPING BASED ON DetectedActivity SO WE CAN SHARE WITH APPS -------
-        // -----------------------------WITHOUT PLAY SERVICES DEPENDENCIES????----------------------
+        // TODO implement mapping to DetectedActivity type-names?
         public static final String ACTIVITY_TYPE = "activity_type";
         /**
          * The confidence column. A value between 0 and 100. Higher values imply higher confidence.
@@ -204,16 +202,21 @@ public class MovementDataContract {
          * @param context             the current application context
          * @param maxAllowedEntryTime the maximum allowed raw data timestamp in milliseconds
          */
-        public static int deleteOldEntries(Context context, int maxAllowedEntryTime) {
+        public static int deleteOldEntries(Context context, long maxAllowedEntryTime) {
             final ContentResolver resolver = context.getContentResolver();
 
             String selection = TIMESTAMP + " < ?";
 
-            String[] selectionArgs = {Integer.toString(maxAllowedEntryTime)};
+            String[] selectionArgs = {Long.toString(maxAllowedEntryTime)};
 
             return resolver.delete(CONTENT_URI, selection, selectionArgs);
         }
 
+        /**
+         * Checks if a cursor has all columns for a full RawData entry.
+         *
+         * @param cursor the cursor to check
+         */
         public static boolean isValidCursor(Cursor cursor) {
             String[] validColumns = {
                     _ID,
@@ -466,14 +469,14 @@ public class MovementDataContract {
          * @param id      the id of the trip
          * @param endTime the end timestamp of the trip
          */
-        public static boolean updateTripEndTime(Context context, long id, int endTime) {
+        public static boolean updateTripEndTime(Context context, long id, long endTime) {
             final ContentResolver resolver = context.getContentResolver();
 
             Uri uri = ContentUris.withAppendedId(CONTENT_URI, id);
 
             int COLUMN_COUNT = 1;
             ContentValues values = new ContentValues(COLUMN_COUNT);
-            values.put(END_TIME, Integer.toString(endTime));
+            values.put(END_TIME, Long.toString(endTime));
 
             return uri != null && resolver.update(uri, values, null, null) > 0;
         }
@@ -532,20 +535,25 @@ public class MovementDataContract {
          * @param context           the current application context
          * @param maxAllowedTripAge the maximum allowed trip age in milliseconds
          */
-        public static int deleteOldTrips(Context context, int maxAllowedTripAge) {
+        public static int deleteOldTrips(Context context, long maxAllowedTripAge) {
             final ContentResolver resolver = context.getContentResolver();
 
             String selection = END_TIME + " < ?";
 
             Calendar now = Calendar.getInstance();
 
-            final int dateCutoff = (int) now.getTimeInMillis() - maxAllowedTripAge;
+            final long dateCutoff = now.getTimeInMillis() - maxAllowedTripAge;
 
-            String[] selectionArgs = {Integer.toString(dateCutoff)};
+            String[] selectionArgs = {Long.toString(dateCutoff)};
 
             return resolver.delete(CONTENT_URI, selection, selectionArgs);
         }
 
+        /**
+         * Checks if a cursor has all columns for a full Trip entry.
+         *
+         * @param cursor the cursor to check
+         */
         public static boolean isValidCursor(Cursor cursor) {
             String[] validColumns = {
                     _ID,

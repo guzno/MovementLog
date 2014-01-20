@@ -17,11 +17,11 @@ public class DetectedMovement extends DetectedActivity {
         this.confidence_rank = confidence_rank;
     }
 
-    public DetectedMovement(DetectedActivity detectedActivity){
+    public DetectedMovement(DetectedActivity detectedActivity) {
         super(detectedActivity.getType(), detectedActivity.getConfidence());
     }
 
-    public DetectedMovement(DetectedActivity detectedActivity, long timestamp, int confidence_rank){
+    public DetectedMovement(DetectedActivity detectedActivity, long timestamp, int confidence_rank) {
         super(detectedActivity.getType(), detectedActivity.getConfidence());
         this.timestamp = timestamp;
         this.confidence_rank = confidence_rank;
@@ -56,7 +56,12 @@ public class DetectedMovement extends DetectedActivity {
         return new DetectedMovement(activityType, confidence, timestamp, confidenceRank);
     }
 
-    public String getActivityName(){
+    /**
+     * Get the name of the detected activity type
+     *
+     * @return A user-readable name for the type
+     */
+    public String getActivityName() {
         return getNameFromType(this.getType());
     }
 
@@ -83,5 +88,4 @@ public class DetectedMovement extends DetectedActivity {
         }
         return "unknown";
     }
-
 }

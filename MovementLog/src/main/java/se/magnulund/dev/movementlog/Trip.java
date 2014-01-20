@@ -30,7 +30,7 @@ public class Trip {
     }
 
     public static Trip fromCursor(Cursor cursor) throws Exception {
-        if (!MovementDataContract.Trips.isValidCursor(cursor) ) {
+        if (!MovementDataContract.Trips.isValidCursor(cursor)) {
             throw new Exception("Invalid cursor - does not point to a full Trip entry.");
         }
 
@@ -129,17 +129,28 @@ public class Trip {
         this.endLocation = endLocation;
     }
 
-    public String getTripTypeName(){
-        return getNameFromType(this.getType());
+    /**
+     * Map detected activity types to string resources
+     *
+     * @return the string resource id for the name of the type
+     */
+    public int getTripTypeNameID() {
+        return getNameIDFromType(this.getType());
     }
 
-    private String getNameFromType(int activityType) {
+    /**
+     * Map detected activity types to string resources
+     *
+     * @param activityType The detected activity type
+     * @return the string resource id for the name of the type
+     */
+    private int getNameIDFromType(int activityType) {
         switch (activityType) {
             case DetectedActivity.IN_VEHICLE:
-                return "in_vehicle";
+                return R.string.trip_type_in_vehicle;
             case DetectedActivity.ON_BICYCLE:
-                return "on_bicycle";
+                return R.string.trip_type_on_bike;
         }
-        return "unknown";
+        return -1;
     }
 }

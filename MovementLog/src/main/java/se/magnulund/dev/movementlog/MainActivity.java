@@ -10,6 +10,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesClient;
@@ -22,7 +23,7 @@ public class MainActivity extends Activity implements GooglePlayServicesClient.C
 
     // Constants that define the activity detection interval
     public static final int MILLISECONDS_PER_SECOND = 1000;
-    public static final int DETECTION_INTERVAL_SECONDS = 2;
+    public static final int DETECTION_INTERVAL_SECONDS = 10;
     public static final int DETECTION_INTERVAL_MILLISECONDS = MILLISECONDS_PER_SECOND * DETECTION_INTERVAL_SECONDS;
     private final static int CONNECTION_FAILURE_RESOLUTION_REQUEST = 9000;
     /*
@@ -106,7 +107,7 @@ public class MainActivity extends Activity implements GooglePlayServicesClient.C
         // If Google Play services is available
         if (ConnectionResult.SUCCESS == resultCode) {
             // In debug mode, log the status
-            Log.d("Activity Recognition", "Google Play services is available.");
+            Log.d(TAG, "Google Play services is available.");
             // Continue
             return true;
             // Google Play services was not available for some reason
@@ -203,12 +204,12 @@ public class MainActivity extends Activity implements GooglePlayServicesClient.C
                  * This call is synchronous.
                  */
                 mActivityRecognitionClient.requestActivityUpdates(DETECTION_INTERVAL_MILLISECONDS, mActivityRecognitionPendingIntent);
-                Log.d(TAG, "Registered for activity detection");
+                Toast.makeText(this, "Registered for activity updates", Toast.LENGTH_SHORT).show();
                 break;
 
             case STOP:
                 mActivityRecognitionClient.removeActivityUpdates(mActivityRecognitionPendingIntent);
-                Log.d(TAG, "Unregistered for activity detection");
+                Toast.makeText(this, "Unregistered for activity updates", Toast.LENGTH_SHORT).show();
                 break;
 
                 /*
@@ -266,7 +267,7 @@ public class MainActivity extends Activity implements GooglePlayServicesClient.C
         int newFragmentType = -1;
         MainFragment newFragment;
 
-        switch (currentFragment){
+        switch (currentFragment) { // check which fragment is currently shown
             case MainFragment.TYPE_RAWDATA:
                 newFragmentType = MainFragment.TYPE_TRIPS;
                 newFragment = tripsFragment;
@@ -279,7 +280,7 @@ public class MainActivity extends Activity implements GooglePlayServicesClient.C
                 newFragment = null;
         }
         if (newFragmentType >= 0) {
-            if (newFragment == null) {
+            if (newFragment == null) { // create fragment if we don't have one of the correct type exists,
                 newFragment = MainFragment.newInstance();
 
                 Bundle arguments = new Bundle();
@@ -287,7 +288,7 @@ public class MainActivity extends Activity implements GooglePlayServicesClient.C
 
                 newFragment.setArguments(arguments);
 
-                switch (newFragmentType){
+                switch (newFragmentType) {
                     case MainFragment.TYPE_RAWDATA:
                         rawDataFragment = newFragment;
                         break;
@@ -297,6 +298,7 @@ public class MainActivity extends Activity implements GooglePlayServicesClient.C
                 }
             }
 
+            // replace fragment
             getFragmentManager().beginTransaction().replace(R.id.container, newFragment).commit();
 
             currentFragment = newFragmentType;

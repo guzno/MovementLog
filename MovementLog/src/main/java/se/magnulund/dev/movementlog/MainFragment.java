@@ -19,6 +19,9 @@ import android.widget.ListView;
 
 import se.magnulund.dev.movementlog.provider.MovementDataContract;
 
+import static se.magnulund.dev.movementlog.R.string.rawdata_title;
+import static se.magnulund.dev.movementlog.R.string.trips_title;
+
 /**
  * Created by erikeelde on 17/12/2013.
  */
@@ -53,17 +56,27 @@ public class MainFragment extends Fragment implements LoaderManager.LoaderCallba
         if (null != loaderManager) {
             loaderManager.initLoader(R.id.main_fragment_loader, arguments, this);
         }
+
+        int titleID;
+
         if (arguments != null) {
             switch (arguments.getInt(FRAGMENT_TYPE)) {
                 case TYPE_TRIPS:
+                    titleID = trips_title;
                     mAdapter = new TripsAdapter(getActivity(), null, 0);
                     break;
                 case TYPE_RAWDATA:
                 default:
+                    titleID = rawdata_title;
                     mAdapter = new RawDataAdapter(getActivity(), null, 0);
             }
         } else {
             mAdapter = new RawDataAdapter(getActivity(), null, 0);
+            titleID = -1;
+        }
+
+        if (getActivity() != null && titleID >= 0) {
+            getActivity().setTitle(titleID);
         }
     }
 
@@ -82,7 +95,7 @@ public class MainFragment extends Fragment implements LoaderManager.LoaderCallba
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()){
+        switch (item.getItemId()) {
             case R.id.start_button:
                 mListener.startButtonClicked();
                 break;
@@ -100,7 +113,7 @@ public class MainFragment extends Fragment implements LoaderManager.LoaderCallba
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
 
-        if(rootView != null) {
+        if (rootView != null) {
             ListView listView = (ListView) rootView.findViewById(R.id.listview);
             listView.setAdapter(mAdapter);
         }

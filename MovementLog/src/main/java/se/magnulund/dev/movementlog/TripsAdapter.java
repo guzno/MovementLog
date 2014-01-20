@@ -10,7 +10,6 @@ import android.widget.TextView;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.Locale;
 
 public class TripsAdapter extends CursorAdapter {
     private static final String TAG = "TripsAdapter";
@@ -20,10 +19,11 @@ public class TripsAdapter extends CursorAdapter {
     }
 
     private class ViewHolder {
+        TextView typeTextView;
         TextView startTimeTextView;
         TextView endTimeTextView;
-        TextView typeTextView;
-
+        TextView durationTextView;
+        TextView dateTextView;
     }
 
     @Override
@@ -35,9 +35,11 @@ public class TripsAdapter extends CursorAdapter {
 
             ViewHolder holder = new ViewHolder();
 
-            holder.startTimeTextView = (TextView) view.findViewById(R.id.trip_starttime);
+            holder.startTimeTextView = (TextView) view.findViewById(R.id.trip_start_time);
             holder.typeTextView = (TextView) view.findViewById(R.id.trip_type);
-            holder.endTimeTextView = (TextView) view.findViewById(R.id.trip_endtime);
+            holder.endTimeTextView = (TextView) view.findViewById(R.id.trip_end_time);
+            holder.dateTextView = (TextView) view.findViewById(R.id.trip_date);
+            holder.durationTextView = (TextView) view.findViewById(R.id.trip_duration);
 
             view.setTag(holder);
         }
@@ -51,23 +53,26 @@ public class TripsAdapter extends CursorAdapter {
         Trip trip;
         try {
             trip = Trip.fromCursor(cursor);
-            holder.typeTextView.setText(trip.getTripTypeName());
+            holder.typeTextView.setText(trip.getTripTypeNameID());
 
-            SimpleDateFormat dateFormat = new SimpleDateFormat("dd/mm H:mm:ss", Locale.getDefault());
+            SimpleDateFormat dateFormat = new SimpleDateFormat("MMM d");
+            SimpleDateFormat timeFormat = new SimpleDateFormat("kk:mm");
 
             Date startTime = new Date(trip.getStartTime());
 
-            holder.startTimeTextView.setText(dateFormat.format(startTime));
+            holder.dateTextView.setText(dateFormat.format(startTime));
+
+            holder.startTimeTextView.setText(timeFormat.format(startTime));
+
+            // -- TODO calculate duration
+            holder.durationTextView.setText("XX min");
 
             Date endTime = new Date(trip.getEndTime());
 
-            holder.endTimeTextView.setText(dateFormat.format(endTime));
+            holder.endTimeTextView.setText(timeFormat.format(endTime));
 
         } catch (Exception e) {
             e.printStackTrace();
         }
-
-
-
     }
 }

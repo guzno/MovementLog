@@ -1,43 +1,70 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<GridLayout
+<RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:columnCount="2"
-    android:rowCount="2">
-
-    <TextView
-        android:id="@+id/trip_starttime"
-        android:layout_width="wrap_content"
-        android:layout_height="0dip"
-        android:layout_gravity="fill_vertical"
-        android:gravity="center_vertical"
-        android:layout_column="0"
-        android:padding="10dip"/>
-    <TextView
-        android:id="@+id/trip_endtime"
-        android:layout_width="wrap_content"
-        android:layout_height="0dip"
-        android:layout_gravity="fill_vertical"
-        android:gravity="center_vertical"
-        android:layout_column="0"
-        android:padding="10dip"/>
-
+    android:layout_height="wrap_content">
     <TextView
         android:id="@+id/trip_type"
-        android:layout_width="0dip"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="fill_horizontal"
-        android:gravity="center_vertical"
-        android:layout_column="1"
-        android:padding="10dip"/>
-
+        android:padding="10dip"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentLeft="true"
+        android:textStyle="bold"
+        android:textSize="18sp"/>
     <TextView
-        android:id="@+id/raw_data_name"
-        android:layout_width="0dip"
+        android:id="@+id/trip_date"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="fill_horizontal"
-        android:layout_columnSpan="2"
-        android:layout_margin="10dip"/>
-</GridLayout>
+        android:layout_toRightOf="@id/trip_type"
+        android:layout_margin="10dip"
+        android:paddingTop="1sp"
+        android:paddingBottom="1sp"
+        android:textSize="16sp"/>
+    <TextView
+        android:id="@+id/trip_duration"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentRight="true"
+        android:layout_margin="10dip"
+        android:paddingTop="2sp"
+        android:paddingBottom="2sp"
+        android:textSize="14sp"/>
+    <TextView
+        android:id="@+id/trip_start_label"
+        android:text="@string/trip_start_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/trip_type"
+        android:layout_alignParentLeft="true"
+        android:layout_margin="10dip"
+        android:textSize="16sp"/>
+    <TextView
+        android:id="@+id/trip_start_time"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/trip_type"
+        android:layout_toRightOf="@id/trip_start_label"
+        android:padding="10dip"
+        android:textSize="16sp"/>
+    <TextView
+        android:id="@+id/trip_end_time"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/trip_duration"
+        android:layout_alignParentRight="true"
+        android:padding="10dip"
+        android:textSize="16sp"/>
+    <TextView
+        android:id="@+id/trip_end_label"
+        android:text="@string/trip_end_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/trip_duration"
+        android:layout_toLeftOf="@id/trip_end_time"
+        android:layout_margin="10dip"
+        android:paddingTop="2sp"
+        android:textSize="16sp"/>
+</RelativeLayout>
