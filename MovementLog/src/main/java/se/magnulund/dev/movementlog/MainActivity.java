@@ -219,6 +219,8 @@ public class MainActivity extends Activity implements GooglePlayServicesClient.C
             default:
                 throw new RuntimeException("Unknown request type in onConnected().");
         }
+        mInProgress = false;
+        mActivityRecognitionClient.disconnect();
     }
 
     @Override

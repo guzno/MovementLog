@@ -109,7 +109,7 @@ public class ActivityRecognitionIntentService extends IntentService {
                             cursor.moveToFirst();
                             DetectedMovement possibleTripStart = DetectedMovement.fromCursor(cursor);
 
-                            if (possibleTripStart.getConfidence() > 40) {
+                            if (possibleTripStart.getConfidence() > 30) {
                                 Toast.makeText(this, "You seem to have started an " + possibleTripStart.getActivityName() + " trip.", Toast.LENGTH_SHORT).show();
                                 // TODO Write possible tripstart to db (marked "unconfirmed")
                                 // TODO Get tentative trip start location
