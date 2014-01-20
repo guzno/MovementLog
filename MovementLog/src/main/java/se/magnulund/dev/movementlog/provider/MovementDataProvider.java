@@ -34,6 +34,7 @@ public class MovementDataProvider extends ContentProvider {
                     + MovementDataContract.RawData.CONFIDENCE + " INTEGER, "
                     + MovementDataContract.RawData.CONFIDENCE_RANK + " INTEGER"
                     + ");";
+    // TODO add confirmed INTEGER
     private static final String TRIPS_TABLE_CREATE =
                     "create table " + TRIPS_TABLE_NAME + "("
                     + MovementDataContract.Trips._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "

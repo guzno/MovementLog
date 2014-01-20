@@ -1,14 +1,18 @@
 package se.magnulund.dev.movementlog;
 
 import android.app.IntentService;
+import android.content.ContentResolver;
 import android.content.Intent;
+import android.database.Cursor;
 import android.net.Uri;
 import android.os.IBinder;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.google.android.gms.location.ActivityRecognitionResult;
 import com.google.android.gms.location.DetectedActivity;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import se.magnulund.dev.movementlog.provider.MovementDataContract;
@@ -42,7 +46,6 @@ public class ActivityRecognitionIntentService extends IntentService {
             List<DetectedActivity> detectedActivities = result.getProbableActivities();
 
             // -- TODO analyze all detected activities??
-            //ArrayList<DetectedMovement> detectedMovements = new ArrayList<DetectedMovement>();
 
             for (int i = 0; i < detectedActivities.size(); i++) {
 
@@ -51,10 +54,6 @@ public class ActivityRecognitionIntentService extends IntentService {
                 detectedMovement.setTimestamp(timestamp);
 
                 detectedMovement.setRank(i);
-
-                /*
-                detectedMovements.add(detectedMovement);
-                */
 
                 // insert data into db
                 Uri dataEntry = MovementDataContract.RawData.addEntry(this, detectedMovement);
@@ -76,6 +75,7 @@ public class ActivityRecognitionIntentService extends IntentService {
                 if (activityType == DetectedActivity.ON_FOOT) {
                     onGoingTrip.setEndTime(timestamp);
                     MovementDataContract.Trips.updateTrip(this, onGoingTrip);
+                    // TODO Get trip end location
                 }
             } else { // check if we just started a trip
                 switch (activityType) {
@@ -91,11 +91,32 @@ public class ActivityRecognitionIntentService extends IntentService {
                         } else {
                             Log.d(TAG, "krep! Trip entry failed!");
                         }
+                        // TODO Get trip start location
                         break;
-                    case DetectedActivity.ON_FOOT:
+
                     case DetectedActivity.STILL:
                     case DetectedActivity.TILTING:
                     case DetectedActivity.UNKNOWN:
+                        ContentResolver resolver = getContentResolver();
+
+                        String selection = MovementDataContract.RawData.TIMESTAMP + " = ? AND (" + MovementDataContract.RawData.ACTIVITY_TYPE + " = ? OR " + MovementDataContract.RawData.ACTIVITY_TYPE + " = ?)";
+
+                        String[] selectionArgs = {Long.toString(timestamp), Integer.toString(DetectedActivity.IN_VEHICLE), Integer.toString(DetectedActivity.ON_BICYCLE)};
+
+                        Cursor cursor = resolver.query(MovementDataContract.RawData.CONTENT_URI, MovementDataContract.RawData.DEFAULT_PROJECTION, selection, selectionArgs, MovementDataContract.RawData.DEFAULT_SORT_ORDER);
+
+                        if (cursor != null && cursor.getCount() > 0) {
+                            cursor.moveToFirst();
+                            DetectedMovement possibleTripStart = DetectedMovement.fromCursor(cursor);
+
+                            if (possibleTripStart.getConfidence() > 40) {
+                                Toast.makeText(this, "You seem to have started an " + possibleTripStart.getActivityName() + " trip.", Toast.LENGTH_SHORT).show();
+                                // TODO Write possible tripstart to db (marked "unconfirmed")
+                                // TODO Get tentative trip start location
+                            }
+                        }
+                        break;
+                    case DetectedActivity.ON_FOOT:
                     default:
                 }
             }

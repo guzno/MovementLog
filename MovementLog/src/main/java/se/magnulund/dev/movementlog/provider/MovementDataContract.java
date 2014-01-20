@@ -87,6 +87,7 @@ public class MovementDataContract {
          * @param context          the current application context
          * @param detectedMovement the detected movement
          */
+        // TODO add "confirmed" int (1|0)
         public static Uri addEntry(Context context, DetectedMovement detectedMovement) {
             final ContentResolver resolver = context.getContentResolver();
 
