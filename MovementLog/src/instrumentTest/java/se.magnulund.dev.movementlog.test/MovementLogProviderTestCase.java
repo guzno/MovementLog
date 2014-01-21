@@ -54,7 +54,7 @@ public class MovementLogProviderTestCase extends ProviderTestCase2<MovementDataP
 
         RawData rawData = new RawData(detectedActivity);
 
-        rawData.setTimestamp((int) Calendar.getInstance().getTimeInMillis());
+        rawData.setTimestamp(System.currentTimeMillis());
         rawData.setRank(0);
 
         Uri result = MovementDataContract.RawData.addEntry(getMockContext(), rawData);
@@ -137,7 +137,7 @@ public class MovementLogProviderTestCase extends ProviderTestCase2<MovementDataP
 
         RawData rawData = new RawData(detectedActivity);
 
-        rawData.setTimestamp((int) Calendar.getInstance().getTimeInMillis());
+        rawData.setTimestamp(System.currentTimeMillis());
         rawData.setRank(0);
 
         Uri result = MovementDataContract.RawData.addEntry(getMockContext(), rawData);
@@ -150,7 +150,7 @@ public class MovementLogProviderTestCase extends ProviderTestCase2<MovementDataP
 
         RawData updatedMovement = new RawData(detectedActivity);
 
-        updatedMovement.setTimestamp((int) Calendar.getInstance().getTimeInMillis());
+        updatedMovement.setTimestamp(System.currentTimeMillis());
         updatedMovement.setRank(1);
 
         boolean updateResult = MovementDataContract.RawData.updateEntry(getMockContext(), dataID, updatedMovement);
@@ -183,14 +183,14 @@ public class MovementLogProviderTestCase extends ProviderTestCase2<MovementDataP
 
         RawData rawData = new RawData(detectedActivity);
 
-        rawData.setTimestamp((int) Calendar.getInstance().getTimeInMillis() - 100000);
+        rawData.setTimestamp(System.currentTimeMillis() - 100000);
         rawData.setRank(0);
 
         Uri result1 = MovementDataContract.RawData.addEntry(getMockContext(), rawData);
 
         assertNotNull(result1);
 
-        rawData.setTimestamp((int) Calendar.getInstance().getTimeInMillis());
+        rawData.setTimestamp(System.currentTimeMillis());
 
         Uri result2 = MovementDataContract.RawData.addEntry(getMockContext(), rawData);
 
@@ -218,7 +218,7 @@ public class MovementLogProviderTestCase extends ProviderTestCase2<MovementDataP
 
         assertTrue(cursor.getCount() > 0);
 
-        int entriesDeleted = MovementDataContract.RawData.deleteOldEntries(getMockContext(), (int) Calendar.getInstance().getTimeInMillis() - 50000);
+        int entriesDeleted = MovementDataContract.RawData.deleteOldEntries(getMockContext(), System.currentTimeMillis() - 50000);
 
         assertTrue(entriesDeleted > 0);
 
