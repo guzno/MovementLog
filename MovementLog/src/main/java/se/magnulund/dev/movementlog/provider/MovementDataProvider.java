@@ -23,8 +23,6 @@ public class MovementDataProvider extends ContentProvider {
 
     public static final String AUTHORITY = MovementDataContract.AUTHORITY;
 
-    //public static final Uri CONTENT_URI = MovementDataContract.CONTENT_URI;
-
     private static final UriMatcher uriMatcher;
     private static final int RAWDATA = 1;
     private static final int RAWDATA_ENTRY = 2;
@@ -36,12 +34,6 @@ public class MovementDataProvider extends ContentProvider {
 
     @Override
     public boolean onCreate() {
-
-        /*
-         * Creates a new helper object. This method always returns quickly.
-         * Notice that the database itself isn't created or opened
-         * until SQLiteOpenHelper.getWritableDatabase is called
-         */
         dbHelper = new MovementsDatabase(getContext());
         return true;
     }
@@ -99,7 +91,7 @@ public class MovementDataProvider extends ContentProvider {
             orderBy = sortOrder;
         }
 
-        getDatabase();
+        dbHelper.getReadableDatabase();
 
         Cursor cursor = qb.query(
                 db,
@@ -134,17 +126,6 @@ public class MovementDataProvider extends ContentProvider {
             default:
                 throw new IllegalArgumentException("Unsupported URI: " + uri);
         }
-    }
-
-    // create/open the database
-    private void getDatabase() {
-
-        db = dbHelper.getWritableDatabase();
-
-        if (db == null) {
-            throw new SQLException("Failed to create or open movementDB -" + TAG);
-        }
-
     }
 
     // Implements the provider's insert method
@@ -199,7 +180,7 @@ public class MovementDataProvider extends ContentProvider {
             default:
         }
 
-        getDatabase();
+        dbHelper.getWritableDatabase();
 
         // add a new entry
         long rowID = db.insert(dbTable, null, contentValues);
@@ -220,7 +201,7 @@ public class MovementDataProvider extends ContentProvider {
     @Override
     public int delete(Uri uri, String selection, String[] selectionArgs) {
 
-        getDatabase();
+        dbHelper.getWritableDatabase();
 
         int count = 0;
         switch (uriMatcher.match(uri)) {
@@ -273,8 +254,7 @@ public class MovementDataProvider extends ContentProvider {
     }
 
     @Override
-    public int update(Uri uri, ContentValues values, String selection,
-                      String[] selectionArgs) {
+    public int update(Uri uri, ContentValues values, String selection, String[] selectionArgs) {
         int count = 0;
         switch (uriMatcher.match(uri)) {
             case RAWDATA:
@@ -323,6 +303,9 @@ public class MovementDataProvider extends ContentProvider {
                 throw new IllegalArgumentException(
                         "Unknown URI " + uri);
         }
+
+        dbHelper.getWritableDatabase();
+
         if (getContext() != null && count > 0) {
             getContext().getContentResolver().notifyChange(uri, null);
         }
