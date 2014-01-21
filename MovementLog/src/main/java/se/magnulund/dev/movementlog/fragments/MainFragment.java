@@ -1,4 +1,4 @@
-package se.magnulund.dev.movementlog;
+package se.magnulund.dev.movementlog.fragments;
 
 import android.app.Activity;
 import android.app.Fragment;
@@ -17,7 +17,10 @@ import android.view.ViewGroup;
 import android.widget.CursorAdapter;
 import android.widget.ListView;
 
+import se.magnulund.dev.movementlog.R;
 import se.magnulund.dev.movementlog.provider.MovementDataContract;
+import se.magnulund.dev.movementlog.rawdata.RawDataAdapter;
+import se.magnulund.dev.movementlog.trips.TripsAdapter;
 
 import static se.magnulund.dev.movementlog.R.string.rawdata_title;
 import static se.magnulund.dev.movementlog.R.string.trips_title;

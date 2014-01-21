@@ -1,10 +1,11 @@
-package se.magnulund.dev.movementlog;// Created by Gustav on 16/01/2014.
+package se.magnulund.dev.movementlog.trips;// Created by Gustav on 16/01/2014.
 
 import android.database.Cursor;
 import android.location.Location;
 
 import com.google.android.gms.location.DetectedActivity;
 
+import se.magnulund.dev.movementlog.R;
 import se.magnulund.dev.movementlog.provider.MovementDataContract;
 
 public class Trip {

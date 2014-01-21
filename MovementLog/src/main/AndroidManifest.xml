@@ -44,6 +44,17 @@
             android:exported="true" >
         </provider>
 
+        <service
+            android:name="se.magnulund.dev.movementlog.ActivityRecognitionService"
+            android:enabled="true"
+            android:exported="true" >
+        </service>
+
+        <receiver
+            android:name="se.magnulund.dev.movementlog.activityrecognition.ActivityRecognitionReceiver"
+            android:enabled="true"
+            android:exported="true" >
+        </receiver>
     </application>
 
 </manifest>

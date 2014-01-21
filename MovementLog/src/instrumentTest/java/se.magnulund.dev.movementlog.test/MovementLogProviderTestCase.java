@@ -1,18 +1,15 @@
 package se.magnulund.dev.movementlog.test;// Created by Gustav on 14/01/2014.
 
 import android.content.ContentResolver;
-import android.content.Context;
 import android.database.Cursor;
-import android.location.Location;
 import android.net.Uri;
 import android.test.ProviderTestCase2;
-import android.util.Log;
 
 import com.google.android.gms.location.DetectedActivity;
 
 import java.util.Calendar;
 
-import se.magnulund.dev.movementlog.DetectedMovement;
+import se.magnulund.dev.movementlog.rawdata.RawData;
 import se.magnulund.dev.movementlog.provider.MovementDataContract;
 import se.magnulund.dev.movementlog.provider.MovementDataProvider;
 
@@ -55,12 +52,12 @@ public class MovementLogProviderTestCase extends ProviderTestCase2<MovementDataP
 
         DetectedActivity detectedActivity = new DetectedActivity(DetectedActivity.IN_VEHICLE, 100);
 
-        DetectedMovement detectedMovement = new DetectedMovement(detectedActivity);
+        RawData rawData = new RawData(detectedActivity);
 
-        detectedMovement.setTimestamp((int) Calendar.getInstance().getTimeInMillis());
-        detectedMovement.setRank(0);
+        rawData.setTimestamp((int) Calendar.getInstance().getTimeInMillis());
+        rawData.setRank(0);
 
-        Uri result = MovementDataContract.RawData.addEntry(getMockContext(), detectedMovement);
+        Uri result = MovementDataContract.RawData.addEntry(getMockContext(), rawData);
         assertNotNull(result);
         assertNotNull(result.getPathSegments());
 
@@ -78,12 +75,12 @@ public class MovementLogProviderTestCase extends ProviderTestCase2<MovementDataP
 
         cursor.moveToFirst();
 
-        DetectedMovement storedMovement = DetectedMovement.fromCursor(cursor);
+        RawData storedMovement = RawData.fromCursor(cursor);
 
-        assertEquals(detectedMovement.getType(), storedMovement.getType());
-        assertEquals(detectedMovement.getConfidence(), storedMovement.getConfidence());
-        assertEquals(detectedMovement.getTimestamp(), storedMovement.getTimestamp());
-        assertEquals(detectedMovement.getRank(), storedMovement.getRank());
+        assertEquals(rawData.getType(), storedMovement.getType());
+        assertEquals(rawData.getConfidence(), storedMovement.getConfidence());
+        assertEquals(rawData.getTimestamp(), storedMovement.getTimestamp());
+        assertEquals(rawData.getRank(), storedMovement.getRank());
 
         // check if getEntry works
 
@@ -95,12 +92,12 @@ public class MovementLogProviderTestCase extends ProviderTestCase2<MovementDataP
 
         cursor.moveToFirst();
 
-        storedMovement = DetectedMovement.fromCursor(cursor);
+        storedMovement = RawData.fromCursor(cursor);
 
-        assertEquals(detectedMovement.getType(), storedMovement.getType());
-        assertEquals(detectedMovement.getConfidence(), storedMovement.getConfidence());
-        assertEquals(detectedMovement.getTimestamp(), storedMovement.getTimestamp());
-        assertEquals(detectedMovement.getRank(), storedMovement.getRank());
+        assertEquals(rawData.getType(), storedMovement.getType());
+        assertEquals(rawData.getConfidence(), storedMovement.getConfidence());
+        assertEquals(rawData.getTimestamp(), storedMovement.getTimestamp());
+        assertEquals(rawData.getRank(), storedMovement.getRank());
 
         //check ContentResolver
 
@@ -118,12 +115,12 @@ public class MovementLogProviderTestCase extends ProviderTestCase2<MovementDataP
 
         cursor.moveToFirst();
 
-        storedMovement = DetectedMovement.fromCursor(cursor);
+        storedMovement = RawData.fromCursor(cursor);
 
-        assertEquals(detectedMovement.getType(), storedMovement.getType());
-        assertEquals(detectedMovement.getConfidence(), storedMovement.getConfidence());
-        assertEquals(detectedMovement.getTimestamp(), storedMovement.getTimestamp());
-        assertEquals(detectedMovement.getRank(), storedMovement.getRank());
+        assertEquals(rawData.getType(), storedMovement.getType());
+        assertEquals(rawData.getConfidence(), storedMovement.getConfidence());
+        assertEquals(rawData.getTimestamp(), storedMovement.getTimestamp());
+        assertEquals(rawData.getRank(), storedMovement.getRank());
 
     }
 
@@ -138,12 +135,12 @@ public class MovementLogProviderTestCase extends ProviderTestCase2<MovementDataP
 
         DetectedActivity detectedActivity = new DetectedActivity(DetectedActivity.IN_VEHICLE, 100);
 
-        DetectedMovement detectedMovement = new DetectedMovement(detectedActivity);
+        RawData rawData = new RawData(detectedActivity);
 
-        detectedMovement.setTimestamp((int) Calendar.getInstance().getTimeInMillis());
-        detectedMovement.setRank(0);
+        rawData.setTimestamp((int) Calendar.getInstance().getTimeInMillis());
+        rawData.setRank(0);
 
-        Uri result = MovementDataContract.RawData.addEntry(getMockContext(), detectedMovement);
+        Uri result = MovementDataContract.RawData.addEntry(getMockContext(), rawData);
 
         assertNotNull(result);
 
@@ -151,7 +148,7 @@ public class MovementLogProviderTestCase extends ProviderTestCase2<MovementDataP
 
         long dataID = Long.valueOf(result.getPathSegments().get(1));
 
-        DetectedMovement updatedMovement = new DetectedMovement(detectedActivity);
+        RawData updatedMovement = new RawData(detectedActivity);
 
         updatedMovement.setTimestamp((int) Calendar.getInstance().getTimeInMillis());
         updatedMovement.setRank(1);
@@ -168,7 +165,7 @@ public class MovementLogProviderTestCase extends ProviderTestCase2<MovementDataP
 
         cursor.moveToFirst();
 
-        DetectedMovement storedMovement = DetectedMovement.fromCursor(cursor);
+        RawData storedMovement = RawData.fromCursor(cursor);
 
         assertEquals(updatedMovement.getTimestamp(), storedMovement.getTimestamp());
         assertEquals(updatedMovement.getRank(), storedMovement.getRank());
@@ -184,18 +181,18 @@ public class MovementLogProviderTestCase extends ProviderTestCase2<MovementDataP
 
         DetectedActivity detectedActivity = new DetectedActivity(DetectedActivity.IN_VEHICLE, 100);
 
-        DetectedMovement detectedMovement = new DetectedMovement(detectedActivity);
+        RawData rawData = new RawData(detectedActivity);
 
-        detectedMovement.setTimestamp((int) Calendar.getInstance().getTimeInMillis() - 100000);
-        detectedMovement.setRank(0);
+        rawData.setTimestamp((int) Calendar.getInstance().getTimeInMillis() - 100000);
+        rawData.setRank(0);
 
-        Uri result1 = MovementDataContract.RawData.addEntry(getMockContext(), detectedMovement);
+        Uri result1 = MovementDataContract.RawData.addEntry(getMockContext(), rawData);
 
         assertNotNull(result1);
 
-        detectedMovement.setTimestamp((int) Calendar.getInstance().getTimeInMillis());
+        rawData.setTimestamp((int) Calendar.getInstance().getTimeInMillis());
 
-        Uri result2 = MovementDataContract.RawData.addEntry(getMockContext(), detectedMovement);
+        Uri result2 = MovementDataContract.RawData.addEntry(getMockContext(), rawData);
 
         assertNotNull(result2);
 
@@ -203,7 +200,7 @@ public class MovementLogProviderTestCase extends ProviderTestCase2<MovementDataP
 
         long result2ID = Long.valueOf(result2.getPathSegments().get(1));
 
-        Uri result3 = MovementDataContract.RawData.addEntry(getMockContext(), detectedMovement);
+        Uri result3 = MovementDataContract.RawData.addEntry(getMockContext(), rawData);
 
         assertNotNull(result3);
 

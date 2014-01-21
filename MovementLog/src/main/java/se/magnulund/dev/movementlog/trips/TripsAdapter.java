@@ -1,4 +1,4 @@
-package se.magnulund.dev.movementlog;// Created by Gustav on 20/01/2014.
+package se.magnulund.dev.movementlog.trips;// Created by Gustav on 20/01/2014.
 
 import android.content.Context;
 import android.database.Cursor;
@@ -10,6 +10,8 @@ import android.widget.TextView;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+
+import se.magnulund.dev.movementlog.R;
 
 public class TripsAdapter extends CursorAdapter {
     private static final String TAG = "TripsAdapter";

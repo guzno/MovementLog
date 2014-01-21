@@ -1,4 +1,4 @@
-package se.magnulund.dev.movementlog;// Created by Gustav on 14/01/2014.
+package se.magnulund.dev.movementlog.rawdata;// Created by Gustav on 14/01/2014.
 
 import android.database.Cursor;
 
@@ -6,22 +6,22 @@ import com.google.android.gms.location.DetectedActivity;
 
 import se.magnulund.dev.movementlog.provider.MovementDataContract;
 
-public class DetectedMovement extends DetectedActivity {
-    private static final String TAG = "DetectedMovement";
+public class RawData extends DetectedActivity {
+    private static final String TAG = "RawData";
     long timestamp;
     int confidence_rank;
 
-    public DetectedMovement(int activityType, int confidence, long timestamp, int confidence_rank) {
+    public RawData(int activityType, int confidence, long timestamp, int confidence_rank) {
         super(activityType, confidence);
         this.timestamp = timestamp;
         this.confidence_rank = confidence_rank;
     }
 
-    public DetectedMovement(DetectedActivity detectedActivity) {
+    public RawData(DetectedActivity detectedActivity) {
         super(detectedActivity.getType(), detectedActivity.getConfidence());
     }
 
-    public DetectedMovement(DetectedActivity detectedActivity, long timestamp, int confidence_rank) {
+    public RawData(DetectedActivity detectedActivity, long timestamp, int confidence_rank) {
         super(detectedActivity.getType(), detectedActivity.getConfidence());
         this.timestamp = timestamp;
         this.confidence_rank = confidence_rank;
@@ -43,7 +43,7 @@ public class DetectedMovement extends DetectedActivity {
         this.confidence_rank = confidence_rank;
     }
 
-    public static DetectedMovement fromCursor(Cursor cursor) {
+    public static RawData fromCursor(Cursor cursor) {
 
         final int activityType = cursor.getInt(cursor.getColumnIndex(MovementDataContract.RawData.ACTIVITY_TYPE));
 
@@ -53,7 +53,7 @@ public class DetectedMovement extends DetectedActivity {
 
         final int confidenceRank = cursor.getInt(cursor.getColumnIndex(MovementDataContract.RawData.CONFIDENCE_RANK));
 
-        return new DetectedMovement(activityType, confidence, timestamp, confidenceRank);
+        return new RawData(activityType, confidence, timestamp, confidenceRank);
     }
 
     /**

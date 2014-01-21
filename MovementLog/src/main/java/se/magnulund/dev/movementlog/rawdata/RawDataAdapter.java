@@ -1,4 +1,4 @@
-package se.magnulund.dev.movementlog;// Created by Gustav on 19/01/2014.
+package se.magnulund.dev.movementlog.rawdata;// Created by Gustav on 19/01/2014.
 
 import android.content.Context;
 import android.database.Cursor;
@@ -10,6 +10,8 @@ import android.widget.TextView;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+
+import se.magnulund.dev.movementlog.R;
 
 public class RawDataAdapter extends CursorAdapter {
     private static final String TAG = "RawDataAdapter";
@@ -46,13 +48,13 @@ public class RawDataAdapter extends CursorAdapter {
     public void bindView(View view, Context context, Cursor cursor) {
         ViewHolder holder = (ViewHolder) view.getTag();
 
-        DetectedMovement detectedMovement = DetectedMovement.fromCursor(cursor);
+        RawData rawData = RawData.fromCursor(cursor);
 
-        holder.typeTextView.setText(detectedMovement.getActivityName());
+        holder.typeTextView.setText(rawData.getActivityName());
 
-        holder.confidenceTextView.setText(Integer.toString(detectedMovement.getConfidence()) + "% confidence");
+        holder.confidenceTextView.setText(Integer.toString(rawData.getConfidence()) + "% confidence");
 
-        Date date = new Date(detectedMovement.getTimestamp());
+        Date date = new Date(rawData.getTimestamp());
 
         SimpleDateFormat dateFormat = new SimpleDateFormat("MMM d - kk:mm:ss");
 

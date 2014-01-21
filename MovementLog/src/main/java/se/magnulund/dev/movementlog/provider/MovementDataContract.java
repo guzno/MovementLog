@@ -13,11 +13,10 @@ import android.provider.BaseColumns;
 import java.util.Arrays;
 import java.util.Calendar;
 
-import se.magnulund.dev.movementlog.DetectedMovement;
-import se.magnulund.dev.movementlog.Trip;
+import se.magnulund.dev.movementlog.trips.Trip;
 
 /**
- * A provider of movement raw data (MovementDataContract.RawData) and
+ * A provider of detected activity raw data (MovementDataContract.RawData) and
  * driving/biking data (MovementDataContract.Trips)
  */
 public class MovementDataContract {
@@ -84,20 +83,20 @@ public class MovementDataContract {
         /**
          * Adds an entry to the rawdata log, with the given timestamp, activity type and confidence.
          *
-         * @param context          the current application context
-         * @param detectedMovement the detected movement
+         * @param context   the current application context
+         * @param rawData   the detected activity rawdata
          */
         // TODO add "confirmed" int (1|0)
-        public static Uri addEntry(Context context, DetectedMovement detectedMovement) {
+        public static Uri addEntry(Context context, se.magnulund.dev.movementlog.rawdata.RawData rawData) {
             final ContentResolver resolver = context.getContentResolver();
 
             final int COLUMN_COUNT = 4;
             ContentValues values = new ContentValues(COLUMN_COUNT);
 
-            values.put(TIMESTAMP, detectedMovement.getTimestamp());
-            values.put(ACTIVITY_TYPE, detectedMovement.getType());
-            values.put(CONFIDENCE, detectedMovement.getConfidence());
-            values.put(CONFIDENCE_RANK, detectedMovement.getRank());
+            values.put(TIMESTAMP, rawData.getTimestamp());
+            values.put(ACTIVITY_TYPE, rawData.getType());
+            values.put(CONFIDENCE, rawData.getConfidence());
+            values.put(CONFIDENCE_RANK, rawData.getRank());
 
             return resolver.insert(CONTENT_URI, values);
         }
@@ -151,9 +150,9 @@ public class MovementDataContract {
          *
          * @param context          the current application context
          * @param id               the id of the entry to be updated
-         * @param detectedMovement the DetectedMovement object containing the data to be stored
+         * @param rawData the RawData object containing the data to be stored
          */
-        public static boolean updateEntry(Context context, long id, DetectedMovement detectedMovement) {
+        public static boolean updateEntry(Context context, long id, se.magnulund.dev.movementlog.rawdata.RawData rawData) {
             final ContentResolver resolver = context.getContentResolver();
 
             Uri uri = ContentUris.withAppendedId(CONTENT_URI, id);
@@ -161,10 +160,10 @@ public class MovementDataContract {
             final int COLUMN_COUNT = 4;
             ContentValues values = new ContentValues(COLUMN_COUNT);
 
-            values.put(TIMESTAMP, detectedMovement.getTimestamp());
-            values.put(ACTIVITY_TYPE, detectedMovement.getType());
-            values.put(CONFIDENCE, detectedMovement.getConfidence());
-            values.put(CONFIDENCE_RANK, detectedMovement.getRank());
+            values.put(TIMESTAMP, rawData.getTimestamp());
+            values.put(ACTIVITY_TYPE, rawData.getType());
+            values.put(CONFIDENCE, rawData.getConfidence());
+            values.put(CONFIDENCE_RANK, rawData.getRank());
 
             return uri != null && resolver.update(uri, values, null, null) > 0;
         }

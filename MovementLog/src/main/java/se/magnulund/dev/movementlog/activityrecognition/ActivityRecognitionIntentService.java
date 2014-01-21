@@ -1,4 +1,4 @@
-package se.magnulund.dev.movementlog;
+package se.magnulund.dev.movementlog.activityrecognition;
 
 import android.app.IntentService;
 import android.content.ContentResolver;
@@ -12,10 +12,11 @@ import android.widget.Toast;
 import com.google.android.gms.location.ActivityRecognitionResult;
 import com.google.android.gms.location.DetectedActivity;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import se.magnulund.dev.movementlog.provider.MovementDataContract;
+import se.magnulund.dev.movementlog.rawdata.RawData;
+import se.magnulund.dev.movementlog.trips.Trip;
 
 public class ActivityRecognitionIntentService extends IntentService {
 
@@ -31,6 +32,8 @@ public class ActivityRecognitionIntentService extends IntentService {
         throw new UnsupportedOperationException("Not yet implemented");
     }
 
+
+
     @Override
     protected void onHandleIntent(Intent intent) {
         // If the incoming intent contains an update
@@ -39,7 +42,7 @@ public class ActivityRecognitionIntentService extends IntentService {
             // Get the update
             ActivityRecognitionResult result = ActivityRecognitionResult.extractResult(intent);
             // Get the most probable activity
-            DetectedMovement mostProbableMovement = new DetectedMovement(result.getMostProbableActivity());
+            RawData mostProbableActivity = new RawData(result.getMostProbableActivity());
             // Set timestamp for this update
             long timestamp = System.currentTimeMillis();
 
@@ -49,17 +52,17 @@ public class ActivityRecognitionIntentService extends IntentService {
 
             for (int i = 0; i < detectedActivities.size(); i++) {
 
-                DetectedMovement detectedMovement = new DetectedMovement(detectedActivities.get(i));
+                RawData rawData = new RawData(detectedActivities.get(i));
 
-                detectedMovement.setTimestamp(timestamp);
+                rawData.setTimestamp(timestamp);
 
-                detectedMovement.setRank(i);
+                rawData.setRank(i);
 
                 // insert data into db
-                Uri dataEntry = MovementDataContract.RawData.addEntry(this, detectedMovement);
+                Uri dataEntry = MovementDataContract.RawData.addEntry(this, rawData);
 
                 if (dataEntry != null && dataEntry.getPathSegments() != null) {
-                    //Log.d(TAG, "woho! I entered data for: " + detectedMovement.getActivityName() + " with ID: " + dataEntry.getPathSegments().get(1));
+                    //Log.d(TAG, "woho! I entered data for: " + rawData.getActivityName() + " with ID: " + dataEntry.getPathSegments().get(1));
                 } else {
                     Log.d(TAG, "krep! Data entry failed!");
                 }
@@ -69,7 +72,7 @@ public class ActivityRecognitionIntentService extends IntentService {
             Trip onGoingTrip = MovementDataContract.Trips.getLatestUnfinishedTrip(this);
 
             // get the activity type
-            int activityType = mostProbableMovement.getType();
+            int activityType = mostProbableActivity.getType();
 
             if (onGoingTrip != null) { // if there is and ongoing trip check if it just ended
                 if (activityType == DetectedActivity.ON_FOOT) {
@@ -87,7 +90,7 @@ public class ActivityRecognitionIntentService extends IntentService {
                         Uri tripEntry = MovementDataContract.Trips.addTrip(this, startedTrip);
 
                         if (tripEntry != null && tripEntry.getPathSegments() != null) {
-                            Log.d(TAG, "woho! I started a " + mostProbableMovement.getActivityName() + " trip with ID: " + tripEntry.getPathSegments().get(1));
+                            Log.d(TAG, "woho! I started a " + mostProbableActivity.getActivityName() + " trip with ID: " + tripEntry.getPathSegments().get(1));
                         } else {
                             Log.d(TAG, "krep! Trip entry failed!");
                         }
@@ -107,7 +110,7 @@ public class ActivityRecognitionIntentService extends IntentService {
 
                         if (cursor != null && cursor.getCount() > 0) {
                             cursor.moveToFirst();
-                            DetectedMovement possibleTripStart = DetectedMovement.fromCursor(cursor);
+                            RawData possibleTripStart = RawData.fromCursor(cursor);
 
                             if (possibleTripStart.getConfidence() > 30) {
                                 Toast.makeText(this, "You seem to have started an " + possibleTripStart.getActivityName() + " trip.", Toast.LENGTH_SHORT).show();

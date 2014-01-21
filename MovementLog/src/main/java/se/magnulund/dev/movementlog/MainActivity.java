@@ -17,6 +17,9 @@ import com.google.android.gms.common.GooglePlayServicesClient;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.location.ActivityRecognitionClient;
 
+import se.magnulund.dev.movementlog.activityrecognition.ActivityRecognitionIntentService;
+import se.magnulund.dev.movementlog.fragments.MainFragment;
+
 public class MainActivity extends Activity implements GooglePlayServicesClient.ConnectionCallbacks, GooglePlayServicesClient.OnConnectionFailedListener, MainFragment.MainFragmentListener {
 
     private static final String TAG = "MainActivity";
@@ -37,8 +40,8 @@ public class MainActivity extends Activity implements GooglePlayServicesClient.C
 
     private int currentFragment;
 
-    MainFragment rawDataFragment;
-    MainFragment tripsFragment;
+    private MainFragment rawDataFragment;
+    private MainFragment tripsFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
