@@ -7,7 +7,7 @@ import com.google.android.gms.location.DetectedActivity;
 import se.magnulund.dev.movementlog.provider.MovementDataContract;
 
 public class RawData extends DetectedActivity {
-    private static final String TAG = "RawData";
+    private static final String TAG = "RawDataLog";
     long timestamp;
     int confidence_rank;
 
@@ -45,13 +45,13 @@ public class RawData extends DetectedActivity {
 
     public static RawData fromCursor(Cursor cursor) {
 
-        final int activityType = cursor.getInt(cursor.getColumnIndex(MovementDataContract.RawData.ACTIVITY_TYPE));
+        final int activityType = cursor.getInt(cursor.getColumnIndex(MovementDataContract.RawDataLog.ACTIVITY_TYPE));
 
-        final int confidence = cursor.getInt(cursor.getColumnIndex(MovementDataContract.RawData.CONFIDENCE));
+        final int confidence = cursor.getInt(cursor.getColumnIndex(MovementDataContract.RawDataLog.CONFIDENCE));
 
-        final long timestamp = cursor.getLong(cursor.getColumnIndex(MovementDataContract.RawData.TIMESTAMP));
+        final long timestamp = cursor.getLong(cursor.getColumnIndex(MovementDataContract.RawDataLog.TIMESTAMP));
 
-        final int confidenceRank = cursor.getInt(cursor.getColumnIndex(MovementDataContract.RawData.CONFIDENCE_RANK));
+        final int confidenceRank = cursor.getInt(cursor.getColumnIndex(MovementDataContract.RawDataLog.CONFIDENCE_RANK));
 
         return new RawData(activityType, confidence, timestamp, confidenceRank);
     }

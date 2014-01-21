@@ -33,7 +33,7 @@
             android:value="@integer/google_play_services_version" />
 
         <service
-            android:name="se.magnulund.dev.movementlog.ActivityRecognitionIntentService"
+            android:name="se.magnulund.dev.movementlog.activityrecognition.ActivityRecognitionIntentService"
             android:enabled="true"
             android:exported="false" />
 
@@ -45,15 +45,15 @@
         </provider>
 
         <service
-            android:name="se.magnulund.dev.movementlog.ActivityRecognitionService"
-            android:enabled="true"
-            android:exported="true" >
+            android:name="se.magnulund.dev.movementlog.activityrecognition.ActivityRecognitionService"
+            android:enabled="false"
+            android:exported="false" >
         </service>
 
         <receiver
             android:name="se.magnulund.dev.movementlog.activityrecognition.ActivityRecognitionReceiver"
-            android:enabled="true"
-            android:exported="true" >
+            android:enabled="false"
+            android:exported="false" >
         </receiver>
     </application>
 

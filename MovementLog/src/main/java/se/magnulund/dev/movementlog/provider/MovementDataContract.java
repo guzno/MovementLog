@@ -13,11 +13,12 @@ import android.provider.BaseColumns;
 import java.util.Arrays;
 import java.util.Calendar;
 
+import se.magnulund.dev.movementlog.rawdata.RawData;
 import se.magnulund.dev.movementlog.trips.Trip;
 
 /**
- * A provider of detected activity raw data (MovementDataContract.RawData) and
- * driving/biking data (MovementDataContract.Trips)
+ * A provider of detected activity raw data (MovementDataContract.RawDataLog) and
+ * driving/biking data (MovementDataContract.TripLog)
  */
 public class MovementDataContract {
     /**
@@ -33,7 +34,7 @@ public class MovementDataContract {
     /**
      * Contains raw data from activity recognition.
      */
-    public static class RawData implements BaseColumns {
+    public static class RawDataLog implements BaseColumns {
         public static final String URI_PART_ALL_CONTENT = "rawdata";
 
         public static final String URI_PART_SINGLE_ITEM = URI_PART_ALL_CONTENT + "/#";
@@ -87,7 +88,7 @@ public class MovementDataContract {
          * @param rawData   the detected activity rawdata
          */
         // TODO add "confirmed" int (1|0)
-        public static Uri addEntry(Context context, se.magnulund.dev.movementlog.rawdata.RawData rawData) {
+        public static Uri addEntry(Context context, RawData rawData) {
             final ContentResolver resolver = context.getContentResolver();
 
             final int COLUMN_COUNT = 4;
@@ -136,7 +137,7 @@ public class MovementDataContract {
         }
 
         /**
-         * Returns a cursor to the full RawData table.
+         * Returns a cursor to the full RawDataLog table.
          *
          * @param context the current application context
          */
@@ -150,9 +151,9 @@ public class MovementDataContract {
          *
          * @param context          the current application context
          * @param id               the id of the entry to be updated
-         * @param rawData the RawData object containing the data to be stored
+         * @param rawData the RawDataLog object containing the data to be stored
          */
-        public static boolean updateEntry(Context context, long id, se.magnulund.dev.movementlog.rawdata.RawData rawData) {
+        public static boolean updateEntry(Context context, long id, RawData rawData) {
             final ContentResolver resolver = context.getContentResolver();
 
             Uri uri = ContentUris.withAppendedId(CONTENT_URI, id);
@@ -169,7 +170,7 @@ public class MovementDataContract {
         }
 
         /**
-         * Deletes an entry with a specific id from the RawData database.
+         * Deletes an entry with a specific id from the RawDataLog database.
          *
          * @param context the current application context
          * @param id      the ID of the entry to be deleted
@@ -213,7 +214,7 @@ public class MovementDataContract {
         }
 
         /**
-         * Checks if a cursor has all columns for a full RawData entry.
+         * Checks if a cursor has all columns for a full RawDataLog entry.
          *
          * @param cursor the cursor to check
          */
@@ -236,7 +237,7 @@ public class MovementDataContract {
     /**
      * Contains data for detected trips.
      */
-    public static class Trips implements BaseColumns {
+    public static class TripLog implements BaseColumns {
         public static final String URI_PART_ALL_CONTENT = "trips";
 
         public static final String URI_PART_SINGLE_ITEM = URI_PART_ALL_CONTENT + "/#";
@@ -296,7 +297,13 @@ public class MovementDataContract {
          */
         public static final String END_LONGITUDE = "end_longitude";
 
-        public static final String[] DEFAULT_PROJECTION = {_ID, START_TIME, END_TIME, TRIP_TYPE, START_LATITUDE, START_LONGITUDE, END_LATITUDE, END_LONGITUDE};
+        /**
+         * The confirmed column. An boolean (int 0|1) representing potential trip start times/locations and confirmed trips.
+         * <p>TYPE: STRING</p>
+         */
+        public static final String CONFIRMED = "confirmed";
+
+        public static final String[] DEFAULT_PROJECTION = {_ID, START_TIME, END_TIME, TRIP_TYPE, START_LATITUDE, START_LONGITUDE, END_LATITUDE, END_LONGITUDE, CONFIRMED};
 
         public static final String DEFAULT_SORT_ORDER = START_TIME + " DESC, " + END_TIME + " DESC";
 
@@ -310,7 +317,7 @@ public class MovementDataContract {
         public static Uri addTrip(Context context, Trip trip) {
             final ContentResolver resolver = context.getContentResolver();
 
-            final int COLUMN_COUNT = 7;
+            final int COLUMN_COUNT = 8;
             ContentValues values = new ContentValues(COLUMN_COUNT);
 
             values.put(START_TIME, trip.getStartTime());
@@ -328,6 +335,8 @@ public class MovementDataContract {
                 values.put(END_LATITUDE, Location.convert(end.getLatitude(), Location.FORMAT_DEGREES));
                 values.put(END_LONGITUDE, Location.convert(end.getLongitude(), Location.FORMAT_DEGREES));
             }
+
+            values.put(CONFIRMED, (trip.getConfirmed()) ? 1 : 0);
 
             return resolver.insert(CONTENT_URI, values);
         }
@@ -367,7 +376,7 @@ public class MovementDataContract {
         }
 
         /**
-         * Returns a cursor to the full Trips table.
+         * Returns a cursor to the full TripLog table.
          *
          * @param context the current application context
          */
@@ -384,9 +393,9 @@ public class MovementDataContract {
         public static Trip getLatestUnfinishedTrip(Context context) {
             final ContentResolver resolver = context.getContentResolver();
 
-            String selection = END_TIME + " = ?";
+            String selection = END_TIME + " = ? AND " + CONFIRMED + " = ?";
 
-            String[] selectionArgs = {"0"};
+            String[] selectionArgs = {Integer.toString(0), Integer.toString(1)};
 
             String sortOrderWithLimit = DEFAULT_SORT_ORDER + " LIMIT 1";
 
@@ -420,7 +429,7 @@ public class MovementDataContract {
 
             Uri uri = ContentUris.withAppendedId(CONTENT_URI, trip.getID());
 
-            final int COLUMN_COUNT = 7;
+            final int COLUMN_COUNT = 8;
             ContentValues values = new ContentValues(COLUMN_COUNT);
 
             values.put(START_TIME, trip.getStartTime());
@@ -438,6 +447,8 @@ public class MovementDataContract {
                 values.put(END_LATITUDE, Location.convert(end.getLatitude(), Location.FORMAT_DEGREES));
                 values.put(END_LONGITUDE, Location.convert(end.getLongitude(), Location.FORMAT_DEGREES));
             }
+
+            values.put(CONFIRMED, (trip.getConfirmed()) ? 1 : 0);
 
             return uri != null && resolver.update(uri, values, null, null) > 0;
         }
@@ -563,7 +574,8 @@ public class MovementDataContract {
                     START_LATITUDE,
                     START_LONGITUDE,
                     END_LATITUDE,
-                    END_LONGITUDE
+                    END_LONGITUDE,
+                    CONFIRMED
             };
 
             return cursor.getColumnNames() != null && Arrays.equals(cursor.getColumnNames(), validColumns);

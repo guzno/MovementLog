@@ -64,14 +64,26 @@ public class TripsAdapter extends CursorAdapter {
 
             holder.dateTextView.setText(dateFormat.format(startTime));
 
-            holder.startTimeTextView.setText(timeFormat.format(startTime));
+            if (trip.getConfirmed()) {
+                holder.startTimeTextView.setText(timeFormat.format(startTime));
 
-            // -- TODO calculate duration
-            holder.durationTextView.setText("XX min");
+                // -- TODO calculate duration
+                holder.durationTextView.setText("XX min");
 
-            Date endTime = new Date(trip.getEndTime());
+                long end = trip.getEndTime();
 
-            holder.endTimeTextView.setText(timeFormat.format(endTime));
+                if (end > 0) {
+                    Date endTime = new Date(trip.getEndTime());
+
+                    holder.endTimeTextView.setText(timeFormat.format(endTime));
+                } else {
+                    holder.endTimeTextView.setText(context.getString(R.string.trip_ongoing));
+                }
+
+            } else {
+                holder.startTimeTextView.setText(timeFormat.format(startTime) + " - " + context.getString(R.string.trip_unconfirmed));
+            }
+
 
         } catch (Exception e) {
             e.printStackTrace();

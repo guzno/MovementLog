@@ -1,9 +1,7 @@
 package se.magnulund.dev.movementlog.activityrecognition;
 
 import android.app.IntentService;
-import android.content.ContentResolver;
 import android.content.Intent;
-import android.database.Cursor;
 import android.net.Uri;
 import android.os.IBinder;
 import android.util.Log;
@@ -12,6 +10,7 @@ import android.widget.Toast;
 import com.google.android.gms.location.ActivityRecognitionResult;
 import com.google.android.gms.location.DetectedActivity;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import se.magnulund.dev.movementlog.provider.MovementDataContract;
@@ -21,6 +20,8 @@ import se.magnulund.dev.movementlog.trips.Trip;
 public class ActivityRecognitionIntentService extends IntentService {
 
     private static final String TAG = "ActivityRecognitionIntentService";
+
+    private static final int POSSIBLE_TRIP_CONFIDENCE_THRESHOLD = 30;
 
     public ActivityRecognitionIntentService() {
         super(TAG);
@@ -33,20 +34,20 @@ public class ActivityRecognitionIntentService extends IntentService {
     }
 
 
-
     @Override
     protected void onHandleIntent(Intent intent) {
-        // If the incoming intent contains an update
-        if (ActivityRecognitionResult.hasResult(intent)) {
 
-            // Get the update
-            ActivityRecognitionResult result = ActivityRecognitionResult.extractResult(intent);
-            // Get the most probable activity
-            RawData mostProbableActivity = new RawData(result.getMostProbableActivity());
-            // Set timestamp for this update
-            long timestamp = System.currentTimeMillis();
+        if (ActivityRecognitionResult.hasResult(intent)) {        // If the incoming intent contains an update
 
-            List<DetectedActivity> detectedActivities = result.getProbableActivities();
+            ActivityRecognitionResult result = ActivityRecognitionResult.extractResult(intent);            // Get the update
+
+            long timestamp = System.currentTimeMillis();            // Set timestamp for this update
+
+            List<DetectedActivity> detectedActivities = result.getProbableActivities();            // Get detected activities
+
+            RawData mostProbableActivity = null;            // the most probable activity
+
+            ArrayList<RawData> rawDatas = new ArrayList<RawData>();
 
             // -- TODO analyze all detected activities??
 
@@ -54,77 +55,82 @@ public class ActivityRecognitionIntentService extends IntentService {
 
                 RawData rawData = new RawData(detectedActivities.get(i));
 
+                if (i == 0) {
+                    mostProbableActivity = rawData;
+                }
+
+                rawDatas.add(rawData);
+
                 rawData.setTimestamp(timestamp);
 
                 rawData.setRank(i);
 
-                // insert data into db
-                Uri dataEntry = MovementDataContract.RawData.addEntry(this, rawData);
+                Uri dataEntry = MovementDataContract.RawDataLog.addEntry(this, rawData);                // insert data into db
 
-                if (dataEntry != null && dataEntry.getPathSegments() != null) {
-                    //Log.d(TAG, "woho! I entered data for: " + rawData.getActivityName() + " with ID: " + dataEntry.getPathSegments().get(1));
-                } else {
+                if (dataEntry == null || dataEntry.getPathSegments() == null) {
                     Log.d(TAG, "krep! Data entry failed!");
                 }
             }
 
-            // get the current trip if any
-            Trip onGoingTrip = MovementDataContract.Trips.getLatestUnfinishedTrip(this);
+            if (mostProbableActivity != null) {
 
-            // get the activity type
-            int activityType = mostProbableActivity.getType();
+                Trip onGoingTrip = MovementDataContract.TripLog.getLatestUnfinishedTrip(this);            // get the current trip if any
 
-            if (onGoingTrip != null) { // if there is and ongoing trip check if it just ended
-                if (activityType == DetectedActivity.ON_FOOT) {
-                    onGoingTrip.setEndTime(timestamp);
-                    MovementDataContract.Trips.updateTrip(this, onGoingTrip);
-                    // TODO Get trip end location
-                }
-            } else { // check if we just started a trip
-                switch (activityType) {
-                    case DetectedActivity.IN_VEHICLE:
-                    case DetectedActivity.ON_BICYCLE:
-                        // create a new Trip
-                        Trip startedTrip = new Trip(timestamp, activityType);
-                        // insert trip into db
-                        Uri tripEntry = MovementDataContract.Trips.addTrip(this, startedTrip);
+                int activityType = mostProbableActivity.getType();            // get the activity type
 
-                        if (tripEntry != null && tripEntry.getPathSegments() != null) {
-                            Log.d(TAG, "woho! I started a " + mostProbableActivity.getActivityName() + " trip with ID: " + tripEntry.getPathSegments().get(1));
-                        } else {
-                            Log.d(TAG, "krep! Trip entry failed!");
-                        }
-                        // TODO Get trip start location
-                        break;
+                if (onGoingTrip != null) { // if there is an ongoing trip check if walking was detected and end the trip
+                    if (activityType == DetectedActivity.ON_FOOT) {
+                        onGoingTrip.setEndTime(timestamp);
+                        MovementDataContract.TripLog.updateTrip(this, onGoingTrip);
+                        // TODO Get trip end location
+                    }
+                } else { // check if we just started a trip
+                    switch (activityType) {
+                        case DetectedActivity.IN_VEHICLE:
+                        case DetectedActivity.ON_BICYCLE:
+                            // create a new Trip
+                            Trip startedTrip = new Trip(timestamp, activityType);
 
-                    case DetectedActivity.STILL:
-                    case DetectedActivity.TILTING:
-                    case DetectedActivity.UNKNOWN:
-                        ContentResolver resolver = getContentResolver();
+                            startedTrip.setConfirmed(true);
+                            // insert trip into db
+                            Uri tripEntry = MovementDataContract.TripLog.addTrip(this, startedTrip);
 
-                        String selection = MovementDataContract.RawData.TIMESTAMP + " = ? AND (" + MovementDataContract.RawData.ACTIVITY_TYPE + " = ? OR " + MovementDataContract.RawData.ACTIVITY_TYPE + " = ?)";
-
-                        String[] selectionArgs = {Long.toString(timestamp), Integer.toString(DetectedActivity.IN_VEHICLE), Integer.toString(DetectedActivity.ON_BICYCLE)};
-
-                        Cursor cursor = resolver.query(MovementDataContract.RawData.CONTENT_URI, MovementDataContract.RawData.DEFAULT_PROJECTION, selection, selectionArgs, MovementDataContract.RawData.DEFAULT_SORT_ORDER);
-
-                        if (cursor != null && cursor.getCount() > 0) {
-                            cursor.moveToFirst();
-                            RawData possibleTripStart = RawData.fromCursor(cursor);
-
-                            if (possibleTripStart.getConfidence() > 30) {
-                                Toast.makeText(this, "You seem to have started an " + possibleTripStart.getActivityName() + " trip.", Toast.LENGTH_SHORT).show();
-                                // TODO Write possible tripstart to db (marked "unconfirmed")
-                                // TODO Get tentative trip start location
+                            if (tripEntry != null && tripEntry.getPathSegments() != null) {
+                                Log.d(TAG, "woho! I started a " + mostProbableActivity.getActivityName() + " trip with ID: " + tripEntry.getPathSegments().get(1));
+                            } else {
+                                Log.d(TAG, "krep! Trip entry failed!");
                             }
-                        }
-                        break;
-                    case DetectedActivity.ON_FOOT:
-                    default:
+                            // TODO Get trip start location
+                            break;
+
+                        case DetectedActivity.STILL:
+                        case DetectedActivity.TILTING:
+                        case DetectedActivity.UNKNOWN:
+                            for (int i = 1; i < rawDatas.size(); i++) {
+                                RawData data = rawDatas.get(i);
+                                if (isPossibleTripStart(data)) {
+                                    Toast.makeText(this, "You seem to have started an " + data.getActivityName() + " trip.", Toast.LENGTH_SHORT).show();
+                                    Trip possibleTrip = new Trip(timestamp, activityType);
+                                    MovementDataContract.TripLog.addTrip(this, possibleTrip);
+                                    // TODO Get possible trip start location
+                                }
+                            }
+
+
+                            break;
+                        case DetectedActivity.ON_FOOT:
+                        default:
+                    }
                 }
             }
         } else {
             Log.d(TAG, "Unhandled intent");
         }
+    }
+
+    private boolean isPossibleTripStart(DetectedActivity potentialTripStart){
+
+        return (potentialTripStart.getType() == DetectedActivity.IN_VEHICLE || potentialTripStart.getType() == DetectedActivity.ON_BICYCLE)
+                && potentialTripStart.getConfidence() > POSSIBLE_TRIP_CONFIDENCE_THRESHOLD;
     }
 }

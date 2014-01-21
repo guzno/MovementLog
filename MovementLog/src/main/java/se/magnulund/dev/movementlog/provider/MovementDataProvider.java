@@ -28,23 +28,24 @@ public class MovementDataProvider extends ContentProvider {
     private static final String TRIPS_TABLE_NAME = "trips";
     private static final String RAWDATA_TABLE_CREATE =
             "create table " + RAWDATA_TABLE_NAME + "("
-                    + MovementDataContract.RawData._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
-                    + MovementDataContract.RawData.TIMESTAMP + " INTEGER, "
-                    + MovementDataContract.RawData.ACTIVITY_TYPE + " INTEGER, "
-                    + MovementDataContract.RawData.CONFIDENCE + " INTEGER, "
-                    + MovementDataContract.RawData.CONFIDENCE_RANK + " INTEGER"
+                    + MovementDataContract.RawDataLog._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
+                    + MovementDataContract.RawDataLog.TIMESTAMP + " INTEGER, "
+                    + MovementDataContract.RawDataLog.ACTIVITY_TYPE + " INTEGER, "
+                    + MovementDataContract.RawDataLog.CONFIDENCE + " INTEGER, "
+                    + MovementDataContract.RawDataLog.CONFIDENCE_RANK + " INTEGER"
                     + ");";
     // TODO add confirmed INTEGER
     private static final String TRIPS_TABLE_CREATE =
                     "create table " + TRIPS_TABLE_NAME + "("
-                    + MovementDataContract.Trips._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
-                    + MovementDataContract.Trips.START_TIME + " INTEGER, "
-                    + MovementDataContract.Trips.END_TIME + " INTEGER, "
-                    + MovementDataContract.Trips.TRIP_TYPE + " INTEGER,"
-                    + MovementDataContract.Trips.START_LATITUDE + " TEXT, "
-                    + MovementDataContract.Trips.START_LONGITUDE + " TEXT, "
-                    + MovementDataContract.Trips.END_LATITUDE + " TEXT, "
-                    + MovementDataContract.Trips.END_LONGITUDE + " TEXT"
+                    + MovementDataContract.TripLog._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
+                    + MovementDataContract.TripLog.START_TIME + " INTEGER, "
+                    + MovementDataContract.TripLog.END_TIME + " INTEGER, "
+                    + MovementDataContract.TripLog.TRIP_TYPE + " INTEGER,"
+                    + MovementDataContract.TripLog.START_LATITUDE + " TEXT, "
+                    + MovementDataContract.TripLog.START_LONGITUDE + " TEXT, "
+                    + MovementDataContract.TripLog.END_LATITUDE + " TEXT, "
+                    + MovementDataContract.TripLog.END_LONGITUDE + " TEXT,"
+                    + MovementDataContract.TripLog.CONFIRMED + " INTEGER"
                     + ");";
     private static final int DATABASE_VERSION = 1;
     private static final UriMatcher uriMatcher;
@@ -82,7 +83,7 @@ public class MovementDataProvider extends ContentProvider {
 
                 if (uri.getPathSegments() != null) {
                     qb.appendWhere(
-                            MovementDataContract.RawData._ID + " = " + uri.getPathSegments().get(1));
+                            MovementDataContract.RawDataLog._ID + " = " + uri.getPathSegments().get(1));
                 }
                 break;
             case RAWDATA:
@@ -95,7 +96,7 @@ public class MovementDataProvider extends ContentProvider {
 
                 if (uri.getPathSegments() != null) {
                     qb.appendWhere(
-                            MovementDataContract.Trips._ID + " = " + uri.getPathSegments().get(1));
+                            MovementDataContract.TripLog._ID + " = " + uri.getPathSegments().get(1));
                 }
                 break;
             case TRIPS:
@@ -109,11 +110,11 @@ public class MovementDataProvider extends ContentProvider {
             switch (uriMatcher.match(uri)) {
                 case RAWDATA_ENTRY:
                 case RAWDATA:
-                    orderBy = MovementDataContract.RawData.DEFAULT_SORT_ORDER;
+                    orderBy = MovementDataContract.RawDataLog.DEFAULT_SORT_ORDER;
                     break;
                 case TRIPS:
                 case TRIP_ENTRY:
-                    orderBy = MovementDataContract.Trips.DEFAULT_SORT_ORDER;
+                    orderBy = MovementDataContract.TripLog.DEFAULT_SORT_ORDER;
                     break;
                 default:
                     orderBy = "";
@@ -145,15 +146,15 @@ public class MovementDataProvider extends ContentProvider {
         switch (uriMatcher.match(uri)) {
             // get all entries
             case RAWDATA:
-                return MovementDataContract.RawData.CONTENT_TYPE;
+                return MovementDataContract.RawDataLog.CONTENT_TYPE;
             // get a particular entry
             case RAWDATA_ENTRY:
-                return MovementDataContract.RawData.CONTENT_ITEM_TYPE;
+                return MovementDataContract.RawDataLog.CONTENT_ITEM_TYPE;
             case TRIPS:
-                return MovementDataContract.Trips.CONTENT_TYPE;
+                return MovementDataContract.TripLog.CONTENT_TYPE;
             // get a particular entry
             case TRIP_ENTRY:
-                return MovementDataContract.Trips.CONTENT_ITEM_TYPE;
+                return MovementDataContract.TripLog.CONTENT_ITEM_TYPE;
             default:
                 throw new IllegalArgumentException("Unsupported URI: " + uri);
         }
@@ -192,16 +193,16 @@ public class MovementDataProvider extends ContentProvider {
 
         switch (match) {
             case RAWDATA:
-                if (!contentValues.containsKey(MovementDataContract.RawData.TIMESTAMP)) {
+                if (!contentValues.containsKey(MovementDataContract.RawDataLog.TIMESTAMP)) {
                     throw new SQLException("Timestamp must be specified");
                 }
-                if (!contentValues.containsKey(MovementDataContract.RawData.ACTIVITY_TYPE)) {
+                if (!contentValues.containsKey(MovementDataContract.RawDataLog.ACTIVITY_TYPE)) {
                     throw new SQLException("Activity type must be specified");
                 }
-                if (!contentValues.containsKey(MovementDataContract.RawData.CONFIDENCE)) {
+                if (!contentValues.containsKey(MovementDataContract.RawDataLog.CONFIDENCE)) {
                     throw new SQLException("Confidence must be specified");
                 }
-                if (!contentValues.containsKey(MovementDataContract.RawData.CONFIDENCE_RANK)) {
+                if (!contentValues.containsKey(MovementDataContract.RawDataLog.CONFIDENCE_RANK)) {
                     throw new SQLException("Confidence rank must be specified");
                 }
 
@@ -209,30 +210,30 @@ public class MovementDataProvider extends ContentProvider {
 
                 break;
             case TRIPS:
-                if (!contentValues.containsKey(MovementDataContract.Trips.START_TIME)) {
+                if (!contentValues.containsKey(MovementDataContract.TripLog.START_TIME)) {
                     throw new SQLException("Start time must be specified");
                 }
-                if (!contentValues.containsKey(MovementDataContract.Trips.TRIP_TYPE)) {
+                if (!contentValues.containsKey(MovementDataContract.TripLog.TRIP_TYPE)) {
                     throw new SQLException("Trip type must be specified");
                 }
 
                 // probably not needed...
-/*                if (!contentValues.containsKey(MovementDataContract.Trips.START_LATITUDE)) {
-                    contentValues.put(MovementDataContract.Trips.START_LATITUDE, (String) null);
+/*                if (!contentValues.containsKey(MovementDataContract.TripLog.START_LATITUDE)) {
+                    contentValues.put(MovementDataContract.TripLog.START_LATITUDE, (String) null);
                 }
-                if (!contentValues.containsKey(MovementDataContract.Trips.START_LONGITUDE)) {
-                    contentValues.put(MovementDataContract.Trips.START_LONGITUDE, (String) null);
-                }
-
-                if (!contentValues.containsKey(MovementDataContract.Trips.END_TIME)) {
-                    contentValues.put(MovementDataContract.Trips.END_TIME, (String) null);
+                if (!contentValues.containsKey(MovementDataContract.TripLog.START_LONGITUDE)) {
+                    contentValues.put(MovementDataContract.TripLog.START_LONGITUDE, (String) null);
                 }
 
-                if (!contentValues.containsKey(MovementDataContract.Trips.END_LATITUDE)) {
-                    contentValues.put(MovementDataContract.Trips.END_LATITUDE, (String) null);
+                if (!contentValues.containsKey(MovementDataContract.TripLog.END_TIME)) {
+                    contentValues.put(MovementDataContract.TripLog.END_TIME, (String) null);
                 }
-                if (!contentValues.containsKey(MovementDataContract.Trips.END_LONGITUDE)) {
-                    contentValues.put(MovementDataContract.Trips.END_LONGITUDE, (String) null);
+
+                if (!contentValues.containsKey(MovementDataContract.TripLog.END_LATITUDE)) {
+                    contentValues.put(MovementDataContract.TripLog.END_LATITUDE, (String) null);
+                }
+                if (!contentValues.containsKey(MovementDataContract.TripLog.END_LONGITUDE)) {
+                    contentValues.put(MovementDataContract.TripLog.END_LONGITUDE, (String) null);
                 } */
 
                 dbTable = TRIPS_TABLE_NAME;
@@ -276,7 +277,7 @@ public class MovementDataProvider extends ContentProvider {
                 if (uri.getPathSegments() != null) {
                     count = db.delete(
                             RAWDATA_TABLE_NAME,
-                            MovementDataContract.RawData._ID + " = "
+                            MovementDataContract.RawDataLog._ID + " = "
                                     + uri.getPathSegments().get(1)
                                     + (!TextUtils.isEmpty(selection) ?
                                     " AND (" + selection + ')'
@@ -295,7 +296,7 @@ public class MovementDataProvider extends ContentProvider {
                 if (uri.getPathSegments() != null) {
                     count = db.delete(
                             TRIPS_TABLE_NAME,
-                            MovementDataContract.Trips._ID + " = "
+                            MovementDataContract.TripLog._ID + " = "
                                     + uri.getPathSegments().get(1)
                                     + (!TextUtils.isEmpty(selection) ?
                                     " AND (" + selection + ')'
@@ -331,7 +332,7 @@ public class MovementDataProvider extends ContentProvider {
                     count = db.update(
                             RAWDATA_TABLE_NAME,
                             values,
-                            MovementDataContract.RawData._ID + " = "
+                            MovementDataContract.RawDataLog._ID + " = "
                                     + uri.getPathSegments().get(1)
                                     + (!TextUtils.isEmpty(selection) ?
                                     " AND (" + selection + ')'
@@ -352,7 +353,7 @@ public class MovementDataProvider extends ContentProvider {
                     count = db.update(
                             TRIPS_TABLE_NAME,
                             values,
-                            MovementDataContract.Trips._ID + " = "
+                            MovementDataContract.TripLog._ID + " = "
                                     + uri.getPathSegments().get(1)
                                     + (!TextUtils.isEmpty(selection) ?
                                     " AND (" + selection + ')'
@@ -373,27 +374,28 @@ public class MovementDataProvider extends ContentProvider {
 
     static {
         uriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
-        uriMatcher.addURI(AUTHORITY, MovementDataContract.RawData.URI_PART_ALL_CONTENT, RAWDATA);
-        uriMatcher.addURI(AUTHORITY, MovementDataContract.RawData.URI_PART_SINGLE_ITEM, RAWDATA_ENTRY);
-        uriMatcher.addURI(AUTHORITY, MovementDataContract.Trips.URI_PART_ALL_CONTENT, TRIPS);
-        uriMatcher.addURI(AUTHORITY, MovementDataContract.Trips.URI_PART_SINGLE_ITEM, TRIP_ENTRY);
+        uriMatcher.addURI(AUTHORITY, MovementDataContract.RawDataLog.URI_PART_ALL_CONTENT, RAWDATA);
+        uriMatcher.addURI(AUTHORITY, MovementDataContract.RawDataLog.URI_PART_SINGLE_ITEM, RAWDATA_ENTRY);
+        uriMatcher.addURI(AUTHORITY, MovementDataContract.TripLog.URI_PART_ALL_CONTENT, TRIPS);
+        uriMatcher.addURI(AUTHORITY, MovementDataContract.TripLog.URI_PART_SINGLE_ITEM, TRIP_ENTRY);
 
         rawdataProjectionMap = new HashMap<String, String>();
-        rawdataProjectionMap.put(MovementDataContract.RawData._ID, MovementDataContract.RawData._ID);
-        rawdataProjectionMap.put(MovementDataContract.RawData.TIMESTAMP, MovementDataContract.RawData.TIMESTAMP);
-        rawdataProjectionMap.put(MovementDataContract.RawData.ACTIVITY_TYPE, MovementDataContract.RawData.ACTIVITY_TYPE);
-        rawdataProjectionMap.put(MovementDataContract.RawData.CONFIDENCE, MovementDataContract.RawData.CONFIDENCE);
-        rawdataProjectionMap.put(MovementDataContract.RawData.CONFIDENCE_RANK, MovementDataContract.RawData.CONFIDENCE_RANK);
+        rawdataProjectionMap.put(MovementDataContract.RawDataLog._ID, MovementDataContract.RawDataLog._ID);
+        rawdataProjectionMap.put(MovementDataContract.RawDataLog.TIMESTAMP, MovementDataContract.RawDataLog.TIMESTAMP);
+        rawdataProjectionMap.put(MovementDataContract.RawDataLog.ACTIVITY_TYPE, MovementDataContract.RawDataLog.ACTIVITY_TYPE);
+        rawdataProjectionMap.put(MovementDataContract.RawDataLog.CONFIDENCE, MovementDataContract.RawDataLog.CONFIDENCE);
+        rawdataProjectionMap.put(MovementDataContract.RawDataLog.CONFIDENCE_RANK, MovementDataContract.RawDataLog.CONFIDENCE_RANK);
 
         tripsProjectionMap = new HashMap<String, String>();
-        tripsProjectionMap.put(MovementDataContract.Trips._ID, MovementDataContract.Trips._ID);
-        tripsProjectionMap.put(MovementDataContract.Trips.START_TIME, MovementDataContract.Trips.START_TIME);
-        tripsProjectionMap.put(MovementDataContract.Trips.END_TIME, MovementDataContract.Trips.END_TIME);
-        tripsProjectionMap.put(MovementDataContract.Trips.TRIP_TYPE, MovementDataContract.Trips.TRIP_TYPE);
-        tripsProjectionMap.put(MovementDataContract.Trips.START_LATITUDE, MovementDataContract.Trips.START_LATITUDE);
-        tripsProjectionMap.put(MovementDataContract.Trips.START_LONGITUDE, MovementDataContract.Trips.START_LONGITUDE);
-        tripsProjectionMap.put(MovementDataContract.Trips.END_LATITUDE, MovementDataContract.Trips.END_LATITUDE);
-        tripsProjectionMap.put(MovementDataContract.Trips.END_LONGITUDE, MovementDataContract.Trips.END_LONGITUDE);
+        tripsProjectionMap.put(MovementDataContract.TripLog._ID, MovementDataContract.TripLog._ID);
+        tripsProjectionMap.put(MovementDataContract.TripLog.START_TIME, MovementDataContract.TripLog.START_TIME);
+        tripsProjectionMap.put(MovementDataContract.TripLog.END_TIME, MovementDataContract.TripLog.END_TIME);
+        tripsProjectionMap.put(MovementDataContract.TripLog.TRIP_TYPE, MovementDataContract.TripLog.TRIP_TYPE);
+        tripsProjectionMap.put(MovementDataContract.TripLog.START_LATITUDE, MovementDataContract.TripLog.START_LATITUDE);
+        tripsProjectionMap.put(MovementDataContract.TripLog.START_LONGITUDE, MovementDataContract.TripLog.START_LONGITUDE);
+        tripsProjectionMap.put(MovementDataContract.TripLog.END_LATITUDE, MovementDataContract.TripLog.END_LATITUDE);
+        tripsProjectionMap.put(MovementDataContract.TripLog.END_LONGITUDE, MovementDataContract.TripLog.END_LONGITUDE);
+        tripsProjectionMap.put(MovementDataContract.TripLog.CONFIRMED, MovementDataContract.TripLog.CONFIRMED);
 
     }
 

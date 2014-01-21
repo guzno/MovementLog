@@ -139,26 +139,26 @@ public class MainFragment extends Fragment implements LoaderManager.LoaderCallba
 
         switch (args.getInt(FRAGMENT_TYPE)) {
             case TYPE_TRIPS:
-                uri = MovementDataContract.Trips.CONTENT_URI;
+                uri = MovementDataContract.TripLog.CONTENT_URI;
 
-                projection = MovementDataContract.Trips.DEFAULT_PROJECTION;
+                projection = MovementDataContract.TripLog.DEFAULT_PROJECTION;
 
                 selection = null;
 
                 selectionArgs = null;
 
-                sortOrder = MovementDataContract.Trips.DEFAULT_SORT_ORDER;
+                sortOrder = MovementDataContract.TripLog.DEFAULT_SORT_ORDER;
                 break;
             case TYPE_RAWDATA:
-                uri = MovementDataContract.RawData.CONTENT_URI;
+                uri = MovementDataContract.RawDataLog.CONTENT_URI;
 
-                projection = MovementDataContract.RawData.DEFAULT_PROJECTION;
+                projection = MovementDataContract.RawDataLog.DEFAULT_PROJECTION;
 
-                selection = MovementDataContract.RawData.CONFIDENCE_RANK + " = ?";
+                selection = MovementDataContract.RawDataLog.CONFIDENCE_RANK + " = ?";
 
                 selectionArgs = new String[]{"0"};
 
-                sortOrder = MovementDataContract.RawData.DEFAULT_SORT_ORDER;
+                sortOrder = MovementDataContract.RawDataLog.DEFAULT_SORT_ORDER;
                 break;
             default:
                 return null;
