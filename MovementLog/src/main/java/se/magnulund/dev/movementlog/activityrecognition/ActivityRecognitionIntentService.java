@@ -81,7 +81,7 @@ public class ActivityRecognitionIntentService extends IntentService {
                 if (onGoingTrip != null) { // if there is an ongoing trip check if walking was detected and end the trip
                     if (activityType == DetectedActivity.ON_FOOT) {
                         onGoingTrip.setEndTime(timestamp);
-                        MovementDataContract.TripLog.updateTrip(this, onGoingTrip);
+                        MovementDataContract.TripLog.updateTrip(getContentResolver(), onGoingTrip);
                         // TODO Get trip end location
                     }
                 } else { // check if we just started a trip

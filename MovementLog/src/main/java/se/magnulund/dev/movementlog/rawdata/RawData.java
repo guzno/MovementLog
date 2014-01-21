@@ -44,14 +44,15 @@ public class RawData extends DetectedActivity {
     }
 
     public static RawData fromCursor(Cursor cursor) {
+        assert MovementDataContract.RawDataLog.isValidCursor(cursor);
 
-        final int activityType = cursor.getInt(cursor.getColumnIndex(MovementDataContract.RawDataLog.ACTIVITY_TYPE));
+        final int activityType = cursor.getInt(cursor.getColumnIndexOrThrow(MovementDataContract.RawDataLog.ACTIVITY_TYPE));
 
-        final int confidence = cursor.getInt(cursor.getColumnIndex(MovementDataContract.RawDataLog.CONFIDENCE));
+        final int confidence = cursor.getInt(cursor.getColumnIndexOrThrow(MovementDataContract.RawDataLog.CONFIDENCE));
 
-        final long timestamp = cursor.getLong(cursor.getColumnIndex(MovementDataContract.RawDataLog.TIMESTAMP));
+        final long timestamp = cursor.getLong(cursor.getColumnIndexOrThrow(MovementDataContract.RawDataLog.TIMESTAMP));
 
-        final int confidenceRank = cursor.getInt(cursor.getColumnIndex(MovementDataContract.RawDataLog.CONFIDENCE_RANK));
+        final int confidenceRank = cursor.getInt(cursor.getColumnIndexOrThrow(MovementDataContract.RawDataLog.CONFIDENCE_RANK));
 
         return new RawData(activityType, confidence, timestamp, confidenceRank);
     }
