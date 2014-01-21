@@ -59,11 +59,11 @@ public class ActivityRecognitionIntentService extends IntentService {
                     mostProbableActivity = rawData;
                 }
 
-                rawDatas.add(rawData);
-
                 rawData.setTimestamp(timestamp);
 
                 rawData.setRank(i);
+
+                rawDatas.add(rawData);
 
                 Uri dataEntry = MovementDataContract.RawDataLog.addEntry(this, rawData);                // insert data into db
 
@@ -110,7 +110,7 @@ public class ActivityRecognitionIntentService extends IntentService {
                                 RawData data = rawDatas.get(i);
                                 if (isPossibleTripStart(data)) {
                                     Toast.makeText(this, "You seem to have started an " + data.getActivityName() + " trip.", Toast.LENGTH_SHORT).show();
-                                    Trip possibleTrip = new Trip(timestamp, activityType);
+                                    Trip possibleTrip = new Trip(data.getTimestamp(), data.getType());
                                     MovementDataContract.TripLog.addTrip(this, possibleTrip);
                                     // TODO Get possible trip start location
                                 }
@@ -128,7 +128,7 @@ public class ActivityRecognitionIntentService extends IntentService {
         }
     }
 
-    private boolean isPossibleTripStart(DetectedActivity potentialTripStart){
+    private boolean isPossibleTripStart(RawData potentialTripStart){
 
         return (potentialTripStart.getType() == DetectedActivity.IN_VEHICLE || potentialTripStart.getType() == DetectedActivity.ON_BICYCLE)
                 && potentialTripStart.getConfidence() > POSSIBLE_TRIP_CONFIDENCE_THRESHOLD;
