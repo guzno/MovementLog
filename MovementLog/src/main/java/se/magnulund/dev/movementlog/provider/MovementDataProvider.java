@@ -29,7 +29,6 @@ public class MovementDataProvider extends ContentProvider {
     private static final int TRIPS = 3;
     private static final int TRIP_ENTRY = 4;
 
-    private SQLiteDatabase db;
     private MovementsDatabase dbHelper;
 
     @Override
@@ -91,7 +90,8 @@ public class MovementDataProvider extends ContentProvider {
             orderBy = sortOrder;
         }
 
-        dbHelper.getReadableDatabase();
+        SQLiteDatabase db = dbHelper.getReadableDatabase();
+        assert db != null;
 
         Cursor cursor = qb.query(
                 db,
@@ -180,7 +180,8 @@ public class MovementDataProvider extends ContentProvider {
             default:
         }
 
-        dbHelper.getWritableDatabase();
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+        assert db != null;
 
         // add a new entry
         long rowID = db.insert(dbTable, null, contentValues);
@@ -201,7 +202,8 @@ public class MovementDataProvider extends ContentProvider {
     @Override
     public int delete(Uri uri, String selection, String[] selectionArgs) {
 
-        dbHelper.getWritableDatabase();
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+        assert db != null;
 
         int count = 0;
         switch (uriMatcher.match(uri)) {
@@ -255,6 +257,9 @@ public class MovementDataProvider extends ContentProvider {
 
     @Override
     public int update(Uri uri, ContentValues values, String selection, String[] selectionArgs) {
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+        assert db != null;
+
         int count = 0;
         switch (uriMatcher.match(uri)) {
             case RAWDATA:
