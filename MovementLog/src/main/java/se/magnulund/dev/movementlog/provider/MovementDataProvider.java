@@ -12,9 +12,10 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
 import android.text.TextUtils;
-import android.util.Log;
 
-import java.util.HashMap;
+import se.magnulund.dev.movementlog.databases.MovementsDatabase;
+import se.magnulund.dev.movementlog.tables.RawData;
+import se.magnulund.dev.movementlog.tables.Trips;
 
 public class MovementDataProvider extends ContentProvider {
 
@@ -23,40 +24,15 @@ public class MovementDataProvider extends ContentProvider {
     public static final String AUTHORITY = MovementDataContract.AUTHORITY;
 
     //public static final Uri CONTENT_URI = MovementDataContract.CONTENT_URI;
-    private static final String DATABASE_NAME = "movement_data.db";
-    private static final String RAWDATA_TABLE_NAME = "rawdata";
-    private static final String TRIPS_TABLE_NAME = "trips";
-    private static final String RAWDATA_TABLE_CREATE =
-            "create table " + RAWDATA_TABLE_NAME + "("
-                    + MovementDataContract.RawDataLog._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
-                    + MovementDataContract.RawDataLog.TIMESTAMP + " INTEGER, "
-                    + MovementDataContract.RawDataLog.ACTIVITY_TYPE + " INTEGER, "
-                    + MovementDataContract.RawDataLog.CONFIDENCE + " INTEGER, "
-                    + MovementDataContract.RawDataLog.CONFIDENCE_RANK + " INTEGER"
-                    + ");";
-    // TODO add confirmed INTEGER
-    private static final String TRIPS_TABLE_CREATE =
-                    "create table " + TRIPS_TABLE_NAME + "("
-                    + MovementDataContract.TripLog._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
-                    + MovementDataContract.TripLog.START_TIME + " INTEGER, "
-                    + MovementDataContract.TripLog.END_TIME + " INTEGER, "
-                    + MovementDataContract.TripLog.TRIP_TYPE + " INTEGER,"
-                    + MovementDataContract.TripLog.START_LATITUDE + " TEXT, "
-                    + MovementDataContract.TripLog.START_LONGITUDE + " TEXT, "
-                    + MovementDataContract.TripLog.END_LATITUDE + " TEXT, "
-                    + MovementDataContract.TripLog.END_LONGITUDE + " TEXT,"
-                    + MovementDataContract.TripLog.CONFIRMED + " INTEGER"
-                    + ");";
-    private static final int DATABASE_VERSION = 1;
+
     private static final UriMatcher uriMatcher;
     private static final int RAWDATA = 1;
     private static final int RAWDATA_ENTRY = 2;
     private static final int TRIPS = 3;
     private static final int TRIP_ENTRY = 4;
-    private static HashMap<String, String> rawdataProjectionMap;
-    private static HashMap<String, String> tripsProjectionMap;
+
     private SQLiteDatabase db;
-    private DatabaseHelper dbHelper;
+    private MovementsDatabase dbHelper;
 
     @Override
     public boolean onCreate() {
@@ -66,7 +42,7 @@ public class MovementDataProvider extends ContentProvider {
          * Notice that the database itself isn't created or opened
          * until SQLiteOpenHelper.getWritableDatabase is called
          */
-        dbHelper = new DatabaseHelper(getContext());
+        dbHelper = new MovementsDatabase(getContext());
         return true;
     }
 
@@ -78,8 +54,8 @@ public class MovementDataProvider extends ContentProvider {
 
         switch (uriMatcher.match(uri)) {
             case RAWDATA_ENTRY:
-                qb.setTables(RAWDATA_TABLE_NAME);
-                qb.setProjectionMap(rawdataProjectionMap);
+                qb.setTables(RawData.TABLE);
+                qb.setProjectionMap(RawData.projectionMap);
 
                 if (uri.getPathSegments() != null) {
                     qb.appendWhere(
@@ -87,12 +63,12 @@ public class MovementDataProvider extends ContentProvider {
                 }
                 break;
             case RAWDATA:
-                qb.setTables(RAWDATA_TABLE_NAME);
-                qb.setProjectionMap(rawdataProjectionMap);
+                qb.setTables(RawData.TABLE);
+                qb.setProjectionMap(RawData.projectionMap);
                 break;
             case TRIP_ENTRY:
-                qb.setTables(TRIPS_TABLE_NAME);
-                qb.setProjectionMap(tripsProjectionMap);
+                qb.setTables(Trips.TABLE);
+                qb.setProjectionMap(Trips.projectionMap);
 
                 if (uri.getPathSegments() != null) {
                     qb.appendWhere(
@@ -100,8 +76,8 @@ public class MovementDataProvider extends ContentProvider {
                 }
                 break;
             case TRIPS:
-                qb.setTables(TRIPS_TABLE_NAME);
-                qb.setProjectionMap(tripsProjectionMap);
+                qb.setTables(Trips.TABLE);
+                qb.setProjectionMap(Trips.projectionMap);
                 break;
             default:
         }
@@ -206,7 +182,7 @@ public class MovementDataProvider extends ContentProvider {
                     throw new SQLException("Confidence rank must be specified");
                 }
 
-                dbTable = RAWDATA_TABLE_NAME;
+                dbTable = RawData.TABLE;
 
                 break;
             case TRIPS:
@@ -217,26 +193,7 @@ public class MovementDataProvider extends ContentProvider {
                     throw new SQLException("Trip type must be specified");
                 }
 
-                // probably not needed...
-/*                if (!contentValues.containsKey(MovementDataContract.TripLog.START_LATITUDE)) {
-                    contentValues.put(MovementDataContract.TripLog.START_LATITUDE, (String) null);
-                }
-                if (!contentValues.containsKey(MovementDataContract.TripLog.START_LONGITUDE)) {
-                    contentValues.put(MovementDataContract.TripLog.START_LONGITUDE, (String) null);
-                }
-
-                if (!contentValues.containsKey(MovementDataContract.TripLog.END_TIME)) {
-                    contentValues.put(MovementDataContract.TripLog.END_TIME, (String) null);
-                }
-
-                if (!contentValues.containsKey(MovementDataContract.TripLog.END_LATITUDE)) {
-                    contentValues.put(MovementDataContract.TripLog.END_LATITUDE, (String) null);
-                }
-                if (!contentValues.containsKey(MovementDataContract.TripLog.END_LONGITUDE)) {
-                    contentValues.put(MovementDataContract.TripLog.END_LONGITUDE, (String) null);
-                } */
-
-                dbTable = TRIPS_TABLE_NAME;
+                dbTable = Trips.TABLE;
 
                 break;
             default:
@@ -269,14 +226,14 @@ public class MovementDataProvider extends ContentProvider {
         switch (uriMatcher.match(uri)) {
             case RAWDATA:
                 count = db.delete(
-                        RAWDATA_TABLE_NAME,
+                        RawData.TABLE,
                         selection,
                         selectionArgs);
                 break;
             case RAWDATA_ENTRY:
                 if (uri.getPathSegments() != null) {
                     count = db.delete(
-                            RAWDATA_TABLE_NAME,
+                            RawData.TABLE,
                             MovementDataContract.RawDataLog._ID + " = "
                                     + uri.getPathSegments().get(1)
                                     + (!TextUtils.isEmpty(selection) ?
@@ -288,14 +245,14 @@ public class MovementDataProvider extends ContentProvider {
                 break;
             case TRIPS:
                 count = db.delete(
-                        TRIPS_TABLE_NAME,
+                        Trips.TABLE,
                         selection,
                         selectionArgs);
                 break;
             case TRIP_ENTRY:
                 if (uri.getPathSegments() != null) {
                     count = db.delete(
-                            TRIPS_TABLE_NAME,
+                            Trips.TABLE,
                             MovementDataContract.TripLog._ID + " = "
                                     + uri.getPathSegments().get(1)
                                     + (!TextUtils.isEmpty(selection) ?
@@ -322,7 +279,7 @@ public class MovementDataProvider extends ContentProvider {
         switch (uriMatcher.match(uri)) {
             case RAWDATA:
                 count = db.update(
-                        RAWDATA_TABLE_NAME,
+                        RawData.TABLE,
                         values,
                         selection,
                         selectionArgs);
@@ -330,7 +287,7 @@ public class MovementDataProvider extends ContentProvider {
             case RAWDATA_ENTRY:
                 if (uri.getPathSegments() != null) {
                     count = db.update(
-                            RAWDATA_TABLE_NAME,
+                            RawData.TABLE,
                             values,
                             MovementDataContract.RawDataLog._ID + " = "
                                     + uri.getPathSegments().get(1)
@@ -343,7 +300,7 @@ public class MovementDataProvider extends ContentProvider {
                 break;
             case TRIPS:
                 count = db.update(
-                        TRIPS_TABLE_NAME,
+                        Trips.TABLE,
                         values,
                         selection,
                         selectionArgs);
@@ -351,7 +308,7 @@ public class MovementDataProvider extends ContentProvider {
             case TRIP_ENTRY:
                 if (uri.getPathSegments() != null) {
                     count = db.update(
-                            TRIPS_TABLE_NAME,
+                            Trips.TABLE,
                             values,
                             MovementDataContract.TripLog._ID + " = "
                                     + uri.getPathSegments().get(1)
@@ -378,52 +335,7 @@ public class MovementDataProvider extends ContentProvider {
         uriMatcher.addURI(AUTHORITY, MovementDataContract.RawDataLog.URI_PART_SINGLE_ITEM, RAWDATA_ENTRY);
         uriMatcher.addURI(AUTHORITY, MovementDataContract.TripLog.URI_PART_ALL_CONTENT, TRIPS);
         uriMatcher.addURI(AUTHORITY, MovementDataContract.TripLog.URI_PART_SINGLE_ITEM, TRIP_ENTRY);
-
-        rawdataProjectionMap = new HashMap<String, String>();
-        rawdataProjectionMap.put(MovementDataContract.RawDataLog._ID, MovementDataContract.RawDataLog._ID);
-        rawdataProjectionMap.put(MovementDataContract.RawDataLog.TIMESTAMP, MovementDataContract.RawDataLog.TIMESTAMP);
-        rawdataProjectionMap.put(MovementDataContract.RawDataLog.ACTIVITY_TYPE, MovementDataContract.RawDataLog.ACTIVITY_TYPE);
-        rawdataProjectionMap.put(MovementDataContract.RawDataLog.CONFIDENCE, MovementDataContract.RawDataLog.CONFIDENCE);
-        rawdataProjectionMap.put(MovementDataContract.RawDataLog.CONFIDENCE_RANK, MovementDataContract.RawDataLog.CONFIDENCE_RANK);
-
-        tripsProjectionMap = new HashMap<String, String>();
-        tripsProjectionMap.put(MovementDataContract.TripLog._ID, MovementDataContract.TripLog._ID);
-        tripsProjectionMap.put(MovementDataContract.TripLog.START_TIME, MovementDataContract.TripLog.START_TIME);
-        tripsProjectionMap.put(MovementDataContract.TripLog.END_TIME, MovementDataContract.TripLog.END_TIME);
-        tripsProjectionMap.put(MovementDataContract.TripLog.TRIP_TYPE, MovementDataContract.TripLog.TRIP_TYPE);
-        tripsProjectionMap.put(MovementDataContract.TripLog.START_LATITUDE, MovementDataContract.TripLog.START_LATITUDE);
-        tripsProjectionMap.put(MovementDataContract.TripLog.START_LONGITUDE, MovementDataContract.TripLog.START_LONGITUDE);
-        tripsProjectionMap.put(MovementDataContract.TripLog.END_LATITUDE, MovementDataContract.TripLog.END_LATITUDE);
-        tripsProjectionMap.put(MovementDataContract.TripLog.END_LONGITUDE, MovementDataContract.TripLog.END_LONGITUDE);
-        tripsProjectionMap.put(MovementDataContract.TripLog.CONFIRMED, MovementDataContract.TripLog.CONFIRMED);
-
     }
 
-    /**
-     * Helper class that actually creates and manages the provider's underlying data repository.
-     */
-    private static class DatabaseHelper extends SQLiteOpenHelper {
-        DatabaseHelper(Context context) {
-            super(context, DATABASE_NAME, null, DATABASE_VERSION);
-        }
-
-        @Override
-        public void onCreate(SQLiteDatabase db) {
-            db.execSQL(RAWDATA_TABLE_CREATE);
-            db.execSQL(TRIPS_TABLE_CREATE);
-            Log.e(TAG, "DATABASE CREATED");
-        }
-
-        @Override
-        public void onUpgrade(SQLiteDatabase db, int oldVersion,
-                              int newVersion) {
-            Log.w("Content provider database",
-                    "Upgrading database from version " +
-                            oldVersion + " to " + newVersion +
-                            ", which will destroy all old data");
-            db.execSQL("DROP TABLE IF EXISTS titles");
-            onCreate(db);
-        }
-    }
 
 }
