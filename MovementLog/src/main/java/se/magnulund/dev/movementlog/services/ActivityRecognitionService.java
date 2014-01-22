@@ -1,6 +1,5 @@
 package se.magnulund.dev.movementlog.services;
 
-import android.app.Dialog;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -10,7 +9,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesClient;
@@ -74,11 +72,6 @@ public class ActivityRecognitionService extends Service {
     }
 
     @Override
-    public void onStart(Intent intent, int startId) {
-        super.onStart(intent, startId);
-    }
-
-    @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         int command = intent.getIntExtra(COMMAND, 0);
         switch (command) {
@@ -104,7 +97,6 @@ public class ActivityRecognitionService extends Service {
 
     @Override
     public IBinder onBind(Intent intent) {
-        // TODO: Return the communication channel to the service.
         throw new UnsupportedOperationException("Not yet implemented");
     }
 
@@ -154,6 +146,7 @@ public class ActivityRecognitionService extends Service {
         if (!servicesConnected()) {
             return;
         }
+
         // If a request is not already underway
         if (!mInProgress) {
             // Indicate that a request is in progress
@@ -244,7 +237,7 @@ public class ActivityRecognitionService extends Service {
         Intent intent = new Intent(this, MainActivity.class);
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, 0);
 
-        Notification n  = new Notification.Builder(this)
+        Notification n = new Notification.Builder(this)
                 .setContentTitle("ActivityRecognitionService")
                 .setContentText(text)
                 .setSmallIcon(R.drawable.ic_launcher)
