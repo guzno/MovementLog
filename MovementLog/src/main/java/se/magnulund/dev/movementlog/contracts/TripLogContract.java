@@ -164,11 +164,10 @@ public class TripLogContract {
     /**
      * Updates the stored information about a specific trip
      *
-     * @param context the current application context
-     * @param trip    the trip
+     * @param resolver the resolver
+     * @param trip     the trip
      */
-    public static boolean updateTrip(Context context, Trip trip) {
-        final ContentResolver resolver = context.getContentResolver();
+    public static boolean updateTrip(ContentResolver resolver, Trip trip) {
 
         Uri uri = ContentUris.withAppendedId(CONTENT_URI, trip.getID());
 

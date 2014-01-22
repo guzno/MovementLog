@@ -40,22 +40,22 @@ public class Trip {
 
         Trip trip;
 
-        final long _id = cursor.getLong(cursor.getColumnIndex(TripLogContract.Columns._ID));
+        final long _id = cursor.getLong(cursor.getColumnIndexOrThrow(TripLogContract.Columns._ID));
 
-        final int tripType = cursor.getInt(cursor.getColumnIndex(TripLogContract.Columns.TRIP_TYPE));
+        final int tripType = cursor.getInt(cursor.getColumnIndexOrThrow(TripLogContract.Columns.TRIP_TYPE));
 
-        final long startTime = cursor.getLong(cursor.getColumnIndex(TripLogContract.Columns.START_TIME));
+        final long startTime = cursor.getLong(cursor.getColumnIndexOrThrow(TripLogContract.Columns.START_TIME));
 
         trip = new Trip(startTime, tripType);
 
         trip.setID(_id);
 
-        final long endTime = cursor.getLong(cursor.getColumnIndex(TripLogContract.Columns.END_TIME));
+        final long endTime = cursor.getLong(cursor.getColumnIndexOrThrow(TripLogContract.Columns.END_TIME));
 
         trip.setEndTime(endTime);
 
-        if (!cursor.isNull(cursor.getColumnIndex(TripLogContract.Columns.START_LATITUDE)) &&
-                !cursor.isNull(cursor.getColumnIndex(TripLogContract.Columns.START_LONGITUDE))
+        if (!cursor.isNull(cursor.getColumnIndexOrThrow(TripLogContract.Columns.START_LATITUDE)) &&
+                !cursor.isNull(cursor.getColumnIndexOrThrow(TripLogContract.Columns.START_LONGITUDE))
                 ) {
             Location startLocation = new Location("PLACEHOLDER");
 
@@ -72,8 +72,8 @@ public class Trip {
             trip.setStartLocation(startLocation);
         }
 
-        if (!cursor.isNull(cursor.getColumnIndex(TripLogContract.Columns.END_LATITUDE)) &&
-                !cursor.isNull(cursor.getColumnIndex(TripLogContract.Columns.END_LONGITUDE))
+        if (!cursor.isNull(cursor.getColumnIndexOrThrow(TripLogContract.Columns.END_LATITUDE)) &&
+                !cursor.isNull(cursor.getColumnIndexOrThrow(TripLogContract.Columns.END_LONGITUDE))
                 ) {
             Location endLocation = new Location("PLACEHOLDER");
 
@@ -90,7 +90,7 @@ public class Trip {
             trip.setEndLocation(endLocation);
         }
 
-        trip.setConfirmed(cursor.getInt(cursor.getColumnIndex(TripLogContract.Columns.CONFIRMED)) == 1);
+        trip.setConfirmed(cursor.getInt(cursor.getColumnIndexOrThrow(TripLogContract.Columns.CONFIRMED)) == 1);
 
         return trip;
     }
