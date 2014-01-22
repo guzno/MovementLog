@@ -5,7 +5,7 @@ import android.util.Log;
 
 import java.util.HashMap;
 
-import se.magnulund.dev.movementlog.provider.MovementDataContract;
+import se.magnulund.dev.movementlog.contracts.RawDataContract;
 
 public class RawData {
     public static final String TABLE = "rawdata";
@@ -13,20 +13,20 @@ public class RawData {
 
     static {
         projectionMap = new HashMap<String, String>();
-        projectionMap.put(MovementDataContract.RawDataLog._ID, MovementDataContract.RawDataLog._ID);
-        projectionMap.put(MovementDataContract.RawDataLog.TIMESTAMP, MovementDataContract.RawDataLog.TIMESTAMP);
-        projectionMap.put(MovementDataContract.RawDataLog.ACTIVITY_TYPE, MovementDataContract.RawDataLog.ACTIVITY_TYPE);
-        projectionMap.put(MovementDataContract.RawDataLog.CONFIDENCE, MovementDataContract.RawDataLog.CONFIDENCE);
-        projectionMap.put(MovementDataContract.RawDataLog.CONFIDENCE_RANK, MovementDataContract.RawDataLog.CONFIDENCE_RANK);
+        projectionMap.put(RawDataContract.Columns._ID, RawDataContract.Columns._ID);
+        projectionMap.put(RawDataContract.Columns.TIMESTAMP, RawDataContract.Columns.TIMESTAMP);
+        projectionMap.put(RawDataContract.Columns.ACTIVITY_TYPE, RawDataContract.Columns.ACTIVITY_TYPE);
+        projectionMap.put(RawDataContract.Columns.CONFIDENCE, RawDataContract.Columns.CONFIDENCE);
+        projectionMap.put(RawDataContract.Columns.CONFIDENCE_RANK, RawDataContract.Columns.CONFIDENCE_RANK);
     }
 
     private static final String TABLE_CREATE =
             "create table " + TABLE + "("
-                    + MovementDataContract.RawDataLog._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
-                    + MovementDataContract.RawDataLog.TIMESTAMP + " INTEGER, "
-                    + MovementDataContract.RawDataLog.ACTIVITY_TYPE + " INTEGER, "
-                    + MovementDataContract.RawDataLog.CONFIDENCE + " INTEGER, "
-                    + MovementDataContract.RawDataLog.CONFIDENCE_RANK + " INTEGER"
+                    + RawDataContract.Columns._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
+                    + RawDataContract.Columns.TIMESTAMP + " INTEGER, "
+                    + RawDataContract.Columns.ACTIVITY_TYPE + " INTEGER, "
+                    + RawDataContract.Columns.CONFIDENCE + " INTEGER, "
+                    + RawDataContract.Columns.CONFIDENCE_RANK + " INTEGER"
                     + ");";
 
     public static void onCreate(SQLiteDatabase db) {

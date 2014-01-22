@@ -52,7 +52,7 @@ public class RawDataAdapter extends CursorAdapter {
 
         holder.typeTextView.setText(rawData.getActivityName());
 
-        holder.confidenceTextView.setText(Integer.toString(rawData.getConfidence()) + "% confidence");
+        holder.confidenceTextView.setText(Integer.toString(rawData.getConfidence()) + context.getString(R.string.rawdata_pct_confidence));
 
         Date date = new Date(rawData.getTimestamp());
 

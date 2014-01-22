@@ -1,18 +1,18 @@
-package se.magnulund.dev.movementlog.provider;
+package se.magnulund.dev.movementlog.providers;
 
 import android.content.ContentProvider;
 import android.content.ContentUris;
 import android.content.ContentValues;
-import android.content.Context;
 import android.content.UriMatcher;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
 import android.text.TextUtils;
 
+import se.magnulund.dev.movementlog.contracts.TripLogContract;
+import se.magnulund.dev.movementlog.contracts.RawDataContract;
 import se.magnulund.dev.movementlog.databases.MovementsDatabase;
 import se.magnulund.dev.movementlog.tables.RawData;
 import se.magnulund.dev.movementlog.tables.Trips;
@@ -21,7 +21,7 @@ public class MovementDataProvider extends ContentProvider {
 
     public static final String TAG = "MovementDataProvider";
 
-    public static final String AUTHORITY = MovementDataContract.AUTHORITY;
+    public static final String AUTHORITY = "se.magnulund.dev.movementlog.provider";
 
     private static final UriMatcher uriMatcher;
     private static final int RAWDATA = 1;
@@ -50,7 +50,7 @@ public class MovementDataProvider extends ContentProvider {
 
                 if (uri.getPathSegments() != null) {
                     qb.appendWhere(
-                            MovementDataContract.RawDataLog._ID + " = " + uri.getPathSegments().get(1));
+                            RawDataContract.Columns._ID + " = " + uri.getPathSegments().get(1));
                 }
                 break;
             case RAWDATA:
@@ -63,7 +63,7 @@ public class MovementDataProvider extends ContentProvider {
 
                 if (uri.getPathSegments() != null) {
                     qb.appendWhere(
-                            MovementDataContract.TripLog._ID + " = " + uri.getPathSegments().get(1));
+                            TripLogContract.Columns._ID + " = " + uri.getPathSegments().get(1));
                 }
                 break;
             case TRIPS:
@@ -77,11 +77,11 @@ public class MovementDataProvider extends ContentProvider {
             switch (uriMatcher.match(uri)) {
                 case RAWDATA_ENTRY:
                 case RAWDATA:
-                    orderBy = MovementDataContract.RawDataLog.DEFAULT_SORT_ORDER;
+                    orderBy = RawDataContract.DEFAULT_SORT_ORDER;
                     break;
                 case TRIPS:
                 case TRIP_ENTRY:
-                    orderBy = MovementDataContract.TripLog.DEFAULT_SORT_ORDER;
+                    orderBy = TripLogContract.DEFAULT_SORT_ORDER;
                     break;
                 default:
                     orderBy = "";
@@ -114,15 +114,15 @@ public class MovementDataProvider extends ContentProvider {
         switch (uriMatcher.match(uri)) {
             // get all entries
             case RAWDATA:
-                return MovementDataContract.RawDataLog.CONTENT_TYPE;
+                return RawDataContract.CONTENT_TYPE;
             // get a particular entry
             case RAWDATA_ENTRY:
-                return MovementDataContract.RawDataLog.CONTENT_ITEM_TYPE;
+                return RawDataContract.CONTENT_ITEM_TYPE;
             case TRIPS:
-                return MovementDataContract.TripLog.CONTENT_TYPE;
+                return TripLogContract.CONTENT_TYPE;
             // get a particular entry
             case TRIP_ENTRY:
-                return MovementDataContract.TripLog.CONTENT_ITEM_TYPE;
+                return TripLogContract.CONTENT_ITEM_TYPE;
             default:
                 throw new IllegalArgumentException("Unsupported URI: " + uri);
         }
@@ -150,16 +150,16 @@ public class MovementDataProvider extends ContentProvider {
 
         switch (match) {
             case RAWDATA:
-                if (!contentValues.containsKey(MovementDataContract.RawDataLog.TIMESTAMP)) {
+                if (!contentValues.containsKey(RawDataContract.Columns.TIMESTAMP)) {
                     throw new SQLException("Timestamp must be specified");
                 }
-                if (!contentValues.containsKey(MovementDataContract.RawDataLog.ACTIVITY_TYPE)) {
+                if (!contentValues.containsKey(RawDataContract.Columns.ACTIVITY_TYPE)) {
                     throw new SQLException("Activity type must be specified");
                 }
-                if (!contentValues.containsKey(MovementDataContract.RawDataLog.CONFIDENCE)) {
+                if (!contentValues.containsKey(RawDataContract.Columns.CONFIDENCE)) {
                     throw new SQLException("Confidence must be specified");
                 }
-                if (!contentValues.containsKey(MovementDataContract.RawDataLog.CONFIDENCE_RANK)) {
+                if (!contentValues.containsKey(RawDataContract.Columns.CONFIDENCE_RANK)) {
                     throw new SQLException("Confidence rank must be specified");
                 }
 
@@ -167,10 +167,10 @@ public class MovementDataProvider extends ContentProvider {
 
                 break;
             case TRIPS:
-                if (!contentValues.containsKey(MovementDataContract.TripLog.START_TIME)) {
+                if (!contentValues.containsKey(TripLogContract.Columns.START_TIME)) {
                     throw new SQLException("Start time must be specified");
                 }
-                if (!contentValues.containsKey(MovementDataContract.TripLog.TRIP_TYPE)) {
+                if (!contentValues.containsKey(TripLogContract.Columns.TRIP_TYPE)) {
                     throw new SQLException("Trip type must be specified");
                 }
 
@@ -217,7 +217,7 @@ public class MovementDataProvider extends ContentProvider {
                 if (uri.getPathSegments() != null) {
                     count = db.delete(
                             RawData.TABLE,
-                            MovementDataContract.RawDataLog._ID + " = "
+                            RawDataContract.Columns._ID + " = "
                                     + uri.getPathSegments().get(1)
                                     + (!TextUtils.isEmpty(selection) ?
                                     " AND (" + selection + ')'
@@ -236,7 +236,7 @@ public class MovementDataProvider extends ContentProvider {
                 if (uri.getPathSegments() != null) {
                     count = db.delete(
                             Trips.TABLE,
-                            MovementDataContract.TripLog._ID + " = "
+                            TripLogContract.Columns._ID + " = "
                                     + uri.getPathSegments().get(1)
                                     + (!TextUtils.isEmpty(selection) ?
                                     " AND (" + selection + ')'
@@ -274,7 +274,7 @@ public class MovementDataProvider extends ContentProvider {
                     count = db.update(
                             RawData.TABLE,
                             values,
-                            MovementDataContract.RawDataLog._ID + " = "
+                            RawDataContract.Columns._ID + " = "
                                     + uri.getPathSegments().get(1)
                                     + (!TextUtils.isEmpty(selection) ?
                                     " AND (" + selection + ')'
@@ -295,7 +295,7 @@ public class MovementDataProvider extends ContentProvider {
                     count = db.update(
                             Trips.TABLE,
                             values,
-                            MovementDataContract.TripLog._ID + " = "
+                            TripLogContract.Columns._ID + " = "
                                     + uri.getPathSegments().get(1)
                                     + (!TextUtils.isEmpty(selection) ?
                                     " AND (" + selection + ')'
@@ -319,10 +319,10 @@ public class MovementDataProvider extends ContentProvider {
 
     static {
         uriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
-        uriMatcher.addURI(AUTHORITY, MovementDataContract.RawDataLog.URI_PART_ALL_CONTENT, RAWDATA);
-        uriMatcher.addURI(AUTHORITY, MovementDataContract.RawDataLog.URI_PART_SINGLE_ITEM, RAWDATA_ENTRY);
-        uriMatcher.addURI(AUTHORITY, MovementDataContract.TripLog.URI_PART_ALL_CONTENT, TRIPS);
-        uriMatcher.addURI(AUTHORITY, MovementDataContract.TripLog.URI_PART_SINGLE_ITEM, TRIP_ENTRY);
+        uriMatcher.addURI(AUTHORITY, RawDataContract.URI_PART_ALL_CONTENT, RAWDATA);
+        uriMatcher.addURI(AUTHORITY, RawDataContract.URI_PART_SINGLE_ITEM, RAWDATA_ENTRY);
+        uriMatcher.addURI(AUTHORITY, TripLogContract.URI_PART_ALL_CONTENT, TRIPS);
+        uriMatcher.addURI(AUTHORITY, TripLogContract.URI_PART_SINGLE_ITEM, TRIP_ENTRY);
     }
 
 

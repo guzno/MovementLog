@@ -5,22 +5,22 @@ import android.util.Log;
 
 import java.util.HashMap;
 
-import se.magnulund.dev.movementlog.provider.MovementDataContract;
+import se.magnulund.dev.movementlog.contracts.TripLogContract;
 
 public class Trips {
 
     public static final String TABLE = "trips";
     private static final String TABLE_CREATE =
             "create table " + TABLE + "("
-                    + MovementDataContract.TripLog._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
-                    + MovementDataContract.TripLog.START_TIME + " INTEGER, "
-                    + MovementDataContract.TripLog.END_TIME + " INTEGER, "
-                    + MovementDataContract.TripLog.TRIP_TYPE + " INTEGER,"
-                    + MovementDataContract.TripLog.START_LATITUDE + " TEXT, "
-                    + MovementDataContract.TripLog.START_LONGITUDE + " TEXT, "
-                    + MovementDataContract.TripLog.END_LATITUDE + " TEXT, "
-                    + MovementDataContract.TripLog.END_LONGITUDE + " TEXT,"
-                    + MovementDataContract.TripLog.CONFIRMED + " INTEGER"
+                    + TripLogContract.Columns._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
+                    + TripLogContract.Columns.START_TIME + " INTEGER, "
+                    + TripLogContract.Columns.END_TIME + " INTEGER, "
+                    + TripLogContract.Columns.TRIP_TYPE + " INTEGER,"
+                    + TripLogContract.Columns.START_LATITUDE + " TEXT, "
+                    + TripLogContract.Columns.START_LONGITUDE + " TEXT, "
+                    + TripLogContract.Columns.END_LATITUDE + " TEXT, "
+                    + TripLogContract.Columns.END_LONGITUDE + " TEXT,"
+                    + TripLogContract.Columns.CONFIRMED + " INTEGER"
                     + ");";
 
 
@@ -28,15 +28,15 @@ public class Trips {
 
     static {
         projectionMap = new HashMap<String, String>();
-        projectionMap.put(MovementDataContract.TripLog._ID, MovementDataContract.TripLog._ID);
-        projectionMap.put(MovementDataContract.TripLog.START_TIME, MovementDataContract.TripLog.START_TIME);
-        projectionMap.put(MovementDataContract.TripLog.END_TIME, MovementDataContract.TripLog.END_TIME);
-        projectionMap.put(MovementDataContract.TripLog.TRIP_TYPE, MovementDataContract.TripLog.TRIP_TYPE);
-        projectionMap.put(MovementDataContract.TripLog.START_LATITUDE, MovementDataContract.TripLog.START_LATITUDE);
-        projectionMap.put(MovementDataContract.TripLog.START_LONGITUDE, MovementDataContract.TripLog.START_LONGITUDE);
-        projectionMap.put(MovementDataContract.TripLog.END_LATITUDE, MovementDataContract.TripLog.END_LATITUDE);
-        projectionMap.put(MovementDataContract.TripLog.END_LONGITUDE, MovementDataContract.TripLog.END_LONGITUDE);
-        projectionMap.put(MovementDataContract.TripLog.CONFIRMED, MovementDataContract.TripLog.CONFIRMED);
+        projectionMap.put(TripLogContract.Columns._ID, TripLogContract.Columns._ID);
+        projectionMap.put(TripLogContract.Columns.START_TIME, TripLogContract.Columns.START_TIME);
+        projectionMap.put(TripLogContract.Columns.END_TIME, TripLogContract.Columns.END_TIME);
+        projectionMap.put(TripLogContract.Columns.TRIP_TYPE, TripLogContract.Columns.TRIP_TYPE);
+        projectionMap.put(TripLogContract.Columns.START_LATITUDE, TripLogContract.Columns.START_LATITUDE);
+        projectionMap.put(TripLogContract.Columns.START_LONGITUDE, TripLogContract.Columns.START_LONGITUDE);
+        projectionMap.put(TripLogContract.Columns.END_LATITUDE, TripLogContract.Columns.END_LATITUDE);
+        projectionMap.put(TripLogContract.Columns.END_LONGITUDE, TripLogContract.Columns.END_LONGITUDE);
+        projectionMap.put(TripLogContract.Columns.CONFIRMED, TripLogContract.Columns.CONFIRMED);
     }
 
     public static void onCreate(SQLiteDatabase db) {

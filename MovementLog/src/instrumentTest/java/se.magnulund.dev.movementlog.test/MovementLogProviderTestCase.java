@@ -7,9 +7,10 @@ import android.test.ProviderTestCase2;
 
 import com.google.android.gms.location.DetectedActivity;
 
+import se.magnulund.dev.movementlog.contracts.RawDataContract;
+import se.magnulund.dev.movementlog.contracts.TripLogContract;
 import se.magnulund.dev.movementlog.rawdata.RawData;
-import se.magnulund.dev.movementlog.provider.MovementDataContract;
-import se.magnulund.dev.movementlog.provider.MovementDataProvider;
+import se.magnulund.dev.movementlog.providers.MovementDataProvider;
 
 public class MovementLogProviderTestCase extends ProviderTestCase2<MovementDataProvider> {
 
@@ -21,7 +22,7 @@ public class MovementLogProviderTestCase extends ProviderTestCase2<MovementDataP
      * Constructor.
      */
     public MovementLogProviderTestCase() {
-        super(MovementDataProvider.class, MovementDataContract.AUTHORITY);
+        super(MovementDataProvider.class, TripLogContract.AUTHORITY);
     }
 
 
@@ -33,7 +34,7 @@ public class MovementLogProviderTestCase extends ProviderTestCase2<MovementDataP
 
 
     /**
-     * Raw data provider tests (MovementDataContract.RawDataLog)
+     * Raw data provider tests (TripLogContract.Columns)
      */
 
 
@@ -41,9 +42,9 @@ public class MovementLogProviderTestCase extends ProviderTestCase2<MovementDataP
      * Tests insert of single item and checks the inserted data against the original data using 3
      * separate query methods.
      * Methods:
-     *      MovementDataContract.RawDataLog.addEntry()
-     *      MovementDataContract.RawDataLog.getEntryByID()
-     *      MovementDataContract.RawDataLog.getEntry()
+     *      TripLogContract.Columns.addEntry()
+     *      TripLogContract.Columns.getEntryByID()
+     *      TripLogContract.Columns.getEntry()
      *      resolver.query() on single item URI
      */
     public void test_mdcRawData_insertRowAndVerify() {
@@ -55,21 +56,21 @@ public class MovementLogProviderTestCase extends ProviderTestCase2<MovementDataP
         rawData.setTimestamp(System.currentTimeMillis());
         rawData.setRank(0);
 
-        Uri result = MovementDataContract.RawDataLog.addEntry(getMockContext(), rawData);
+        Uri result = RawDataContract.addEntry(getMockContext(), rawData);
         assertNotNull(result);
         assertNotNull(result.getPathSegments());
 
-        assertEquals(MovementDataContract.RawDataLog.URI_PART_ALL_CONTENT, result.getPathSegments().get(0));
+        assertEquals(RawDataContract.URI_PART_ALL_CONTENT, result.getPathSegments().get(0));
 
         int resultID = Integer.valueOf(result.getPathSegments().get(1));
 
         // check if getEntryByID works
 
-        Cursor cursor = MovementDataContract.RawDataLog.getEntryByID(getMockContext(), resultID);
+        Cursor cursor = RawDataContract.getEntryByID(getMockContext(), resultID);
 
-        assertNotNull("MovementDataContract.RawDataLog.getEntryByID() returned a null Cursor", cursor);
+        assertNotNull("TripLogContract.Columns.getEntryByID() returned a null Cursor", cursor);
 
-        assertTrue(MovementDataContract.RawDataLog.isValidCursor(cursor));
+        assertTrue(RawDataContract.isValidCursor(cursor));
 
         cursor.moveToFirst();
 
@@ -82,11 +83,11 @@ public class MovementLogProviderTestCase extends ProviderTestCase2<MovementDataP
 
         // check if getEntry works
 
-        cursor = MovementDataContract.RawDataLog.getEntry(getMockContext(), result);
+        cursor = RawDataContract.getEntry(getMockContext(), result);
 
-        assertNotNull("MovementDataContract.RawDataLog.getEntry() returned a null Cursor", cursor);
+        assertNotNull("TripLogContract.Columns.getEntry() returned a null Cursor", cursor);
 
-        assertTrue(MovementDataContract.RawDataLog.isValidCursor(cursor));
+        assertTrue(RawDataContract.isValidCursor(cursor));
 
         cursor.moveToFirst();
 
@@ -101,15 +102,15 @@ public class MovementLogProviderTestCase extends ProviderTestCase2<MovementDataP
 
         cursor = resolver.query(
                 result,
-                MovementDataContract.RawDataLog.DEFAULT_PROJECTION,
+                RawDataContract.DEFAULT_PROJECTION,
                 null,
                 null,
-                MovementDataContract.RawDataLog.DEFAULT_SORT_ORDER
+                RawDataContract.DEFAULT_SORT_ORDER
         );
 
         assertNotNull("Contentresolver returned a null Cursor", cursor);
 
-        assertTrue(MovementDataContract.RawDataLog.isValidCursor(cursor));
+        assertTrue(RawDataContract.isValidCursor(cursor));
 
         cursor.moveToFirst();
 
@@ -125,9 +126,9 @@ public class MovementLogProviderTestCase extends ProviderTestCase2<MovementDataP
     /**
      * Tests update of single item and checks the updated data.
      * Methods:
-     *      MovementDataContract.RawDataLog.addEntry()
-     *      MovementDataContract.RawDataLog.getEntryByID()
-     *      MovementDataContract.RawDataLog.updateEntry()
+     *      TripLogContract.Columns.addEntry()
+     *      TripLogContract.Columns.getEntryByID()
+     *      TripLogContract.Columns.updateEntry()
      */
     public void test_mdcRawData_updateEntryAndVerify() {
 
@@ -138,7 +139,7 @@ public class MovementLogProviderTestCase extends ProviderTestCase2<MovementDataP
         rawData.setTimestamp(System.currentTimeMillis());
         rawData.setRank(0);
 
-        Uri result = MovementDataContract.RawDataLog.addEntry(getMockContext(), rawData);
+        Uri result = RawDataContract.addEntry(getMockContext(), rawData);
 
         assertNotNull(result);
 
@@ -151,15 +152,15 @@ public class MovementLogProviderTestCase extends ProviderTestCase2<MovementDataP
         updatedMovement.setTimestamp(System.currentTimeMillis());
         updatedMovement.setRank(1);
 
-        boolean updateResult = MovementDataContract.RawDataLog.updateEntry(getMockContext(), dataID, updatedMovement);
+        boolean updateResult = RawDataContract.updateEntry(getMockContext(), dataID, updatedMovement);
 
         assertTrue(updateResult);
 
-        Cursor cursor = MovementDataContract.RawDataLog.getEntryByID(getMockContext(), dataID);
+        Cursor cursor = RawDataContract.getEntryByID(getMockContext(), dataID);
 
-        assertNotNull("MovementDataContract.RawDataLog.getEntryByID() returned a null Cursor", cursor);
+        assertNotNull("TripLogContract.Columns.getEntryByID() returned a null Cursor", cursor);
 
-        assertTrue(MovementDataContract.RawDataLog.isValidCursor(cursor));
+        assertTrue(RawDataContract.isValidCursor(cursor));
 
         cursor.moveToFirst();
 
@@ -171,7 +172,7 @@ public class MovementLogProviderTestCase extends ProviderTestCase2<MovementDataP
 
     public void test_mdcRawData_deleteEntriesAndVerify() {
 
-        Cursor cursor = MovementDataContract.RawDataLog.getCursor(getMockContext());
+        Cursor cursor = RawDataContract.getCursor(getMockContext());
 
         assertNotNull(cursor);
 
@@ -184,13 +185,13 @@ public class MovementLogProviderTestCase extends ProviderTestCase2<MovementDataP
         rawData.setTimestamp(System.currentTimeMillis() - 100000);
         rawData.setRank(0);
 
-        Uri result1 = MovementDataContract.RawDataLog.addEntry(getMockContext(), rawData);
+        Uri result1 = RawDataContract.addEntry(getMockContext(), rawData);
 
         assertNotNull(result1);
 
         rawData.setTimestamp(System.currentTimeMillis());
 
-        Uri result2 = MovementDataContract.RawDataLog.addEntry(getMockContext(), rawData);
+        Uri result2 = RawDataContract.addEntry(getMockContext(), rawData);
 
         assertNotNull(result2);
 
@@ -198,11 +199,11 @@ public class MovementLogProviderTestCase extends ProviderTestCase2<MovementDataP
 
         long result2ID = Long.valueOf(result2.getPathSegments().get(1));
 
-        Uri result3 = MovementDataContract.RawDataLog.addEntry(getMockContext(), rawData);
+        Uri result3 = RawDataContract.addEntry(getMockContext(), rawData);
 
         assertNotNull(result3);
 
-        cursor = MovementDataContract.RawDataLog.getCursor(getMockContext());
+        cursor = RawDataContract.getCursor(getMockContext());
 
         assertNotNull(cursor);
 
@@ -210,49 +211,49 @@ public class MovementLogProviderTestCase extends ProviderTestCase2<MovementDataP
 
         assertEquals(updatedEntries, initialEntries + 3);
 
-        cursor = MovementDataContract.RawDataLog.getEntry(getMockContext(), result1);
+        cursor = RawDataContract.getEntry(getMockContext(), result1);
 
         assertNotNull(cursor);
 
         assertTrue(cursor.getCount() > 0);
 
-        int entriesDeleted = MovementDataContract.RawDataLog.deleteOldEntries(getMockContext(), System.currentTimeMillis() - 50000);
+        int entriesDeleted = RawDataContract.deleteOldEntries(getMockContext(), System.currentTimeMillis() - 50000);
 
         assertTrue(entriesDeleted > 0);
 
-        cursor = MovementDataContract.RawDataLog.getEntry(getMockContext(), result1);
+        cursor = RawDataContract.getEntry(getMockContext(), result1);
 
         assertNotNull(cursor);
 
         assertTrue(cursor.getCount() == 0);
 
-        cursor = MovementDataContract.RawDataLog.getCursor(getMockContext());
+        cursor = RawDataContract.getCursor(getMockContext());
 
         assertNotNull(cursor);
 
         assertEquals(cursor.getCount(), updatedEntries - entriesDeleted);
 
-        cursor = MovementDataContract.RawDataLog.getEntryByID(getMockContext(), result2ID);
+        cursor = RawDataContract.getEntryByID(getMockContext(), result2ID);
 
         assertNotNull(cursor);
 
         assertTrue(cursor.getCount() > 0);
 
-        entriesDeleted = MovementDataContract.RawDataLog.deleteEntryByID(getMockContext(), result2ID);
+        entriesDeleted = RawDataContract.deleteEntryByID(getMockContext(), result2ID);
 
         assertEquals(entriesDeleted, 1);
 
-        cursor = MovementDataContract.RawDataLog.getEntryByID(getMockContext(), result2ID);
+        cursor = RawDataContract.getEntryByID(getMockContext(), result2ID);
 
         assertNotNull(cursor);
 
         assertTrue(cursor.getCount() == 0);
 
-        entriesDeleted = MovementDataContract.RawDataLog.deleteAllEntries(getMockContext());
+        entriesDeleted = RawDataContract.deleteAllEntries(getMockContext());
 
         assertTrue( entriesDeleted > 0 );
 
-        cursor = MovementDataContract.RawDataLog.getCursor(getMockContext());
+        cursor = RawDataContract.getCursor(getMockContext());
 
         assertNotNull(cursor);
 

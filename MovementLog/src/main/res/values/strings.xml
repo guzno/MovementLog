@@ -19,5 +19,6 @@
     <string name="trip_end_label">End:</string>
     <string name="trip_ongoing">Ongoing</string>
     <string name="trip_unconfirmed">unconfirmed</string>
+    <string name="rawdata_pct_confidence">% confidence</string>
 
 </resources>
