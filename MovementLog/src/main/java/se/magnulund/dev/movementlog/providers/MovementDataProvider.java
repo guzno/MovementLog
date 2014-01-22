@@ -21,7 +21,7 @@ public class MovementDataProvider extends ContentProvider {
 
     public static final String TAG = "MovementDataProvider";
 
-    public static final String AUTHORITY = "se.magnulund.dev.movementlog.provider";
+    public static final String AUTHORITY = "se.magnulund.dev.movementlog.providers";
 
     private static final UriMatcher uriMatcher;
     private static final int RAWDATA = 1;
