@@ -6,7 +6,7 @@ import android.location.Location;
 import com.google.android.gms.location.DetectedActivity;
 
 import se.magnulund.dev.movementlog.R;
-import se.magnulund.dev.movementlog.provider.MovementDataContract;
+import se.magnulund.dev.movementlog.contracts.TripLogContract;
 
 public class Trip {
     private static final String TAG = "Trip";
@@ -34,63 +34,63 @@ public class Trip {
     }
 
     public static Trip fromCursor(Cursor cursor) throws Exception {
-        if (!MovementDataContract.TripLog.isValidCursor(cursor)) {
+        if (!TripLogContract.isValidCursor(cursor)) {
             throw new Exception("Invalid cursor - does not point to a full Trip entry.");
         }
 
         Trip trip;
 
-        final long _id = cursor.getLong(cursor.getColumnIndex(MovementDataContract.TripLog._ID));
+        final long _id = cursor.getLong(cursor.getColumnIndex(TripLogContract.Columns._ID));
 
-        final int tripType = cursor.getInt(cursor.getColumnIndex(MovementDataContract.TripLog.TRIP_TYPE));
+        final int tripType = cursor.getInt(cursor.getColumnIndex(TripLogContract.Columns.TRIP_TYPE));
 
-        final long startTime = cursor.getLong(cursor.getColumnIndex(MovementDataContract.TripLog.START_TIME));
+        final long startTime = cursor.getLong(cursor.getColumnIndex(TripLogContract.Columns.START_TIME));
 
         trip = new Trip(startTime, tripType);
 
         trip.setID(_id);
 
-        final long endTime = cursor.getLong(cursor.getColumnIndex(MovementDataContract.TripLog.END_TIME));
+        final long endTime = cursor.getLong(cursor.getColumnIndex(TripLogContract.Columns.END_TIME));
 
         trip.setEndTime(endTime);
 
-        if (!cursor.isNull(cursor.getColumnIndex(MovementDataContract.TripLog.START_LATITUDE)) &&
-                !cursor.isNull(cursor.getColumnIndex(MovementDataContract.TripLog.START_LONGITUDE))
+        if (!cursor.isNull(cursor.getColumnIndex(TripLogContract.Columns.START_LATITUDE)) &&
+                !cursor.isNull(cursor.getColumnIndex(TripLogContract.Columns.START_LONGITUDE))
                 ) {
             Location startLocation = new Location("PLACEHOLDER");
 
             double startLatitude = Location.convert(
-                    cursor.getString(cursor.getColumnIndex(MovementDataContract.TripLog.START_LATITUDE))
+                    cursor.getString(cursor.getColumnIndex(TripLogContract.Columns.START_LATITUDE))
             );
             startLocation.setLatitude(startLatitude);
 
             double startLongitude = Location.convert(
-                    cursor.getString(cursor.getColumnIndex(MovementDataContract.TripLog.START_LONGITUDE))
+                    cursor.getString(cursor.getColumnIndex(TripLogContract.Columns.START_LONGITUDE))
             );
             startLocation.setLongitude(startLongitude);
 
             trip.setStartLocation(startLocation);
         }
 
-        if (!cursor.isNull(cursor.getColumnIndex(MovementDataContract.TripLog.END_LATITUDE)) &&
-                !cursor.isNull(cursor.getColumnIndex(MovementDataContract.TripLog.END_LONGITUDE))
+        if (!cursor.isNull(cursor.getColumnIndex(TripLogContract.Columns.END_LATITUDE)) &&
+                !cursor.isNull(cursor.getColumnIndex(TripLogContract.Columns.END_LONGITUDE))
                 ) {
             Location endLocation = new Location("PLACEHOLDER");
 
             double endLatitude = Location.convert(
-                    cursor.getString(cursor.getColumnIndex(MovementDataContract.TripLog.END_LATITUDE))
+                    cursor.getString(cursor.getColumnIndex(TripLogContract.Columns.END_LATITUDE))
             );
             endLocation.setLatitude(endLatitude);
 
             double endLongitude = Location.convert(
-                    cursor.getString(cursor.getColumnIndex(MovementDataContract.TripLog.END_LONGITUDE))
+                    cursor.getString(cursor.getColumnIndex(TripLogContract.Columns.END_LONGITUDE))
             );
             endLocation.setLongitude(endLongitude);
 
             trip.setEndLocation(endLocation);
         }
 
-        trip.setConfirmed(cursor.getInt(cursor.getColumnIndex(MovementDataContract.TripLog.CONFIRMED)) == 1);
+        trip.setConfirmed(cursor.getInt(cursor.getColumnIndex(TripLogContract.Columns.CONFIRMED)) == 1);
 
         return trip;
     }

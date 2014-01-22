@@ -13,7 +13,8 @@ import com.google.android.gms.location.DetectedActivity;
 import java.util.ArrayList;
 import java.util.List;
 
-import se.magnulund.dev.movementlog.provider.MovementDataContract;
+import se.magnulund.dev.movementlog.contracts.TripLogContract;
+import se.magnulund.dev.movementlog.contracts.RawDataContract;
 import se.magnulund.dev.movementlog.rawdata.RawData;
 import se.magnulund.dev.movementlog.trips.Trip;
 
@@ -65,7 +66,7 @@ public class ActivityRecognitionIntentService extends IntentService {
 
                 rawDatas.add(rawData);
 
-                Uri dataEntry = MovementDataContract.RawDataLog.addEntry(this, rawData);                // insert data into db
+                Uri dataEntry = RawDataContract.addEntry(this, rawData);                // insert data into db
 
                 if (dataEntry == null || dataEntry.getPathSegments() == null) {
                     Log.d(TAG, "krep! Data entry failed!");
@@ -74,7 +75,7 @@ public class ActivityRecognitionIntentService extends IntentService {
 
             if (mostProbableActivity != null) {
 
-                Trip onGoingTrip = MovementDataContract.TripLog.getLatestUnfinishedTrip(this);            // get the current trip if any
+                Trip onGoingTrip = TripLogContract.getLatestUnfinishedTrip(this);            // get the current trip if any
 
                 int activityType = mostProbableActivity.getType();            // get the activity type
 
@@ -93,7 +94,7 @@ public class ActivityRecognitionIntentService extends IntentService {
 
                             startedTrip.setConfirmed(true);
                             // insert trip into db
-                            Uri tripEntry = MovementDataContract.TripLog.addTrip(this, startedTrip);
+                            Uri tripEntry = TripLogContract.addTrip(this, startedTrip);
 
                             if (tripEntry != null && tripEntry.getPathSegments() != null) {
                                 Log.d(TAG, "woho! I started a " + mostProbableActivity.getActivityName() + " trip with ID: " + tripEntry.getPathSegments().get(1));
@@ -111,7 +112,7 @@ public class ActivityRecognitionIntentService extends IntentService {
                                 if (isPossibleTripStart(data)) {
                                     Toast.makeText(this, "You seem to have started an " + data.getActivityName() + " trip.", Toast.LENGTH_SHORT).show();
                                     Trip possibleTrip = new Trip(data.getTimestamp(), data.getType());
-                                    MovementDataContract.TripLog.addTrip(this, possibleTrip);
+                                    TripLogContract.addTrip(this, possibleTrip);
                                     // TODO Get possible trip start location
                                 }
                             }

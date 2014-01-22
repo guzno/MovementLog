@@ -18,7 +18,8 @@ import android.widget.CursorAdapter;
 import android.widget.ListView;
 
 import se.magnulund.dev.movementlog.R;
-import se.magnulund.dev.movementlog.provider.MovementDataContract;
+import se.magnulund.dev.movementlog.contracts.TripLogContract;
+import se.magnulund.dev.movementlog.contracts.RawDataContract;
 import se.magnulund.dev.movementlog.rawdata.RawDataAdapter;
 import se.magnulund.dev.movementlog.trips.TripsAdapter;
 
@@ -139,26 +140,26 @@ public class MainFragment extends Fragment implements LoaderManager.LoaderCallba
 
         switch (args.getInt(FRAGMENT_TYPE)) {
             case TYPE_TRIPS:
-                uri = MovementDataContract.TripLog.CONTENT_URI;
+                uri = TripLogContract.CONTENT_URI;
 
-                projection = MovementDataContract.TripLog.DEFAULT_PROJECTION;
+                projection = TripLogContract.DEFAULT_PROJECTION;
 
                 selection = null;
 
                 selectionArgs = null;
 
-                sortOrder = MovementDataContract.TripLog.DEFAULT_SORT_ORDER;
+                sortOrder = TripLogContract.DEFAULT_SORT_ORDER;
                 break;
             case TYPE_RAWDATA:
-                uri = MovementDataContract.RawDataLog.CONTENT_URI;
+                uri = RawDataContract.CONTENT_URI;
 
-                projection = MovementDataContract.RawDataLog.DEFAULT_PROJECTION;
+                projection = RawDataContract.DEFAULT_PROJECTION;
 
-                selection = MovementDataContract.RawDataLog.CONFIDENCE_RANK + " = ?";
+                selection = RawDataContract.Columns.CONFIDENCE_RANK + " = ?";
 
                 selectionArgs = new String[]{"0"};
 
-                sortOrder = MovementDataContract.RawDataLog.DEFAULT_SORT_ORDER;
+                sortOrder = RawDataContract.DEFAULT_SORT_ORDER;
                 break;
             default:
                 return null;

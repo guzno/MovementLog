@@ -4,10 +4,10 @@ import android.database.Cursor;
 
 import com.google.android.gms.location.DetectedActivity;
 
-import se.magnulund.dev.movementlog.provider.MovementDataContract;
+import se.magnulund.dev.movementlog.contracts.RawDataContract;
 
 public class RawData extends DetectedActivity {
-    private static final String TAG = "RawDataLog";
+    private static final String TAG = "Columns";
     long timestamp;
     int confidence_rank;
 
@@ -44,15 +44,14 @@ public class RawData extends DetectedActivity {
     }
 
     public static RawData fromCursor(Cursor cursor) {
-        assert MovementDataContract.RawDataLog.isValidCursor(cursor);
 
-        final int activityType = cursor.getInt(cursor.getColumnIndexOrThrow(MovementDataContract.RawDataLog.ACTIVITY_TYPE));
+        final int activityType = cursor.getInt(cursor.getColumnIndex(RawDataContract.Columns.ACTIVITY_TYPE));
 
-        final int confidence = cursor.getInt(cursor.getColumnIndexOrThrow(MovementDataContract.RawDataLog.CONFIDENCE));
+        final int confidence = cursor.getInt(cursor.getColumnIndex(RawDataContract.Columns.CONFIDENCE));
 
-        final long timestamp = cursor.getLong(cursor.getColumnIndexOrThrow(MovementDataContract.RawDataLog.TIMESTAMP));
+        final long timestamp = cursor.getLong(cursor.getColumnIndex(RawDataContract.Columns.TIMESTAMP));
 
-        final int confidenceRank = cursor.getInt(cursor.getColumnIndexOrThrow(MovementDataContract.RawDataLog.CONFIDENCE_RANK));
+        final int confidenceRank = cursor.getInt(cursor.getColumnIndex(RawDataContract.Columns.CONFIDENCE_RANK));
 
         return new RawData(activityType, confidence, timestamp, confidenceRank);
     }
