@@ -12,6 +12,17 @@ repositories {
     mavenCentral()
 }
 
+def gitSha() {
+    def res = 'git rev-parse HEAD'.execute([], project.rootDir).text.trim()
+
+    def diff = 'git diff'.execute([], project.rootDir).text.trim()
+    if (diff != null && diff.length() > 0) {
+        res += "-dirty"
+    }
+
+    return res
+}
+
 android {
     compileSdkVersion "Google Inc.:Google APIs:19"
     buildToolsVersion "19.0.0"
@@ -20,6 +31,7 @@ android {
         minSdkVersion 19
         targetSdkVersion 19
         testInstrumentationRunner "com.google.android.apps.common.testing.testrunner.GoogleInstrumentationTestRunner"
+        buildConfigField "String", "GIT_SHA", "\"${gitSha()}\""
     }
     buildTypes {
         release {

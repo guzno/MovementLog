@@ -35,7 +35,7 @@
         <service
             android:name="se.magnulund.dev.movementlog.activityrecognition.ActivityRecognitionIntentService"
             android:enabled="true"
-            android:exported="false" />
+            android:exported="true" />
 
         <provider
             android:name="se.magnulund.dev.movementlog.provider.MovementDataProvider"
@@ -45,8 +45,8 @@
         </provider>
 
         <service
-            android:name="se.magnulund.dev.movementlog.activityrecognition.ActivityRecognitionService"
-            android:enabled="false"
+            android:name=".services.ActivityRecognitionService"
+            android:enabled="true"
             android:exported="false" >
         </service>
 
