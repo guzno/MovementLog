@@ -20,5 +20,11 @@
     <string name="trip_ongoing">Ongoing</string>
     <string name="trip_unconfirmed">unconfirmed</string>
     <string name="rawdata_pct_confidence">% confidence</string>
+    <string name="perm_gr_lbl">Data in the MovementLog app</string>
+    <string name="perm_gr_desc">Read write and communicate with the MovementLof app</string>
+    <string name="perm_read_lbl">Your data</string>
+    <string name="perm_read_desc">Read data from MovementLog</string>
+    <string name="perm_control_lbl">Control apps</string>
+    <string name="perm_control_desc">Control services in MovementLog</string>
 
 </resources>

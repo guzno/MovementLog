@@ -82,6 +82,8 @@ public class TripsAdapter extends CursorAdapter {
 
             } else {
                 holder.startTimeTextView.setText(timeFormat.format(startTime) + " - " + context.getString(R.string.trip_unconfirmed));
+                holder.durationTextView.setText("");
+                holder.endTimeTextView.setText("");
             }
 
 

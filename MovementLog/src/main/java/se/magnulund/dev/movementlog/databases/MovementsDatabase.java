@@ -4,8 +4,8 @@ import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
-import se.magnulund.dev.movementlog.tables.RawData;
-import se.magnulund.dev.movementlog.tables.Trips;
+import se.magnulund.dev.movementlog.databases.tables.RawData;
+import se.magnulund.dev.movementlog.databases.tables.Trips;
 
 /**
  * Created by erikeelde on 21/1/2014.

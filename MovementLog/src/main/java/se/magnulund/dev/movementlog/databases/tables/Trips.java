@@ -1,4 +1,4 @@
-package se.magnulund.dev.movementlog.tables;
+package se.magnulund.dev.movementlog.databases.tables;
 
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
@@ -27,7 +27,7 @@ public class Trips {
     public static final HashMap<String, String> projectionMap;
 
     static {
-        projectionMap = new HashMap<String, String>();
+        projectionMap = new HashMap<>();
         projectionMap.put(TripLogContract.Columns._ID, TripLogContract.Columns._ID);
         projectionMap.put(TripLogContract.Columns.START_TIME, TripLogContract.Columns.START_TIME);
         projectionMap.put(TripLogContract.Columns.END_TIME, TripLogContract.Columns.END_TIME);

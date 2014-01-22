@@ -329,11 +329,31 @@ public class TripLogContract {
     public static class Columns implements BaseColumns {
 
         public static final String _ID = BaseColumns._ID;
+
         /**
          * The START_TIME column. The timestamp for the start of the trip in milliseconds.
          * <p>TYPE: INTEGER</p>
          */
         public static final String START_TIME = "start_time";
+
+        /**
+         * The START_TIME_FROM_ID column. The id of the raw data entry that set the start time.
+         * <p>TYPE: INTEGER</p>
+         */
+        public static final String START_TIME_FROM_ID = "start_time_from_id";
+
+        /**
+         * The START_TIME_FROM_DATA_TYPE column. The data type of the entry that set the end time.
+         * <p>TYPE: INTEGER</p>
+         */
+        public static final String START_TIME_FROM_DATA_TYPE = "start_time_from_data_type";
+
+        /**
+         * The START_CONFIRMED_ID column. The id of the raw data entry that confirmed the start of the trip.
+         * <p>TYPE: INTEGER</p>
+         */
+        public static final String START_CONFIRMED_BY_ID = "start_confirmed_id";
+
         /**
          * The END_TIME column. The timestamp for the end of the trip in milliseconds.
          * <p>TYPE: INTEGER</p>
@@ -341,7 +361,25 @@ public class TripLogContract {
         public static final String END_TIME = "end_time";
 
         /**
-         * The trip type column. An integer corresponding to the detected trip (1 = DRIVING, 2 = BIKING).
+         * The END_TIME_FROM_ID column. The id of the raw data entry that set the end time.
+         * <p>TYPE: INTEGER</p>
+         */
+        public static final String END_TIME_FROM_ID = "end_time_from_id";
+
+        /**
+         * The END_TIME_FROM_DATA_TYPE column. The data type of the entry that set the end time.
+         * <p>TYPE: INTEGER</p>
+         */
+        public static final String END_TIME_FROM_DATA_TYPE = "end_time_from_data_type";
+
+        /**
+         * The END_CONFIRMED_BY_ID column. The id of the raw data entry that confirmed the end of the trip.
+         * <p>TYPE: INTEGER</p>
+         */
+        public static final String END_CONFIRMED_BY_ID = "end_confirmed_id";
+
+        /**
+         * The TRIP_TYPE column. An integer corresponding to the detected trip (1 = DRIVING, 2 = BIKING).
          * <p>TYPE: INTEGER</p>
          */
         public static final String TRIP_TYPE = "trip_type";
@@ -371,7 +409,7 @@ public class TripLogContract {
         public static final String END_LONGITUDE = "end_longitude";
 
         /**
-         * The confirmed column. An boolean (int 0|1) representing potential trip start times/locations and confirmed trips.
+         * The confirmed column. An boolean indicating if a trip is finished and confirmed.
          * <p>TYPE: STRING</p>
          */
         public static final String CONFIRMED = "confirmed";

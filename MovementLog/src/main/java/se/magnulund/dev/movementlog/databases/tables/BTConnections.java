@@ -1,4 +1,4 @@
-package se.magnulund.dev.movementlog.tables;
+package se.magnulund.dev.movementlog.databases.tables;
 
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
@@ -7,7 +7,7 @@ import java.util.HashMap;
 
 import se.magnulund.dev.movementlog.contracts.RawDataContract;
 
-public class RawData {
+public class BTConnections {
     public static final String TABLE = "rawdata";
     public static HashMap<String, String> projectionMap;
 

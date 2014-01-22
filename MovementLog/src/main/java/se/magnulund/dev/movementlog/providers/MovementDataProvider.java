@@ -14,8 +14,8 @@ import android.text.TextUtils;
 import se.magnulund.dev.movementlog.contracts.TripLogContract;
 import se.magnulund.dev.movementlog.contracts.RawDataContract;
 import se.magnulund.dev.movementlog.databases.MovementsDatabase;
-import se.magnulund.dev.movementlog.tables.RawData;
-import se.magnulund.dev.movementlog.tables.Trips;
+import se.magnulund.dev.movementlog.databases.tables.RawData;
+import se.magnulund.dev.movementlog.databases.tables.Trips;
 
 public class MovementDataProvider extends ContentProvider {
 
