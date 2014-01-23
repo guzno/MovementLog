@@ -55,7 +55,7 @@ public class TripsAdapter extends CursorAdapter {
         Trip trip;
         try {
             trip = Trip.fromCursor(cursor);
-            holder.typeTextView.setText(trip.getTripTypeNameID());
+            holder.typeTextView.setText(trip.getTripTypeNameResourceID());
 
             SimpleDateFormat dateFormat = new SimpleDateFormat("MMM d");
             SimpleDateFormat timeFormat = new SimpleDateFormat("kk:mm");
@@ -64,7 +64,7 @@ public class TripsAdapter extends CursorAdapter {
 
             holder.dateTextView.setText(dateFormat.format(startTime));
 
-            if (trip.getConfirmed()) {
+            if (trip.isConfirmed()) {
                 holder.startTimeTextView.setText(timeFormat.format(startTime));
 
                 // -- TODO calculate duration

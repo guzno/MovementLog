@@ -18,8 +18,8 @@ import android.widget.CursorAdapter;
 import android.widget.ListView;
 
 import se.magnulund.dev.movementlog.R;
-import se.magnulund.dev.movementlog.contracts.TripLogContract;
 import se.magnulund.dev.movementlog.contracts.RawDataContract;
+import se.magnulund.dev.movementlog.contracts.TripLogContract;
 import se.magnulund.dev.movementlog.rawdata.RawDataAdapter;
 import se.magnulund.dev.movementlog.trips.TripsAdapter;
 

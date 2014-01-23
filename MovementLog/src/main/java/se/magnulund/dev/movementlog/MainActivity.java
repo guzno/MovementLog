@@ -1,23 +1,11 @@
 package se.magnulund.dev.movementlog;
 
 import android.app.Activity;
-import android.app.Dialog;
-import android.app.DialogFragment;
-import android.app.PendingIntent;
 import android.content.Intent;
-import android.content.IntentSender;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.Toast;
 
-import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.GooglePlayServicesClient;
-import com.google.android.gms.common.GooglePlayServicesUtil;
-import com.google.android.gms.location.ActivityRecognitionClient;
-
-import se.magnulund.dev.movementlog.activityrecognition.ActivityRecognitionIntentService;
 import se.magnulund.dev.movementlog.fragments.MainFragment;
 import se.magnulund.dev.movementlog.services.ActivityRecognitionService;
 

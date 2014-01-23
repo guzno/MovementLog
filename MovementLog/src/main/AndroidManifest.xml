@@ -53,7 +53,7 @@
             android:value="@integer/google_play_services_version" />
 
         <service
-            android:name="se.magnulund.dev.movementlog.activityrecognition.ActivityRecognitionIntentService"
+            android:name=".triprecognition.TripRecognitionIntentService"
             android:enabled="true"
             android:exported="true"
             android:process=":services"
@@ -73,10 +73,6 @@
             android:process=":services"
             android:permission="se.magnulund.permission.CONTROL_SERVICE"/>
 
-        <receiver
-            android:name="se.magnulund.dev.movementlog.activityrecognition.ActivityRecognitionReceiver"
-            android:enabled="false"
-            android:exported="false"/>
     </application>
 
 </manifest>

@@ -17,7 +17,7 @@ import com.google.android.gms.location.ActivityRecognitionClient;
 
 import se.magnulund.dev.movementlog.MainActivity;
 import se.magnulund.dev.movementlog.R;
-import se.magnulund.dev.movementlog.activityrecognition.ActivityRecognitionIntentService;
+import se.magnulund.dev.movementlog.triprecognition.TripRecognitionIntentService;
 
 public class ActivityRecognitionService extends Service {
 
@@ -66,7 +66,7 @@ public class ActivityRecognitionService extends Service {
 
         mActivityRecognitionClient = new ActivityRecognitionClient(this, googlePlayServicesClientConnectionCallbacks, googlePlayFailer);
 
-        Intent intent = new Intent(this, ActivityRecognitionIntentService.class);
+        Intent intent = new Intent(this, TripRecognitionIntentService.class);
 
         mActivityRecognitionPendingIntent = PendingIntent.getService(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
     }

@@ -10,97 +10,151 @@ import se.magnulund.dev.movementlog.contracts.TripLogContract;
 
 public class Trip {
     private static final String TAG = "Trip";
-    long startTime;
-    int type;
-    long endTime;
+
     long _id;
+    int type;
+
+    long startTime;
+    int startConfirmedByID = -1;
+    int startedByID = -1;
+    int startedByType = -1;
+
+    long endTime;
+    int endConfirmedByID = -1;
+    int endedByID = -1;
+    int endedByType = -1;
+
+    int confirmed;
+
     Location startLocation;
     Location endLocation;
-    boolean confirmed;
-
-    public Trip(long startTime, int tripType, long endTime, Location startLocation, Location endLocation, boolean confirmed) {
-        this.startTime = startTime;
-        this.type = tripType;
-        this.endTime = endTime;
-        this.startLocation = startLocation;
-        this.endLocation = endLocation;
-        this.confirmed = confirmed;
-    }
 
     public Trip(long startTime, int tripType) {
         this.startTime = startTime;
         this.type = tripType;
-        this.confirmed = false;
+        this.confirmed = 0;
     }
 
     public static Trip fromCursor(Cursor cursor) throws Exception {
-        if (!TripLogContract.isValidCursor(cursor)) {
-            throw new Exception("Invalid cursor - does not point to a full Trip entry.");
-        }
-
-        Trip trip;
-
-        final long _id = cursor.getLong(cursor.getColumnIndexOrThrow(TripLogContract.Columns._ID));
 
         final int tripType = cursor.getInt(cursor.getColumnIndexOrThrow(TripLogContract.Columns.TRIP_TYPE));
 
         final long startTime = cursor.getLong(cursor.getColumnIndexOrThrow(TripLogContract.Columns.START_TIME));
 
-        trip = new Trip(startTime, tripType);
+        Trip trip = new Trip(startTime, tripType);
 
-        trip.setID(_id);
+        trip.setID(cursor.getLong(cursor.getColumnIndexOrThrow(TripLogContract.Columns._ID)));
 
-        final long endTime = cursor.getLong(cursor.getColumnIndexOrThrow(TripLogContract.Columns.END_TIME));
+        trip.setStartedByID(cursor.getInt(cursor.getColumnIndexOrThrow(TripLogContract.Columns.STARTED_BY_ID)));
+        trip.setStartedByType(cursor.getInt(cursor.getColumnIndexOrThrow(TripLogContract.Columns.STARTED_BY_TYPE)));
 
-        trip.setEndTime(endTime);
+        trip.setStartConfirmedByID(cursor.getInt(cursor.getColumnIndexOrThrow(TripLogContract.Columns.START_CONFIRMED_BY_ID)));
 
         if (!cursor.isNull(cursor.getColumnIndexOrThrow(TripLogContract.Columns.START_LATITUDE)) &&
                 !cursor.isNull(cursor.getColumnIndexOrThrow(TripLogContract.Columns.START_LONGITUDE))
                 ) {
             Location startLocation = new Location("PLACEHOLDER");
 
-            double startLatitude = Location.convert(
-                    cursor.getString(cursor.getColumnIndex(TripLogContract.Columns.START_LATITUDE))
-            );
+            final double startLatitude = Location.convert(cursor.getString(cursor.getColumnIndex(TripLogContract.Columns.START_LATITUDE)));
             startLocation.setLatitude(startLatitude);
 
-            double startLongitude = Location.convert(
-                    cursor.getString(cursor.getColumnIndex(TripLogContract.Columns.START_LONGITUDE))
-            );
+            final double startLongitude = Location.convert(cursor.getString(cursor.getColumnIndex(TripLogContract.Columns.START_LONGITUDE)));
             startLocation.setLongitude(startLongitude);
 
             trip.setStartLocation(startLocation);
         }
 
-        if (!cursor.isNull(cursor.getColumnIndexOrThrow(TripLogContract.Columns.END_LATITUDE)) &&
-                !cursor.isNull(cursor.getColumnIndexOrThrow(TripLogContract.Columns.END_LONGITUDE))
-                ) {
+        trip.setEndTime(cursor.getLong(cursor.getColumnIndexOrThrow(TripLogContract.Columns.END_TIME)));
+
+        trip.setEndedByID(cursor.getInt(cursor.getColumnIndexOrThrow(TripLogContract.Columns.ENDED_BY_ID)));
+        trip.setEndedByType(cursor.getInt(cursor.getColumnIndexOrThrow(TripLogContract.Columns.ENDED_BY_TYPE)));
+
+        trip.setEndConfirmedByID(cursor.getInt(cursor.getColumnIndexOrThrow(TripLogContract.Columns.END_CONFIRMED_BY_ID)));
+
+        if (!cursor.isNull(cursor.getColumnIndexOrThrow(TripLogContract.Columns.END_LATITUDE)) && !cursor.isNull(cursor.getColumnIndexOrThrow(TripLogContract.Columns.END_LONGITUDE))) {
             Location endLocation = new Location("PLACEHOLDER");
 
-            double endLatitude = Location.convert(
-                    cursor.getString(cursor.getColumnIndex(TripLogContract.Columns.END_LATITUDE))
-            );
+            final double endLatitude = Location.convert(cursor.getString(cursor.getColumnIndex(TripLogContract.Columns.END_LATITUDE)));
             endLocation.setLatitude(endLatitude);
 
-            double endLongitude = Location.convert(
-                    cursor.getString(cursor.getColumnIndex(TripLogContract.Columns.END_LONGITUDE))
-            );
+            final double endLongitude = Location.convert(cursor.getString(cursor.getColumnIndex(TripLogContract.Columns.END_LONGITUDE)));
             endLocation.setLongitude(endLongitude);
 
             trip.setEndLocation(endLocation);
         }
 
-        trip.setConfirmed(cursor.getInt(cursor.getColumnIndexOrThrow(TripLogContract.Columns.CONFIRMED)) == 1);
-
         return trip;
     }
 
-    public boolean getConfirmed() {
-        return confirmed;
+    public static String getTripTypeName(int tripType) {
+        switch (tripType) {
+            case DetectedActivity.IN_VEHICLE:
+                return "in car";
+            case DetectedActivity.ON_BICYCLE:
+                return "on bicycle";
+            default:
+                return "unknown";
+        }
     }
 
-    public void setConfirmed(boolean confirmed) {
-        this.confirmed = confirmed;
+    public int getStartConfirmedByID() {
+        return startConfirmedByID;
+    }
+
+    public void setStartConfirmedByID(int startConfirmedByID) {
+        this.startConfirmedByID = startConfirmedByID;
+    }
+
+    public int getEndConfirmedByID() {
+        return endConfirmedByID;
+    }
+
+    public void setEndConfirmedByID(int endConfirmedByID) {
+        this.endConfirmedByID = endConfirmedByID;
+    }
+
+    public boolean isStartConfirmed() {
+        return startConfirmedByID > -1;
+    }
+
+    public int getStartedByID() {
+        return startedByID;
+    }
+
+    public void setStartedByID(int startedByID) {
+        this.startedByID = startedByID;
+    }
+
+    public int getStartedByType() {
+        return startedByType;
+    }
+
+    public void setStartedByType(int startedByType) {
+        this.startedByType = startedByType;
+    }
+
+    public boolean isEndConfirmed() {
+        return endConfirmedByID > -1;
+    }
+
+    public int getEndedByID() {
+        return endedByID;
+    }
+
+    public void setEndedByID(int endedByID) {
+        this.endedByID = endedByID;
+    }
+
+    public int getEndedByType() {
+        return endedByType;
+    }
+
+    public void setEndedByType(int endedByType) {
+        this.endedByType = endedByType;
+    }
+
+    public boolean isConfirmed() {
+        return startConfirmedByID > -1 && endConfirmedByID > -1;
     }
 
     public long getID() {
@@ -148,23 +202,24 @@ public class Trip {
      *
      * @return the string resource id for the name of the type
      */
-    public int getTripTypeNameID() {
-        return getNameIDFromType(this.getType());
+    public int getTripTypeNameResourceID() {
+        return getResourceFromType(this.type);
     }
 
     /**
      * Map detected activity types to string resources
      *
-     * @param activityType The detected activity type
+     * @param tripType The detected activity type
      * @return the string resource id for the name of the type
      */
-    private int getNameIDFromType(int activityType) {
-        switch (activityType) {
+    private int getResourceFromType(int tripType) {
+        switch (tripType) {
             case DetectedActivity.IN_VEHICLE:
                 return R.string.trip_type_in_vehicle;
             case DetectedActivity.ON_BICYCLE:
                 return R.string.trip_type_on_bike;
+            default:
+                return -1;
         }
-        return -1;
     }
 }

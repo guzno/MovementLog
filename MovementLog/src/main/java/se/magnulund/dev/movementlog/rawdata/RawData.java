@@ -10,9 +10,11 @@ public class RawData extends DetectedActivity {
     private static final String TAG = "Columns";
     long timestamp;
     int confidence_rank;
+    int id;
 
-    public RawData(int activityType, int confidence, long timestamp, int confidence_rank) {
+    public RawData(int id, int activityType, int confidence, long timestamp, int confidence_rank) {
         super(activityType, confidence);
+        this.id = id;
         this.timestamp = timestamp;
         this.confidence_rank = confidence_rank;
     }
@@ -21,10 +23,19 @@ public class RawData extends DetectedActivity {
         super(detectedActivity.getType(), detectedActivity.getConfidence());
     }
 
-    public RawData(DetectedActivity detectedActivity, long timestamp, int confidence_rank) {
+    public RawData(DetectedActivity detectedActivity, int id, long timestamp, int confidence_rank) {
         super(detectedActivity.getType(), detectedActivity.getConfidence());
+        this.id = id;
         this.timestamp = timestamp;
         this.confidence_rank = confidence_rank;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 
     public long getTimestamp() {
@@ -45,15 +56,17 @@ public class RawData extends DetectedActivity {
 
     public static RawData fromCursor(Cursor cursor) {
 
-        final int activityType = cursor.getInt(cursor.getColumnIndex(RawDataContract.Columns.ACTIVITY_TYPE));
+        final int id = cursor.getInt(cursor.getColumnIndexOrThrow(RawDataContract.Columns._ID));
 
-        final int confidence = cursor.getInt(cursor.getColumnIndex(RawDataContract.Columns.CONFIDENCE));
+        final int activityType = cursor.getInt(cursor.getColumnIndexOrThrow(RawDataContract.Columns.ACTIVITY_TYPE));
 
-        final long timestamp = cursor.getLong(cursor.getColumnIndex(RawDataContract.Columns.TIMESTAMP));
+        final int confidence = cursor.getInt(cursor.getColumnIndexOrThrow(RawDataContract.Columns.CONFIDENCE));
 
-        final int confidenceRank = cursor.getInt(cursor.getColumnIndex(RawDataContract.Columns.CONFIDENCE_RANK));
+        final long timestamp = cursor.getLong(cursor.getColumnIndexOrThrow(RawDataContract.Columns.TIMESTAMP));
 
-        return new RawData(activityType, confidence, timestamp, confidenceRank);
+        final int confidenceRank = cursor.getInt(cursor.getColumnIndexOrThrow(RawDataContract.Columns.CONFIDENCE_RANK));
+
+        return new RawData(id, activityType, confidence, timestamp, confidenceRank);
     }
 
     /**
