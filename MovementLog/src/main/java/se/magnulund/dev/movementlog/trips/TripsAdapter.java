@@ -1,7 +1,10 @@
 package se.magnulund.dev.movementlog.trips;// Created by Gustav on 20/01/2014.
 
 import android.content.Context;
+import android.content.Intent;
 import android.database.Cursor;
+import android.location.Location;
+import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -91,4 +94,18 @@ public class TripsAdapter extends CursorAdapter {
             e.printStackTrace();
         }
     }
+
+    private Intent getLocationIntent(String locationLabel, Location location) {
+        double latitude = location.getLatitude();
+        double longitude = location.getLongitude();
+
+        String uriBegin = "geo:" + latitude + "," + longitude;
+        String query = latitude + "," + longitude + "(" + locationLabel + ")";
+        String encodedQuery = Uri.encode(query);
+        String uriString = uriBegin + "?q=" + encodedQuery + "&z=16";
+        Uri uri = Uri.parse(uriString);
+
+        return new Intent(android.content.Intent.ACTION_VIEW, uri);
+    }
+
 }

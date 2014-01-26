@@ -11,7 +11,7 @@ import se.magnulund.dev.movementlog.contracts.TripLogContract;
 public class Trip {
     private static final String TAG = "Trip";
 
-    long _id;
+    int _id;
     int type;
 
     long startTime;
@@ -43,7 +43,7 @@ public class Trip {
 
         Trip trip = new Trip(startTime, tripType);
 
-        trip.setID(cursor.getLong(cursor.getColumnIndexOrThrow(TripLogContract.Columns._ID)));
+        trip.setID(cursor.getInt(cursor.getColumnIndexOrThrow(TripLogContract.Columns._ID)));
 
         trip.setStartedByID(cursor.getInt(cursor.getColumnIndexOrThrow(TripLogContract.Columns.STARTED_BY_ID)));
         trip.setStartedByType(cursor.getInt(cursor.getColumnIndexOrThrow(TripLogContract.Columns.STARTED_BY_TYPE)));
@@ -157,11 +157,11 @@ public class Trip {
         return startConfirmedByID > -1 && endConfirmedByID > -1;
     }
 
-    public long getID() {
+    public int getID() {
         return _id;
     }
 
-    public void setID(long id) {
+    public void setID(int id) {
         this._id = id;
     }
 

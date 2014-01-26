@@ -1,7 +1,6 @@
 package se.magnulund.dev.movementlog.services;
 
 import android.app.Notification;
-import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
@@ -15,9 +14,9 @@ import com.google.android.gms.common.GooglePlayServicesClient;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.location.ActivityRecognitionClient;
 
-import se.magnulund.dev.movementlog.MainActivity;
 import se.magnulund.dev.movementlog.R;
 import se.magnulund.dev.movementlog.triprecognition.TripRecognitionIntentService;
+import se.magnulund.dev.movementlog.utils.NotificationSender;
 
 public class ActivityRecognitionService extends Service {
 
@@ -175,7 +174,7 @@ public class ActivityRecognitionService extends Service {
             return true;
 
         } else {
-            notificationError(resultCode);
+            sendErrorNotification(resultCode);
             return false;
         }
     }
@@ -194,12 +193,12 @@ public class ActivityRecognitionService extends Service {
                  * This call is synchronous.
                  */
                     mActivityRecognitionClient.requestActivityUpdates(DETECTION_INTERVAL_MILLISECONDS, mActivityRecognitionPendingIntent);
-                    notification("Registered for activity updates");
+                    sendNotification("ActivityRecognitionService", "Registered for activity updates");
                     break;
 
                 case STOP:
                     mActivityRecognitionClient.removeActivityUpdates(mActivityRecognitionPendingIntent);
-                    notification("Unregistered for activity updates");
+                    sendNotification("ActivityRecognitionService", "Unregistered for activity updates");
                     break;
 
                 /*
@@ -229,42 +228,26 @@ public class ActivityRecognitionService extends Service {
         public void onConnectionFailed(ConnectionResult connectionResult) {
             mInProgress = false;
 
-            notificationError(connectionResult.getErrorCode());
+            sendErrorNotification(connectionResult.getErrorCode());
         }
     }
 
-    private void notification(String text) {
-        Intent intent = new Intent(this, MainActivity.class);
-        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, 0);
-
-        Notification n = new Notification.Builder(this)
-                .setContentTitle("ActivityRecognitionService")
-                .setContentText(text)
-                .setSmallIcon(R.drawable.ic_launcher)
-                .setContentIntent(pendingIntent)
-                .setAutoCancel(true).build();
-
-        NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-
-        notificationManager.notify(0, n);
-
+    private void sendNotification(String title, String text) {
+        NotificationSender.sendNotification(this, title, text);
     }
 
-    private void notificationError(int errorCode) {
-        PendingIntent pendingIntent = GooglePlayServicesUtil.getErrorPendingIntent(errorCode, this, CONNECTION_FAILURE_RESOLUTION_REQUEST);
+    private void sendErrorNotification(int resultCode) {
+        PendingIntent pendingIntent = GooglePlayServicesUtil.getErrorPendingIntent(resultCode, this, CONNECTION_FAILURE_RESOLUTION_REQUEST);
 
         Notification notification = new Notification.Builder(this)
                 .setContentTitle("Oh noes!")
-                .setContentText("Google play services is unhappy (errocode:" + errorCode + ")")
+                .setContentText("Google play services is unhappy (errocode:" + resultCode + ")")
                 .setSmallIcon(R.drawable.ic_launcher)
                 .setContentIntent(pendingIntent)
                 .setAutoCancel(true)
                 .addAction(android.R.drawable.ic_lock_lock, "And more", pendingIntent).build();
 
-        NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-
-        notificationManager.notify(0, notification);
-
+        NotificationSender.sendCustomNotification(this, notification);
     }
 
 }

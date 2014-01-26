@@ -81,10 +81,24 @@ public class TripLogContract {
      * @param resolver the content resolver
      * @param uri      the Uri of the trip
      */
-    public static Cursor getTrip(ContentResolver resolver, Uri uri) {
-
+    public static Trip getTrip(ContentResolver resolver, Uri uri) {
+        Cursor c;
         if (uri != null) {
-            return resolver.query(uri, DEFAULT_PROJECTION, null, null, DEFAULT_SORT_ORDER);
+            c = resolver.query(uri, DEFAULT_PROJECTION, null, null, DEFAULT_SORT_ORDER);
+        } else {
+            return null;
+        }
+
+        if (c != null && c.getCount() > 0) {
+
+            c.moveToFirst();
+
+            try {
+                return Trip.fromCursor(c);
+            } catch (Exception e) {
+                e.printStackTrace();
+                return null;
+            }
         } else {
             return null;
         }
