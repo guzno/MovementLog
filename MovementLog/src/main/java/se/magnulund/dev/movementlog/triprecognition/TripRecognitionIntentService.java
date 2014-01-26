@@ -1,33 +1,24 @@
 package se.magnulund.dev.movementlog.triprecognition;
 
 import android.app.IntentService;
-import android.app.Notification;
-import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.Intent;
-import android.database.Cursor;
-import android.location.Address;
 import android.location.Criteria;
-import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.IBinder;
-import android.os.Parcelable;
 import android.util.Log;
 
 import com.google.android.gms.location.ActivityRecognitionResult;
 import com.google.android.gms.location.DetectedActivity;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import se.magnulund.dev.movementlog.MainActivity;
-import se.magnulund.dev.movementlog.R;
 import se.magnulund.dev.movementlog.contracts.RawDataContract;
 import se.magnulund.dev.movementlog.contracts.TripLogContract;
 import se.magnulund.dev.movementlog.rawdata.RawData;
@@ -96,14 +87,14 @@ public class TripRecognitionIntentService extends IntentService {
 
                         Trip trip = TripLogContract.getTrip(resolver, ContentUris.withAppendedId(TripLogContract.CONTENT_URI, tripID));
 
-                        switch (intent.getIntExtra(LOCATION_REQUEST_TYPE, -1)){
+                        switch (intent.getIntExtra(LOCATION_REQUEST_TYPE, -1)) {
                             case START_LOCATION:
                                 trip.setStartLocation(location);
                                 assert location != null;
                                 NotificationSender.sendNotification(this,
                                         "Trip started at",
-                                        "lat: "+Location.convert(location.getLatitude(), Location.FORMAT_DEGREES)+"\r\n"+
-                                                "long: "+Location.convert(location.getLongitude(), Location.FORMAT_DEGREES)
+                                        "lat: " + Location.convert(location.getLatitude(), Location.FORMAT_DEGREES) + "\r\n" +
+                                                "long: " + Location.convert(location.getLongitude(), Location.FORMAT_DEGREES)
                                 );
                                 break;
                             case END_LOCATION:
@@ -111,8 +102,8 @@ public class TripRecognitionIntentService extends IntentService {
                                 assert location != null;
                                 NotificationSender.sendNotification(this,
                                         "Trip ended at",
-                                        "lat: "+Location.convert(location.getLatitude(), Location.FORMAT_DEGREES)+"\r\n"+
-                                                "long: "+Location.convert(location.getLongitude(), Location.FORMAT_DEGREES)
+                                        "lat: " + Location.convert(location.getLatitude(), Location.FORMAT_DEGREES) + "\r\n" +
+                                                "long: " + Location.convert(location.getLongitude(), Location.FORMAT_DEGREES)
                                 );
                                 break;
                             default:
@@ -130,7 +121,6 @@ public class TripRecognitionIntentService extends IntentService {
             }
 
         } else {
-
 
 
             Log.d(TAG, "Unhandled intent");
@@ -249,7 +239,9 @@ public class TripRecognitionIntentService extends IntentService {
 
         TripLogContract.addTrip(getContentResolver(), trip);
 
-        sendLocationRequest(START_LOCATION, trip);
+        if (trip.getStartLocation() == null) {
+            sendLocationRequest(START_LOCATION, trip);
+        }
     }
 
     private void endTrip(Trip trip, RawData endedBy, boolean endConfirmed) {
@@ -269,7 +261,9 @@ public class TripRecognitionIntentService extends IntentService {
 
         TripLogContract.updateTrip(getContentResolver(), trip);
 
-        sendLocationRequest(END_LOCATION, trip);
+        if (trip.getEndLocation() == null) {
+            sendLocationRequest(END_LOCATION, trip);
+        }
     }
 
     private void checkForPossibleTripStart(ArrayList<RawData> rawDataArrayList) {
@@ -297,7 +291,7 @@ public class TripRecognitionIntentService extends IntentService {
         }
     }
 
-    private void sendLocationRequest(int requestType, Trip trip){
+    private void sendLocationRequest(int requestType, Trip trip) {
         LocationManager locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
 
         Criteria criteria = new Criteria();
