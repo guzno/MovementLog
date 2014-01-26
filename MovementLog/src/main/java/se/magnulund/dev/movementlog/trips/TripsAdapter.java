@@ -15,6 +15,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import se.magnulund.dev.movementlog.R;
+import se.magnulund.dev.movementlog.utils.DateTimeUtil;
 
 public class TripsAdapter extends CursorAdapter {
     private static final String TAG = "TripsAdapter";
@@ -57,55 +58,41 @@ public class TripsAdapter extends CursorAdapter {
         ViewHolder holder = (ViewHolder) view.getTag();
         Trip trip;
         try {
+
             trip = Trip.fromCursor(cursor);
             holder.typeTextView.setText(trip.getTripTypeNameResourceID());
 
-            SimpleDateFormat dateFormat = new SimpleDateFormat("MMM d");
-            SimpleDateFormat timeFormat = new SimpleDateFormat("kk:mm");
+            holder.dateTextView.setText(DateTimeUtil.getDateTimeString(trip.getStartTime(), DateTimeUtil.DATE_MONTHNAME_DAY));
 
-            Date startTime = new Date(trip.getStartTime());
+            if (trip.getStartConfirmedByID() >= 0) {
 
-            holder.dateTextView.setText(dateFormat.format(startTime));
-
-            if (trip.isConfirmed()) {
-                holder.startTimeTextView.setText(timeFormat.format(startTime));
+                holder.startTimeTextView.setText(DateTimeUtil.getDateTimeString(trip.getStartTime(), DateTimeUtil.TIME_HOUR_MINUTE));
 
                 // -- TODO calculate duration
-                holder.durationTextView.setText("XX min");
+                holder.durationTextView.setText(DateTimeUtil.getDurationString(trip.getStartTime(), trip.getEndTime(), false));
 
-                long end = trip.getEndTime();
+                if (trip.getEndConfirmedByID() >= 0) {
 
-                if (end > 0) {
-                    Date endTime = new Date(trip.getEndTime());
+                    holder.endTimeTextView.setText(DateTimeUtil.getDateTimeString(trip.getEndTime(), DateTimeUtil.TIME_HOUR_MINUTE));
 
-                    holder.endTimeTextView.setText(timeFormat.format(endTime));
                 } else {
+
                     holder.endTimeTextView.setText(context.getString(R.string.trip_ongoing));
+
                 }
 
             } else {
-                holder.startTimeTextView.setText(timeFormat.format(startTime) + " - " + context.getString(R.string.trip_unconfirmed));
+
+                holder.startTimeTextView.setText(DateTimeUtil.getDateTimeString(trip.getStartTime(), DateTimeUtil.TIME_HOUR_MINUTE) + " - " + context.getString(R.string.trip_unconfirmed));
                 holder.durationTextView.setText("");
                 holder.endTimeTextView.setText("");
+
             }
 
 
         } catch (Exception e) {
             e.printStackTrace();
         }
-    }
-
-    private Intent getLocationIntent(String locationLabel, Location location) {
-        double latitude = location.getLatitude();
-        double longitude = location.getLongitude();
-
-        String uriBegin = "geo:" + latitude + "," + longitude;
-        String query = latitude + "," + longitude + "(" + locationLabel + ")";
-        String encodedQuery = Uri.encode(query);
-        String uriString = uriBegin + "?q=" + encodedQuery + "&z=16";
-        Uri uri = Uri.parse(uriString);
-
-        return new Intent(android.content.Intent.ACTION_VIEW, uri);
     }
 
 }

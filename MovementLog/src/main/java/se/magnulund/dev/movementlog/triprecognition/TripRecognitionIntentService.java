@@ -23,6 +23,7 @@ import se.magnulund.dev.movementlog.contracts.RawDataContract;
 import se.magnulund.dev.movementlog.contracts.TripLogContract;
 import se.magnulund.dev.movementlog.rawdata.RawData;
 import se.magnulund.dev.movementlog.trips.Trip;
+import se.magnulund.dev.movementlog.utils.DateTimeUtil;
 import se.magnulund.dev.movementlog.utils.NotificationSender;
 
 public class TripRecognitionIntentService extends IntentService {
@@ -43,10 +44,6 @@ public class TripRecognitionIntentService extends IntentService {
 
     private static final int POSSIBLE_CAR_TRIP_CONFIDENCE_THRESHOLD = 40;
     private static final int POSSIBLE_BIKE_TRIP_CONFIDENCE_THRESHOLD = 40;
-
-    public static final int NANOS_PER_MILLI = 1000;
-    public static final int NANOS_PER_SECOND = 1000 * NANOS_PER_MILLI;
-    public static final int NANOS_PER_MINUTE = 60 * NANOS_PER_SECOND;
 
     long timestamp;
     int currentResultType;
@@ -91,20 +88,12 @@ public class TripRecognitionIntentService extends IntentService {
                             case START_LOCATION:
                                 trip.setStartLocation(location);
                                 assert location != null;
-                                NotificationSender.sendNotification(this,
-                                        "Trip started at",
-                                        "lat: " + Location.convert(location.getLatitude(), Location.FORMAT_DEGREES) + "\r\n" +
-                                                "long: " + Location.convert(location.getLongitude(), Location.FORMAT_DEGREES)
-                                );
+                                NotificationSender.sendTripStateNotification(this, START_LOCATION, trip);
                                 break;
                             case END_LOCATION:
                                 trip.setEndLocation(location);
                                 assert location != null;
-                                NotificationSender.sendNotification(this,
-                                        "Trip ended at",
-                                        "lat: " + Location.convert(location.getLatitude(), Location.FORMAT_DEGREES) + "\r\n" +
-                                                "long: " + Location.convert(location.getLongitude(), Location.FORMAT_DEGREES)
-                                );
+                                NotificationSender.sendTripStateNotification(this, END_LOCATION, trip);
                                 break;
                             default:
                                 Log.d(TAG, "Unknown location request type");
@@ -121,7 +110,6 @@ public class TripRecognitionIntentService extends IntentService {
             }
 
         } else {
-
 
             Log.d(TAG, "Unhandled intent");
         }
@@ -292,6 +280,7 @@ public class TripRecognitionIntentService extends IntentService {
     }
 
     private void sendLocationRequest(int requestType, Trip trip) {
+
         LocationManager locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
 
         Criteria criteria = new Criteria();
@@ -312,13 +301,14 @@ public class TripRecognitionIntentService extends IntentService {
         bundle.putInt(LOCATION_REQUEST_TYPE, requestType);
         bundle.putInt(LOCATION_REQUEST_TRIP_ID, trip.getID());
 
-        if (comparableTime - locationTimestamp < NANOS_PER_MINUTE) {
+        if (comparableTime - locationTimestamp < DateTimeUtil.NANOS_PER_MINUTE) {
 
             bundle.putParcelable(LocationManager.KEY_LOCATION_CHANGED, lastLocation);
 
             startService(intent);
 
         } else {
+
             PendingIntent pendingIntent = PendingIntent.getService(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
 
             locationManager.requestSingleUpdate(providerName, pendingIntent);
