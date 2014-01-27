@@ -9,10 +9,13 @@ import android.location.Location;
 import android.net.Uri;
 import android.provider.BaseColumns;
 
+import org.json.JSONException;
+
 import java.util.Calendar;
 
 import se.magnulund.dev.movementlog.providers.MovementDataProvider;
 import se.magnulund.dev.movementlog.trips.Trip;
+import se.magnulund.dev.movementlog.trips.TripCoords;
 
 /**
  * A provider of detected activity raw data (TripLogContract.Columns) and
@@ -51,14 +54,12 @@ public class TripLogContract {
             Columns.STARTED_BY_ID,
             Columns.STARTED_BY_TYPE,
             Columns.START_CONFIRMED_BY_ID,
-            Columns.START_LATITUDE,
-            Columns.START_LONGITUDE,
+            Columns.START_COORDS,
             Columns.END_TIME,
             Columns.ENDED_BY_ID,
             Columns.ENDED_BY_TYPE,
             Columns.END_CONFIRMED_BY_ID,
-            Columns.END_LATITUDE,
-            Columns.END_LONGITUDE
+            Columns.END_COORDS
     };
     public static final String DEFAULT_SORT_ORDER = Columns.START_TIME + " DESC, " + Columns.END_TIME + " DESC";
 
@@ -120,15 +121,19 @@ public class TripLogContract {
      */
     public static Trip getLatestUnfinishedTrip(ContentResolver resolver) {
 
-        String selection = Columns.END_CONFIRMED_BY_ID + " < ?";
+        String selection = Columns.END_CONFIRMED_BY_ID + " = ? AND " + Columns.CONFIRMED_AS + " > ?";
 
-        String[] selectionArgs = {Integer.toString(0)};
+        String[] selectionArgs = {Integer.toString(Trip.FIELD_NOT_SET), Integer.toString(Trip.TRIP_CONFIRMED_AS_INCORRECT)};
 
         String sortOrderWithLimit = DEFAULT_SORT_ORDER + " LIMIT 1";
 
         Cursor c = resolver.query(CONTENT_URI, DEFAULT_PROJECTION, selection, selectionArgs, sortOrderWithLimit);
 
-        if (c != null && c.getCount() > 0) {
+        if (c == null || c.getCount() == 0) {
+
+            return null;
+
+        } else {
 
             c.moveToFirst();
 
@@ -138,8 +143,6 @@ public class TripLogContract {
                 e.printStackTrace();
                 return null;
             }
-        } else {
-            return null;
         }
     }
 
@@ -218,17 +221,22 @@ public class TripLogContract {
         values.put(Columns.ENDED_BY_TYPE, trip.getEndedByType());
         values.put(Columns.END_CONFIRMED_BY_ID, trip.getEndConfirmedByID());
 
-        Location start = trip.getStartLocation();
-        if (start != null) {
-            values.put(Columns.START_LATITUDE, Location.convert(start.getLatitude(), Location.FORMAT_DEGREES));
-            values.put(Columns.START_LONGITUDE, Location.convert(start.getLongitude(), Location.FORMAT_DEGREES));
+        if (trip.hasStartCoords()) {
+            try {
+                values.put(Columns.START_COORDS, trip.getStartCoords().toJSONString());
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+        if (trip.hasEndCoords()) {
+            try {
+                values.put(Columns.END_COORDS, trip.getEndCoords().toJSONString());
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
         }
 
-        Location end = trip.getStartLocation();
-        if (end != null) {
-            values.put(Columns.END_LATITUDE, Location.convert(end.getLatitude(), Location.FORMAT_DEGREES));
-            values.put(Columns.END_LONGITUDE, Location.convert(end.getLongitude(), Location.FORMAT_DEGREES));
-        }
+        values.put(Columns.CONFIRMED_AS, trip.getConfirmedAs());
 
         return values;
     }
@@ -297,28 +305,18 @@ public class TripLogContract {
         public static final String TRIP_TYPE = "trip_type";
 
         /**
-         * The start latitude column. A coordinate representing the latitude at which the trip started.
+         * The start coordinates column. A json string representing the TripCoords at which the trip started.
          * <p>TYPE: STRING</p>
          */
-        public static final String START_LATITUDE = "start_latitude";
+        public static final String START_COORDS = "start_coords";
 
         /**
-         * The start longitude column. A coordinate representing the longitude at which the trip started.
+         * The end coordinates column. A json string representing the TripCoords at which the trip ended.
          * <p>TYPE: STRING</p>
          */
-        public static final String START_LONGITUDE = "start_longitude";
+        public static final String END_COORDS = "end_coords";
 
-        /**
-         * The start latitude column. A coordinate representing the latitude at which the trip ended.
-         * <p>TYPE: STRING</p>
-         */
-        public static final String END_LATITUDE = "end_latitude";
-
-        /**
-         * The start longitude column. A coordinate representing the longitude at which the trip ended.
-         * <p>TYPE: STRING</p>
-         */
-        public static final String END_LONGITUDE = "end_longitude";
+        public static final String CONFIRMED_AS = "confirmed_as";
 
     }
 }

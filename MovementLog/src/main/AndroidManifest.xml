@@ -2,42 +2,46 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="se.magnulund.dev.movementlog"
     android:versionCode="1"
-    android:versionName="1.0">
+    android:versionName="1.0" >
 
     <uses-sdk
         android:minSdkVersion="19"
         android:targetSdkVersion="19" />
-    <permission-group android:name="se.magnulund.permission-group.MOVEMENT_LOG"
-        android:label="@string/perm_gr_lbl"
-        android:description="@string/perm_gr_desc"
-        android:permissionGroupFlags="personalInfo"
-        android:icon="@drawable/ic_launcher"
-       />
-    <permission android:name="se.magnulund.permission.READ_DATA_LOG"
-        android:permissionGroup="se.magnulund.permission-group.MOVEMENT_LOG"
-        android:label="@string/perm_read_lbl"
-        android:protectionLevel="signature"
-        android:description="@string/perm_read_desc"/>
 
-    <permission android:name="se.magnulund.permission.CONTROL_SERVICE"
-        android:permissionGroup="se.magnulund.permission-group.MOVEMENT_LOG"
+    <permission-group
+        android:name="se.magnulund.permission-group.MOVEMENT_LOG"
+        android:description="@string/perm_gr_desc"
+        android:icon="@drawable/ic_launcher"
+        android:label="@string/perm_gr_lbl"
+        android:permissionGroupFlags="personalInfo" />
+
+    <permission
+        android:name="se.magnulund.permission.READ_DATA_LOG"
+        android:description="@string/perm_read_desc"
         android:label="@string/perm_read_lbl"
-        android:protectionLevel="signature"
-        android:description="@string/perm_read_desc"/>
+        android:permissionGroup="se.magnulund.permission-group.MOVEMENT_LOG"
+        android:protectionLevel="signature" />
+    <permission
+        android:name="se.magnulund.permission.CONTROL_SERVICE"
+        android:description="@string/perm_read_desc"
+        android:label="@string/perm_read_lbl"
+        android:permissionGroup="se.magnulund.permission-group.MOVEMENT_LOG"
+        android:protectionLevel="signature" />
 
     <uses-permission android:name="com.google.android.gms.permission.ACTIVITY_RECOGNITION" />
-    <uses-permission android:name="se.magnulund.permission.READ_DATA_LOG"/>
-    <uses-permission android:name="se.magnulund.permission.CONTROL_SERVICE"/>
-       
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="se.magnulund.permission.READ_DATA_LOG" />
+    <uses-permission android:name="se.magnulund.permission.CONTROL_SERVICE" />
 
     <application
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
-        android:theme="@style/AppTheme">
+        android:theme="@style/AppTheme" >
         <activity
             android:name="se.magnulund.dev.movementlog.MainActivity"
-            android:label="@string/app_name">
+            android:label="@string/app_name" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -52,26 +56,32 @@
             android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version" />
 
-        <service
-            android:name=".triprecognition.TripRecognitionIntentService"
-            android:enabled="true"
-            android:exported="true"
-            android:process=":services"
-            android:permission="se.magnulund.permission.CONTROL_SERVICE"/>
-
         <provider
             android:name="se.magnulund.dev.movementlog.providers.MovementDataProvider"
             android:authorities="se.magnulund.dev.movementlog.providers"
             android:enabled="true"
             android:exported="true"
-            android:permission="se.magnulund.permission.READ_DATA_LOG"/>
+            android:permission="se.magnulund.permission.READ_DATA_LOG" />
 
         <service
-            android:name=".services.ActivityRecognitionService"
+            android:name="se.magnulund.dev.movementlog.services.TripRecognitionIntentService"
             android:enabled="true"
             android:exported="true"
-            android:process=":services"
-            android:permission="se.magnulund.permission.CONTROL_SERVICE"/>
+            android:permission="se.magnulund.permission.CONTROL_SERVICE"
+            android:process=":services" />
+
+        <service
+            android:name="se.magnulund.dev.movementlog.services.ActivityRecognitionService"
+            android:enabled="true"
+            android:exported="true"
+            android:permission="se.magnulund.permission.CONTROL_SERVICE"
+            android:process=":services" />
+        <service
+            android:name="se.magnulund.dev.movementlog.services.LocationLogIntentService"
+            android:enabled="true"
+            android:exported="true"
+            android:permission="se.magnulund.permission.CONTROL_SERVICE"
+            android:process=":services" />
 
     </application>
 

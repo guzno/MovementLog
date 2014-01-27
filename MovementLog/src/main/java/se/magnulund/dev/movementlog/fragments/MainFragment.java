@@ -21,6 +21,7 @@ import se.magnulund.dev.movementlog.R;
 import se.magnulund.dev.movementlog.contracts.RawDataContract;
 import se.magnulund.dev.movementlog.contracts.TripLogContract;
 import se.magnulund.dev.movementlog.rawdata.RawDataAdapter;
+import se.magnulund.dev.movementlog.trips.Trip;
 import se.magnulund.dev.movementlog.trips.TripsAdapter;
 
 import static se.magnulund.dev.movementlog.R.string.rawdata_title;
@@ -144,9 +145,9 @@ public class MainFragment extends Fragment implements LoaderManager.LoaderCallba
 
                 projection = TripLogContract.DEFAULT_PROJECTION;
 
-                selection = null;
+                selection = TripLogContract.Columns.CONFIRMED_AS + " > ?";
 
-                selectionArgs = null;
+                selectionArgs = new String[]{Integer.toString(Trip.TRIP_CONFIRMED_AS_INCORRECT)};
 
                 sortOrder = TripLogContract.DEFAULT_SORT_ORDER;
                 break;

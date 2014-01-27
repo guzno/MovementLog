@@ -4,12 +4,14 @@ import android.content.Intent;
 import android.location.Location;
 import android.net.Uri;
 
+import se.magnulund.dev.movementlog.trips.TripCoords;
+
 public class mIntentBuilder {
     private static final String TAG = "mIntentBuilder";
 
-    public static Intent getMapsIntent(String locationLabel, Location location) {
-        double latitude = location.getLatitude();
-        double longitude = location.getLongitude();
+    public static Intent getMapsIntent(String locationLabel, TripCoords tripCoords) {
+        double latitude = tripCoords.getLatitude();
+        double longitude = tripCoords.getLongitude();
 
         String uriBegin = "geo:" + latitude + "," + longitude;
         String query = latitude + "," + longitude + "(" + locationLabel + ")";

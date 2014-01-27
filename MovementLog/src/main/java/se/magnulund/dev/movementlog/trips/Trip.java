@@ -1,7 +1,6 @@
 package se.magnulund.dev.movementlog.trips;// Created by Gustav on 16/01/2014.
 
 import android.database.Cursor;
-import android.location.Location;
 
 import com.google.android.gms.location.DetectedActivity;
 
@@ -11,28 +10,59 @@ import se.magnulund.dev.movementlog.contracts.TripLogContract;
 public class Trip {
     private static final String TAG = "Trip";
 
+    public static final int FIELD_NOT_SET = -1;
+
+    public static final boolean CONFIRMED = true;
+    public static final boolean UNCONFIRMED = false;
+
+    public static final int TRIP_CONFIRMED_AS_CORRECT = 1;
+    public static final int TRIP_UNCONFIRMED = 0;
+    public static final int TRIP_CONFIRMED_AS_INCORRECT = -1;
+
     int _id;
     int type;
 
     long startTime;
-    int startConfirmedByID = -1;
-    int startedByID = -1;
-    int startedByType = -1;
+    int startConfirmedByID;
+    int startedByID;
+    int startedByType;
 
     long endTime;
-    int endConfirmedByID = -1;
-    int endedByID = -1;
-    int endedByType = -1;
+    int endConfirmedByID;
+    int endedByID;
+    int endedByType;
 
-    int confirmed;
+    int confirmedAs;
 
-    Location startLocation;
-    Location endLocation;
+    TripCoords startCoords;
+    TripCoords endCoords;
+
+    boolean endCoordsSet;
+    boolean startCoordsSet;
 
     public Trip(long startTime, int tripType) {
+
         this.startTime = startTime;
+
         this.type = tripType;
-        this.confirmed = 0;
+
+        this.confirmedAs = TRIP_UNCONFIRMED;
+
+        this._id = FIELD_NOT_SET;
+
+        this.startConfirmedByID = FIELD_NOT_SET;
+        this.startedByID = FIELD_NOT_SET;
+        this.startedByType = FIELD_NOT_SET;
+
+        this.endConfirmedByID = FIELD_NOT_SET;
+        this.endedByID = FIELD_NOT_SET;
+        this.endedByType = FIELD_NOT_SET;
+
+        this.startCoords = null;
+        this.endCoords = null;
+
+        this.endCoordsSet = false;
+        this.startCoordsSet = false;
     }
 
     public static Trip fromCursor(Cursor cursor) throws Exception {
@@ -46,55 +76,55 @@ public class Trip {
         trip.setID(cursor.getInt(cursor.getColumnIndexOrThrow(TripLogContract.Columns._ID)));
 
         trip.setStartedByID(cursor.getInt(cursor.getColumnIndexOrThrow(TripLogContract.Columns.STARTED_BY_ID)));
+
         trip.setStartedByType(cursor.getInt(cursor.getColumnIndexOrThrow(TripLogContract.Columns.STARTED_BY_TYPE)));
 
         trip.setStartConfirmedByID(cursor.getInt(cursor.getColumnIndexOrThrow(TripLogContract.Columns.START_CONFIRMED_BY_ID)));
 
-        if (!cursor.isNull(cursor.getColumnIndexOrThrow(TripLogContract.Columns.START_LATITUDE)) &&
-                !cursor.isNull(cursor.getColumnIndexOrThrow(TripLogContract.Columns.START_LONGITUDE))
-                ) {
-            Location startLocation = new Location("PLACEHOLDER");
+        if (!cursor.isNull(cursor.getColumnIndexOrThrow(TripLogContract.Columns.START_COORDS))) {
 
-            final double startLatitude = Location.convert(cursor.getString(cursor.getColumnIndex(TripLogContract.Columns.START_LATITUDE)));
-            startLocation.setLatitude(startLatitude);
-
-            final double startLongitude = Location.convert(cursor.getString(cursor.getColumnIndex(TripLogContract.Columns.START_LONGITUDE)));
-            startLocation.setLongitude(startLongitude);
-
-            trip.setStartLocation(startLocation);
+            TripCoords startCoords = TripCoords.fromJSONstring(cursor.getString(cursor.getColumnIndexOrThrow(TripLogContract.Columns.START_COORDS)));
+            trip.setStartCoords(startCoords);
         }
 
         trip.setEndTime(cursor.getLong(cursor.getColumnIndexOrThrow(TripLogContract.Columns.END_TIME)));
 
         trip.setEndedByID(cursor.getInt(cursor.getColumnIndexOrThrow(TripLogContract.Columns.ENDED_BY_ID)));
+
         trip.setEndedByType(cursor.getInt(cursor.getColumnIndexOrThrow(TripLogContract.Columns.ENDED_BY_TYPE)));
 
         trip.setEndConfirmedByID(cursor.getInt(cursor.getColumnIndexOrThrow(TripLogContract.Columns.END_CONFIRMED_BY_ID)));
 
-        if (!cursor.isNull(cursor.getColumnIndexOrThrow(TripLogContract.Columns.END_LATITUDE)) && !cursor.isNull(cursor.getColumnIndexOrThrow(TripLogContract.Columns.END_LONGITUDE))) {
-            Location endLocation = new Location("PLACEHOLDER");
+        if (!cursor.isNull(cursor.getColumnIndexOrThrow(TripLogContract.Columns.END_COORDS))) {
 
-            final double endLatitude = Location.convert(cursor.getString(cursor.getColumnIndex(TripLogContract.Columns.END_LATITUDE)));
-            endLocation.setLatitude(endLatitude);
+            TripCoords endCoords = TripCoords.fromJSONstring(cursor.getString(cursor.getColumnIndexOrThrow(TripLogContract.Columns.END_COORDS)));
+            trip.setEndCoords(endCoords);
 
-            final double endLongitude = Location.convert(cursor.getString(cursor.getColumnIndex(TripLogContract.Columns.END_LONGITUDE)));
-            endLocation.setLongitude(endLongitude);
-
-            trip.setEndLocation(endLocation);
         }
+
+        trip.setConfirmedAs(cursor.getInt(cursor.getColumnIndexOrThrow(TripLogContract.Columns.CONFIRMED_AS)));
 
         return trip;
     }
 
     public static String getTripTypeName(int tripType) {
+
         switch (tripType) {
+
             case DetectedActivity.IN_VEHICLE:
+
                 return "in car";
+
             case DetectedActivity.ON_BICYCLE:
+
                 return "on bicycle";
+
             default:
+
                 return "unknown";
+
         }
+
     }
 
     public int getStartConfirmedByID() {
@@ -103,6 +133,9 @@ public class Trip {
 
     public void setStartConfirmedByID(int startConfirmedByID) {
         this.startConfirmedByID = startConfirmedByID;
+        if (isStartConfirmed() && isEndConfirmed()) {
+            confirmedAs = TRIP_CONFIRMED_AS_CORRECT;
+        }
     }
 
     public int getEndConfirmedByID() {
@@ -111,6 +144,10 @@ public class Trip {
 
     public void setEndConfirmedByID(int endConfirmedByID) {
         this.endConfirmedByID = endConfirmedByID;
+    }
+
+    public void setConfirmedAs(int confirmedType) {
+        this.confirmedAs = confirmedType;
     }
 
     public boolean isStartConfirmed() {
@@ -153,8 +190,8 @@ public class Trip {
         this.endedByType = endedByType;
     }
 
-    public boolean isConfirmed() {
-        return startConfirmedByID > -1 && endConfirmedByID > -1;
+    public int getConfirmedAs() {
+        return confirmedAs;
     }
 
     public int getID() {
@@ -181,20 +218,30 @@ public class Trip {
         this.endTime = endTime;
     }
 
-    public Location getStartLocation() {
-        return startLocation;
+    public TripCoords getStartCoords() {
+        return startCoords;
     }
 
-    public void setStartLocation(Location startLocation) {
-        this.startLocation = startLocation;
+    public void setStartCoords(TripCoords startCoords) {
+        this.startCoords = startCoords;
+        this.startCoordsSet = startCoords != null;
     }
 
-    public Location getEndLocation() {
-        return endLocation;
+    public boolean hasStartCoords(){
+        return startCoordsSet;
     }
 
-    public void setEndLocation(Location endLocation) {
-        this.endLocation = endLocation;
+    public TripCoords getEndCoords() {
+        return endCoords;
+    }
+
+    public void setEndCoords(TripCoords endCoords) {
+        this.endCoords = endCoords;
+        this.endCoordsSet = endCoords != null;
+    }
+
+    public boolean hasEndCoords(){
+        return endCoordsSet;
     }
 
     /**
@@ -203,7 +250,9 @@ public class Trip {
      * @return the string resource id for the name of the type
      */
     public int getTripTypeNameResourceID() {
+
         return getResourceFromType(this.type);
+
     }
 
     /**
@@ -213,13 +262,22 @@ public class Trip {
      * @return the string resource id for the name of the type
      */
     private int getResourceFromType(int tripType) {
+
         switch (tripType) {
+
             case DetectedActivity.IN_VEHICLE:
+
                 return R.string.trip_type_in_vehicle;
+
             case DetectedActivity.ON_BICYCLE:
+
                 return R.string.trip_type_on_bike;
+
             default:
+
                 return -1;
+
         }
+
     }
 }

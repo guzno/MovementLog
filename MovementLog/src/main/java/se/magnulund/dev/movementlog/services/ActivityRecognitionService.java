@@ -15,15 +15,14 @@ import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.location.ActivityRecognitionClient;
 
 import se.magnulund.dev.movementlog.R;
-import se.magnulund.dev.movementlog.triprecognition.TripRecognitionIntentService;
+import se.magnulund.dev.movementlog.utils.DateTimeUtil;
 import se.magnulund.dev.movementlog.utils.NotificationSender;
 
 public class ActivityRecognitionService extends Service {
 
     // Constants that define the activity detection interval
-    public static final int MILLISECONDS_PER_SECOND = 1000;
     public static final int DETECTION_INTERVAL_SECONDS = 10;
-    public static final int DETECTION_INTERVAL_MILLISECONDS = MILLISECONDS_PER_SECOND * DETECTION_INTERVAL_SECONDS;
+    public static final int DETECTION_INTERVAL_MILLISECONDS = DateTimeUtil.MILLIS_PER_SECOND * DETECTION_INTERVAL_SECONDS;
     private static final int CONNECTION_FAILURE_RESOLUTION_REQUEST = 9000;
     private static final String COMMAND = "COMMAND";
     private static final int COMMAND_START = 1;
@@ -66,7 +65,13 @@ public class ActivityRecognitionService extends Service {
         mActivityRecognitionClient = new ActivityRecognitionClient(this, googlePlayServicesClientConnectionCallbacks, googlePlayFailer);
 
         Intent intent = new Intent(this, TripRecognitionIntentService.class);
+/*
+        Bundle bundle = new Bundle();
 
+        bundle.putInt(TripRecognitionIntentService.RESULT_TYPE, TripRecognitionIntentService.RESULT_TYPE_ACTIVITY_RECOGNITION);
+
+        intent.putExtras(bundle);
+*/
         mActivityRecognitionPendingIntent = PendingIntent.getService(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
     }
 

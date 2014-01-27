@@ -34,27 +34,27 @@ public class DateTimeUtil {
 
         int days = (int)  Math.floor(duration / MILLIS_PER_DAY);
 
-        duration = duration - days;
+        duration = duration - days * MILLIS_PER_DAY;
 
-        String durationString = (days > 0) ? Integer.valueOf(days) + " days " : "";
+        String durationString = (days > 0) ? Integer.valueOf(days) + " d " : "";
 
         int hours = (int) Math.floor(duration / MILLIS_PER_HOUR);
 
-        duration = duration - hours;
+        duration = duration - hours * MILLIS_PER_HOUR;
 
-        durationString += (hours > 0) ? Integer.valueOf(hours) + " hours " : "";
+        durationString += (hours > 0) ? Integer.valueOf(hours) + " h " : "";
 
         int minutes = (int)  Math.floor(duration / MILLIS_PER_MINUTE);
 
-        duration = duration - minutes;
+        duration = duration - minutes * MILLIS_PER_MINUTE;
 
-        durationString += (minutes > 0) ? Integer.valueOf(minutes) + " minutes " : "";
+        durationString += (minutes > 0) ? Integer.valueOf(minutes) + " min " : "";
 
         if (withSeconds) {
 
             int seconds = (int)  Math.floor(duration / MILLIS_PER_SECOND);
 
-            durationString += (seconds > 0) ? Integer.valueOf(minutes) + " minutes " : "";
+            durationString += (seconds > 0) ? Integer.valueOf(minutes) + " s " : "";
         }
 
         return durationString;

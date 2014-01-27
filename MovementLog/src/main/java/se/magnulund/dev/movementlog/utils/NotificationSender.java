@@ -5,11 +5,10 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
-import android.location.Location;
 
 import se.magnulund.dev.movementlog.MainActivity;
 import se.magnulund.dev.movementlog.R;
-import se.magnulund.dev.movementlog.triprecognition.TripRecognitionIntentService;
+import se.magnulund.dev.movementlog.services.LocationLogIntentService;
 import se.magnulund.dev.movementlog.trips.Trip;
 
 public class NotificationSender {
@@ -63,15 +62,15 @@ public class NotificationSender {
         String text;
 
         switch (tripState) {
-            case TripRecognitionIntentService.START_LOCATION:
+            case LocationLogIntentService.START_LOCATION:
                 title = "Trip started!";
                 text = "@ "+DateTimeUtil.getDateTimeString(trip.getStartTime(), DateTimeUtil.TIME_HOUR_MINUTE);
-                mapsIntent = PendingIntent.getActivity(context, 0, mIntentBuilder.getMapsIntent("Trip start", trip.getStartLocation()), 0);
+                mapsIntent = PendingIntent.getActivity(context, 0, mIntentBuilder.getMapsIntent("Trip start", trip.getStartCoords()), 0);
                 break;
-            case TripRecognitionIntentService.END_LOCATION:
+            case LocationLogIntentService.END_LOCATION:
                 title = "Trip ended!";
                 text = "@ "+DateTimeUtil.getDateTimeString(trip.getEndTime(), DateTimeUtil.TIME_HOUR_MINUTE);
-                mapsIntent = PendingIntent.getActivity(context, 0, mIntentBuilder.getMapsIntent("Trip start", trip.getEndLocation()), 0);
+                mapsIntent = PendingIntent.getActivity(context, 0, mIntentBuilder.getMapsIntent("Trip start", trip.getEndCoords()), 0);
                 break;
             default:
                 title = "not good trip!";
