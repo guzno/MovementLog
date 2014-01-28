@@ -1,13 +1,8 @@
 package se.magnulund.dev.movementlog.services;
 
 import android.app.IntentService;
-import android.app.PendingIntent;
 import android.content.Intent;
-import android.location.Criteria;
-import android.location.Location;
-import android.location.LocationManager;
 import android.net.Uri;
-import android.os.Bundle;
 import android.os.IBinder;
 import android.util.Log;
 
@@ -43,7 +38,6 @@ public class TripRecognitionIntentService extends IntentService {
         // TODO: Return the communication channel to the service.
         throw new UnsupportedOperationException("Not yet implemented");
     }
-
 
     @Override
     protected void onHandleIntent(Intent intent) {
@@ -159,8 +153,10 @@ public class TripRecognitionIntentService extends IntentService {
 
                 if (trip.hasStartCoords()) {
 
-                    NotificationSender.sendTripStateNotification(this, LocationLogIntentService.START_LOCATION, trip);
+                    NotificationSender.sendTripStateNotification(this, LocationRequestIntentService.START_LOCATION, trip);
 
+                } else {
+                    sendLocationRequest(LocationRequestIntentService.START_LOCATION, trip);
                 }
 
             } else {
@@ -215,9 +211,9 @@ public class TripRecognitionIntentService extends IntentService {
 
         TripLogContract.addTrip(getContentResolver(), trip);
 
-        if (trip.hasStartCoords()) {
+        if (!trip.hasStartCoords()) {
 
-            sendLocationRequest(LocationLogIntentService.START_LOCATION, trip);
+            sendLocationRequest(LocationRequestIntentService.START_LOCATION, trip);
 
         }
     }
@@ -241,9 +237,9 @@ public class TripRecognitionIntentService extends IntentService {
 
         TripLogContract.updateTrip(getContentResolver(), trip);
 
-        if (trip.hasEndCoords()) {
+        if (!trip.hasEndCoords()) {
 
-            sendLocationRequest(LocationLogIntentService.END_LOCATION, trip);
+            sendLocationRequest(LocationRequestIntentService.END_LOCATION, trip);
 
         }
     }
@@ -282,48 +278,13 @@ public class TripRecognitionIntentService extends IntentService {
 
     private void sendLocationRequest(int requestType, Trip trip) {
 
-        LocationManager locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
+        Intent intent = new Intent(this, LocationRequestIntentService.class);
 
-        Log.e(TAG, "Sending location request!");
+        intent.putExtra(LocationRequestIntentService.LOCATION_REQUEST_TYPE, requestType);
 
-        Criteria criteria = new Criteria();
+        intent.putExtra(LocationRequestIntentService.LOCATION_REQUEST_TRIP_ID, trip.getID());
 
-        criteria.setAccuracy(Criteria.ACCURACY_FINE);
-
-        criteria.setPowerRequirement(Criteria.NO_REQUIREMENT);
-
-        String providerName = locationManager.getBestProvider(criteria, true);
-
-        Location lastLocation = locationManager.getLastKnownLocation(providerName);
-
-        Intent intent = new Intent(this, LocationLogIntentService.class);
-
-        Bundle bundle = new Bundle();
-
-        bundle.putInt(LocationLogIntentService.LOCATION_REQUEST_TYPE, requestType);
-
-        bundle.putInt(LocationLogIntentService.LOCATION_REQUEST_TRIP_ID, trip.getID());
-
-        if (lastLocation.getElapsedRealtimeNanos() - System.nanoTime() < DateTimeUtil.NANOS_PER_MINUTE) {
-
-            Log.e(TAG, "Using lastknownlocation");
-
-            bundle.putParcelable(LocationManager.KEY_LOCATION_CHANGED, lastLocation);
-
-            intent.putExtras(bundle);
-
-            startService(intent);
-
-        } else {
-
-            Log.e(TAG, "Requesting location fix");
-
-            intent.putExtras(bundle);
-
-            PendingIntent pendingIntent = PendingIntent.getService(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-
-            locationManager.requestSingleUpdate(providerName, pendingIntent);
-        }
+        startService(intent);
 
     }
 }

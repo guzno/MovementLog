@@ -41,9 +41,8 @@ public class MainFragment extends Fragment implements LoaderManager.LoaderCallba
 
     CursorAdapter mAdapter;
 
-    public static MainFragment newInstance() {
+    public static MainFragment newInstance(Bundle arguments) {
         MainFragment fragment = new MainFragment();
-        Bundle arguments = null; // new Bundle();
         fragment.setArguments(arguments);
 
         return fragment;

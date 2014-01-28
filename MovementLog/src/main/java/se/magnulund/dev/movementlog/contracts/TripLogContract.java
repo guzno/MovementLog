@@ -59,7 +59,8 @@ public class TripLogContract {
             Columns.ENDED_BY_ID,
             Columns.ENDED_BY_TYPE,
             Columns.END_CONFIRMED_BY_ID,
-            Columns.END_COORDS
+            Columns.END_COORDS,
+            Columns.CONFIRMED_AS
     };
     public static final String DEFAULT_SORT_ORDER = Columns.START_TIME + " DESC, " + Columns.END_TIME + " DESC";
 
@@ -95,7 +96,9 @@ public class TripLogContract {
             c.moveToFirst();
 
             try {
-                return Trip.fromCursor(c);
+                Trip trip = Trip.fromCursor(c);
+                c.close();
+                return trip;
             } catch (Exception e) {
                 e.printStackTrace();
                 return null;
@@ -138,7 +141,9 @@ public class TripLogContract {
             c.moveToFirst();
 
             try {
-                return Trip.fromCursor(c);
+                Trip trip = Trip.fromCursor(c);
+                c.close();
+                return trip;
             } catch (Exception e) {
                 e.printStackTrace();
                 return null;

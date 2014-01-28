@@ -8,7 +8,7 @@ import android.content.Intent;
 
 import se.magnulund.dev.movementlog.MainActivity;
 import se.magnulund.dev.movementlog.R;
-import se.magnulund.dev.movementlog.services.LocationLogIntentService;
+import se.magnulund.dev.movementlog.services.LocationRequestIntentService;
 import se.magnulund.dev.movementlog.trips.Trip;
 
 public class NotificationSender {
@@ -29,7 +29,7 @@ public class NotificationSender {
 
     private static PendingIntent getPendingIntent(Context context) {
         Intent intent = new Intent(context, MainActivity.class);
-        return PendingIntent.getActivity(context, 0, intent, 0);
+        return PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
     }
 
     private static void sendNotification(Context context, Notification notification) {
@@ -62,15 +62,15 @@ public class NotificationSender {
         String text;
 
         switch (tripState) {
-            case LocationLogIntentService.START_LOCATION:
+            case LocationRequestIntentService.START_LOCATION:
                 title = "Trip started!";
                 text = "@ "+DateTimeUtil.getDateTimeString(trip.getStartTime(), DateTimeUtil.TIME_HOUR_MINUTE);
-                mapsIntent = PendingIntent.getActivity(context, 0, mIntentBuilder.getMapsIntent("Trip start", trip.getStartCoords()), 0);
+                mapsIntent = PendingIntent.getActivity(context, 0, mIntentBuilder.getMapsIntent("Trip start", trip.getStartCoords()), PendingIntent.FLAG_UPDATE_CURRENT);
                 break;
-            case LocationLogIntentService.END_LOCATION:
+            case LocationRequestIntentService.END_LOCATION:
                 title = "Trip ended!";
                 text = "@ "+DateTimeUtil.getDateTimeString(trip.getEndTime(), DateTimeUtil.TIME_HOUR_MINUTE);
-                mapsIntent = PendingIntent.getActivity(context, 0, mIntentBuilder.getMapsIntent("Trip start", trip.getEndCoords()), 0);
+                mapsIntent = PendingIntent.getActivity(context, 0, mIntentBuilder.getMapsIntent("Trip end", trip.getEndCoords()), PendingIntent.FLAG_UPDATE_CURRENT);
                 break;
             default:
                 title = "not good trip!";

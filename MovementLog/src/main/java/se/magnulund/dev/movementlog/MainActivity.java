@@ -24,12 +24,12 @@ public class MainActivity extends Activity implements MainFragment.MainFragmentL
         setContentView(R.layout.activity_main);
 
         if (savedInstanceState == null) {
-            rawDataFragment = MainFragment.newInstance();
 
             Bundle arguments = new Bundle();
+
             arguments.putInt(MainFragment.FRAGMENT_TYPE, MainFragment.TYPE_RAWDATA);
 
-            rawDataFragment.setArguments(arguments);
+            rawDataFragment = MainFragment.newInstance(arguments);
 
             getFragmentManager().beginTransaction().add(R.id.container, rawDataFragment).commit();
 
@@ -56,12 +56,12 @@ public class MainActivity extends Activity implements MainFragment.MainFragmentL
         }
         if (newFragmentType >= 0) {
             if (newFragment == null) { // create fragment if we don't have one of the correct type exists,
-                newFragment = MainFragment.newInstance();
 
                 Bundle arguments = new Bundle();
+
                 arguments.putInt(MainFragment.FRAGMENT_TYPE, newFragmentType);
 
-                newFragment.setArguments(arguments);
+                newFragment = MainFragment.newInstance(arguments);
 
                 switch (newFragmentType) {
                     case MainFragment.TYPE_RAWDATA:

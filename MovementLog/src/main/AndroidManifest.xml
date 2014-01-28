@@ -77,7 +77,7 @@
             android:permission="se.magnulund.permission.CONTROL_SERVICE"
             android:process=":services" />
         <service
-            android:name="se.magnulund.dev.movementlog.services.LocationLogIntentService"
+            android:name=".services.LocationRequestIntentService"
             android:enabled="true"
             android:exported="true"
             android:permission="se.magnulund.permission.CONTROL_SERVICE"

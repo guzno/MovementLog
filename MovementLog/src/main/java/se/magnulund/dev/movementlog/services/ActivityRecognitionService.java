@@ -58,6 +58,7 @@ public class ActivityRecognitionService extends Service {
 
     @Override
     public void onCreate() {
+
         super.onCreate();
 
         mInProgress = false;
@@ -65,13 +66,7 @@ public class ActivityRecognitionService extends Service {
         mActivityRecognitionClient = new ActivityRecognitionClient(this, googlePlayServicesClientConnectionCallbacks, googlePlayFailer);
 
         Intent intent = new Intent(this, TripRecognitionIntentService.class);
-/*
-        Bundle bundle = new Bundle();
 
-        bundle.putInt(TripRecognitionIntentService.RESULT_TYPE, TripRecognitionIntentService.RESULT_TYPE_ACTIVITY_RECOGNITION);
-
-        intent.putExtras(bundle);
-*/
         mActivityRecognitionPendingIntent = PendingIntent.getService(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
     }
 
@@ -254,5 +249,4 @@ public class ActivityRecognitionService extends Service {
 
         NotificationSender.sendCustomNotification(this, notification);
     }
-
 }
