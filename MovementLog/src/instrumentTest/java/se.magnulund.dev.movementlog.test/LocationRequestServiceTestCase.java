@@ -34,15 +34,14 @@ public class LocationRequestServiceTestCase extends ServiceTestCase<LocationRequ
     }
 
     public synchronized void testLocationRequest(){
-        Intent intent = new Intent(context, LocationRequestService.class);
+
+        Intent intent = LocationRequestService.getStoreStartLocationIntent(context,0);
 
         intent.putExtra(TESTING, true);
-        intent.putExtra(LocationRequestService.COMMAND, LocationRequestService.COMMAND_STORE_START_LOCATION);
-        intent.putExtra(LocationRequestService.EXTRA_TRIP_ID, 0);
 
         startService(intent);
 
-        while(getService().requestHandled == false) {
+        while(!getService().requestHandled) {
 
         }
 
@@ -54,7 +53,7 @@ public class LocationRequestServiceTestCase extends ServiceTestCase<LocationRequ
 
         startService(intent);
 
-        while(getService().requestHandled == false) {
+        while(!getService().requestHandled) {
 
         }
 
@@ -66,7 +65,7 @@ public class LocationRequestServiceTestCase extends ServiceTestCase<LocationRequ
 
         startService(intent);
 
-        while(getService().requestHandled == false) {
+        while(!getService().requestHandled) {
 
         }
 
@@ -78,7 +77,7 @@ public class LocationRequestServiceTestCase extends ServiceTestCase<LocationRequ
 
         startService(intent);
 
-        while(getService().requestHandled == false) {
+        while(!getService().requestHandled) {
 
         }
 
