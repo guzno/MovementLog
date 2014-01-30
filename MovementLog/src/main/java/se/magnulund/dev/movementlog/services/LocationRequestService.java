@@ -66,6 +66,8 @@ public class LocationRequestService extends Service implements GooglePlayService
 
     public LocationFuture locationFuture;
 
+    private ExecutorService mThreadPool;
+
     @Override
     public void onCreate() {
 
@@ -90,6 +92,8 @@ public class LocationRequestService extends Service implements GooglePlayService
         locationFuture = LocationFuture.newInstance();
 
         locationClient = new LocationClient(this, this, this);
+
+        mThreadPool = Executors.newSingleThreadExecutor();
 
         updatesRequested = false;
 
@@ -131,6 +135,8 @@ public class LocationRequestService extends Service implements GooglePlayService
     public int onStartCommand(Intent intent, int flags, int startId) {
 
         testing = intent.getBooleanExtra(TESTING, false);
+
+        testing = true;
 
         requestType = intent.getIntExtra(COMMAND, -1);
 
@@ -222,7 +228,7 @@ public class LocationRequestService extends Service implements GooglePlayService
 
         if (testing && location != null) {
             Log.e(TAG, "stored Location from: " + location.getProvider() + " @ " + location.getTime());
-            Log.e(TAG, "location is this old: "+Long.toString(Math.abs(SystemClock.elapsedRealtimeNanos() - location.getElapsedRealtimeNanos())/DateTimeUtil.NANOS_PER_SECOND)+" s");
+            Log.e(TAG, "location is this old: " + Long.toString(Math.abs(SystemClock.elapsedRealtimeNanos() - location.getElapsedRealtimeNanos()) / DateTimeUtil.NANOS_PER_SECOND) + " s");
         }
 
         if (location == null || Math.abs(SystemClock.elapsedRealtimeNanos() - location.getElapsedRealtimeNanos()) > 20 * DateTimeUtil.NANOS_PER_SECOND) {
@@ -253,12 +259,20 @@ public class LocationRequestService extends Service implements GooglePlayService
                     case COMMAND_STORE_START_LOCATION:
                         trip.setStartCoords(TripCoords.fromLocation(location));
                         assert trip.hasStartCoords();
-                        NotificationSender.sendTripStateNotification(this, COMMAND_STORE_START_LOCATION, trip);
+                        if (trip.isStartConfirmed()) {
+
+                            NotificationSender.sendTripStateNotification(this, COMMAND_STORE_START_LOCATION, trip);
+
+                        }
                         break;
                     case COMMAND_STORE_END_LOCATION:
                         trip.setEndCoords(TripCoords.fromLocation(location));
                         assert trip.hasEndCoords();
-                        NotificationSender.sendTripStateNotification(this, COMMAND_STORE_END_LOCATION, trip);
+                        if (trip.isEndConfirmed()) {
+
+                            NotificationSender.sendTripStateNotification(this, COMMAND_STORE_END_LOCATION, trip);
+
+                        }
                         break;
                     default:
                         Log.d(TAG, "Unknown location request type");
@@ -267,7 +281,7 @@ public class LocationRequestService extends Service implements GooglePlayService
                 TripLogContract.updateTrip(resolver, trip);
 
             } else {
-                Log.e(TAG, "Trip with id: "+tripId+" was null...");
+                Log.e(TAG, "Trip with id: " + tripId + " was null...");
             }
 
 
@@ -299,12 +313,11 @@ public class LocationRequestService extends Service implements GooglePlayService
     }
 
     private void sendLocationRequest(LocationRequest request) {
-        ExecutorService mThreadPool = Executors.newSingleThreadExecutor();
 
-        LocationThread lt = new LocationThread();
-        lt.setRequest(request);
+        LocationThread locationThread = new LocationThread();
+        locationThread.setRequest(request);
 
-        mThreadPool.execute(lt);
+        mThreadPool.execute(locationThread);
     }
 
     private boolean servicesConnected() {

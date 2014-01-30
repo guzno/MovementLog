@@ -46,6 +46,8 @@ public class TripRecognitionIntentService extends IntentService {
 
         testing = intent.getBooleanExtra(TESTING, false);
 
+        testing = true;
+
         if (ActivityRecognitionResult.hasResult(intent)) {
             /*
             Bundle extras = intent.getExtras();
@@ -301,12 +303,20 @@ public class TripRecognitionIntentService extends IntentService {
 
     private void sendLocationRequest(int requestType, Trip trip) {
 
-        Intent intent = new Intent(this, LocationRequestService.class);
+        Intent intent;
+        switch (requestType) {
+            case LocationRequestService.COMMAND_STORE_START_LOCATION:
+                intent = LocationRequestService.getStoreStartLocationIntent(this, trip.getID());
+                break;
+            case LocationRequestService.COMMAND_STORE_END_LOCATION:
+                intent = LocationRequestService.getStoreEndLocationIntent(this, trip.getID());
+                break;
+            default:
+                Log.e(TAG, "invalid request type");
+                intent = null;
+        }
 
-        intent.putExtra(LocationRequestService.COMMAND, requestType);
-
-        intent.putExtra(LocationRequestService.EXTRA_TRIP_ID, trip.getID());
-
+        assert intent != null;
         intent.putExtra(TESTING, testing);
 
         startService(intent);
