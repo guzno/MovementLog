@@ -69,7 +69,6 @@
             android:exported="true"
             android:permission="se.magnulund.permission.CONTROL_SERVICE"
             android:process=":services" />
-
         <service
             android:name="se.magnulund.dev.movementlog.services.ActivityRecognitionService"
             android:enabled="true"
@@ -77,12 +76,11 @@
             android:permission="se.magnulund.permission.CONTROL_SERVICE"
             android:process=":services" />
         <service
-            android:name=".services.LocationRequestIntentService"
+            android:name=".services.LocationRequestService"
             android:enabled="true"
             android:exported="true"
             android:permission="se.magnulund.permission.CONTROL_SERVICE"
             android:process=":services" />
-
     </application>
 
 </manifest>

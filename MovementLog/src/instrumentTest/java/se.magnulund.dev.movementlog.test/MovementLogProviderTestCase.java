@@ -1,6 +1,7 @@
 package se.magnulund.dev.movementlog.test;// Created by Gustav on 14/01/2014.
 
 import android.content.ContentResolver;
+import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 import android.test.ProviderTestCase2;
@@ -17,6 +18,7 @@ public class MovementLogProviderTestCase extends ProviderTestCase2<MovementDataP
     private static final String TAG = "MovementLogProviderTestCase";
 
     private ContentResolver resolver;
+    private Context context;
 
     /**
      * Constructor.
@@ -30,6 +32,7 @@ public class MovementLogProviderTestCase extends ProviderTestCase2<MovementDataP
     protected void setUp() throws Exception {
         super.setUp();
         resolver = getMockContentResolver();
+        context = getMockContext();
     }
 
 
@@ -66,7 +69,7 @@ public class MovementLogProviderTestCase extends ProviderTestCase2<MovementDataP
 
         // check if getEntryByID works
 
-        Cursor cursor = RawDataContract.getEntryByID(getMockContext(), resultID);
+        Cursor cursor = RawDataContract.getEntryByID(context, resultID);
 
         assertNotNull("TripLogContract.Columns.getEntryByID() returned a null Cursor", cursor);
 

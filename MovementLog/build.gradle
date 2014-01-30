@@ -43,6 +43,14 @@ android {
         defaultFlavor {
             proguardFile 'proguard-project.txt'
         }
+
+        full {
+            packageName "se.magnulund.dev.full"
+        }
+
+        lite {
+            packageName "se.magnulund.dev.lite"
+        }
     }
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_7

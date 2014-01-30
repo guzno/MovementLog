@@ -23,6 +23,8 @@ import se.magnulund.dev.movementlog.utils.NotificationSender;
 public class TripRecognitionIntentService extends IntentService {
 
     private static final String TAG = "TripRecognitionIntentService";
+    private static final String TESTING = "testing";
+    private Boolean testing;
 
     private static final int POSSIBLE_CAR_TRIP_CONFIDENCE_THRESHOLD = 40;
     private static final int POSSIBLE_BIKE_TRIP_CONFIDENCE_THRESHOLD = 40;
@@ -42,15 +44,24 @@ public class TripRecognitionIntentService extends IntentService {
     @Override
     protected void onHandleIntent(Intent intent) {
 
-        timestamp = System.currentTimeMillis();
+        testing = intent.getBooleanExtra(TESTING, false);
 
         if (ActivityRecognitionResult.hasResult(intent)) {
+            /*
+            Bundle extras = intent.getExtras();
+            if (extras != null) {
 
+                Set<String> keys = extras.keySet();
+                for (String key : keys) {
+                    Log.e(TAG, key);
+                }
+            }
+            */
             processActivityRecognitionResult(intent);
 
         } else {
 
-            Log.d(TAG, "Unhandled intent");
+            if(testing){Log.d(TAG, "Unhandled intent");}
 
         }
     }
@@ -60,6 +71,8 @@ public class TripRecognitionIntentService extends IntentService {
     private void processActivityRecognitionResult(Intent intent) {
 
         ActivityRecognitionResult result = ActivityRecognitionResult.extractResult(intent);
+
+        timestamp = result.getTime();
 
         ArrayList<RawData> rawDataArrayList = storeAndReturnResultData(result.getProbableActivities());
 
@@ -119,6 +132,48 @@ public class TripRecognitionIntentService extends IntentService {
         }
     }
 
+    private ArrayList<RawData> storeAndReturnResultData(List<DetectedActivity> detectedActivities) {
+
+        if(testing){ Log.e(TAG, "DA_COUNT: "+detectedActivities.size()); }
+
+        ArrayList<RawData> data = new ArrayList<>();
+
+        int i = 0;
+
+        for (DetectedActivity detectedActivity : detectedActivities) {
+
+            RawData rawData = new RawData(detectedActivity);
+
+            rawData.setTimestamp(timestamp);
+
+            rawData.setRank(i);
+
+            if(testing){ Log.e(TAG, "RD: "+rawData.getActivityName()+" rnk: "+rawData.getRank()+" conf: "+rawData.getConfidence()); }
+
+            Uri dataEntry = RawDataContract.addEntry(this, rawData);
+
+            assert dataEntry != null;
+
+            assert dataEntry.getPathSegments() != null;
+
+            rawData.setId(Integer.valueOf(dataEntry.getPathSegments().get(1)));
+
+            data.add(rawData);
+
+            i++;
+        }
+
+        return data;
+    }
+
+    private void confirmTripAsIncorrect(Trip trip) {
+
+        trip.setConfirmedAs(Trip.TRIP_CONFIRMED_AS_INCORRECT);
+
+        TripLogContract.updateTrip(getContentResolver(), trip);
+
+    }
+
     private void confirmTripEnd(RawData data, Trip trip) {
         if (trip.isStartConfirmed()) {
 
@@ -133,14 +188,6 @@ public class TripRecognitionIntentService extends IntentService {
         }
     }
 
-    private void confirmTripAsIncorrect(Trip trip) {
-
-        trip.setConfirmedAs(Trip.TRIP_CONFIRMED_AS_INCORRECT);
-
-        TripLogContract.updateTrip(getContentResolver(), trip);
-
-    }
-
     private void checkForTripConfirmation(RawData data, Trip trip) {
 
         if (!trip.isStartConfirmed()) {
@@ -153,10 +200,10 @@ public class TripRecognitionIntentService extends IntentService {
 
                 if (trip.hasStartCoords()) {
 
-                    NotificationSender.sendTripStateNotification(this, LocationRequestIntentService.START_LOCATION, trip);
+                    NotificationSender.sendTripStateNotification(this, LocationRequestService.COMMAND_STORE_START_LOCATION, trip);
 
                 } else {
-                    sendLocationRequest(LocationRequestIntentService.START_LOCATION, trip);
+                    sendLocationRequest(LocationRequestService.COMMAND_STORE_START_LOCATION, trip);
                 }
 
             } else {
@@ -167,32 +214,6 @@ public class TripRecognitionIntentService extends IntentService {
         }
     }
 
-    private ArrayList<RawData> storeAndReturnResultData(List<DetectedActivity> detectedActivities) {
-
-        ArrayList<RawData> data = new ArrayList<>();
-
-        for (int i = 0; i < detectedActivities.size(); i++) {
-
-            RawData rawData = new RawData(detectedActivities.get(i));
-
-            rawData.setTimestamp(timestamp);
-
-            rawData.setRank(i);
-
-            Uri dataEntry = RawDataContract.addEntry(this, rawData);
-
-            assert dataEntry != null;
-
-            assert dataEntry.getPathSegments() != null;
-
-            rawData.setId(Integer.valueOf(dataEntry.getPathSegments().get(1)));
-
-            data.add(rawData);
-
-        }
-
-        return data;
-    }
 
 
     private void startTrip(RawData startedBy, boolean startConfirmed) {
@@ -209,11 +230,15 @@ public class TripRecognitionIntentService extends IntentService {
 
         }
 
-        TripLogContract.addTrip(getContentResolver(), trip);
+        Uri uri = TripLogContract.addTrip(getContentResolver(), trip);
+
+        int id = Integer.valueOf(uri.getLastPathSegment());
+
+        trip.setID(id);
 
         if (!trip.hasStartCoords()) {
 
-            sendLocationRequest(LocationRequestIntentService.START_LOCATION, trip);
+            sendLocationRequest(LocationRequestService.COMMAND_STORE_START_LOCATION, trip);
 
         }
     }
@@ -239,16 +264,14 @@ public class TripRecognitionIntentService extends IntentService {
 
         if (!trip.hasEndCoords()) {
 
-            sendLocationRequest(LocationRequestIntentService.END_LOCATION, trip);
+            sendLocationRequest(LocationRequestService.COMMAND_STORE_END_LOCATION, trip);
 
         }
     }
 
     private void checkForPossibleTripStart(ArrayList<RawData> rawDataArrayList) {
 
-        for (int i = 1; i < rawDataArrayList.size(); i++) {
-
-            RawData data = rawDataArrayList.get(i);
+        for (RawData data : rawDataArrayList) {
 
             if (isPossibleTripStart(data)) {
 
@@ -278,11 +301,13 @@ public class TripRecognitionIntentService extends IntentService {
 
     private void sendLocationRequest(int requestType, Trip trip) {
 
-        Intent intent = new Intent(this, LocationRequestIntentService.class);
+        Intent intent = new Intent(this, LocationRequestService.class);
 
-        intent.putExtra(LocationRequestIntentService.LOCATION_REQUEST_TYPE, requestType);
+        intent.putExtra(LocationRequestService.COMMAND, requestType);
 
-        intent.putExtra(LocationRequestIntentService.LOCATION_REQUEST_TRIP_ID, trip.getID());
+        intent.putExtra(LocationRequestService.EXTRA_TRIP_ID, trip.getID());
+
+        intent.putExtra(TESTING, testing);
 
         startService(intent);
 

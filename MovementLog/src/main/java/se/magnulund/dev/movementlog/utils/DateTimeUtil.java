@@ -7,9 +7,9 @@ public class DateTimeUtil {
 
     private static final String TAG = "DateTimeUtil";
 
-    public static final int NANOS_PER_MILLI = 1000;
-    public static final int NANOS_PER_SECOND = 1000 * NANOS_PER_MILLI;
-    public static final int NANOS_PER_MINUTE = 60 * NANOS_PER_SECOND;
+    public static final long NANOS_PER_MILLI = 1000000;
+    public static final long NANOS_PER_SECOND = 1000 * NANOS_PER_MILLI;
+    public static final long NANOS_PER_MINUTE = 60 * NANOS_PER_SECOND;
 
     public static final int MILLIS_PER_SECOND = 1000;
     public static final int MILLIS_PER_MINUTE = 60 * MILLIS_PER_SECOND;
@@ -18,6 +18,8 @@ public class DateTimeUtil {
 
     public static final String DATE_MONTHNAME_DAY = "MMM d";
     public static final String TIME_HOUR_MINUTE = "kk:mm";
+
+    public static final String TIME_HOUR_MINUTE_SECONDS = "kk:mm:ss";
 
     public static String getDateTimeString(long timestamp, String format) {
 

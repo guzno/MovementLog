@@ -8,6 +8,7 @@ import android.view.MenuItem;
 
 import se.magnulund.dev.movementlog.fragments.MainFragment;
 import se.magnulund.dev.movementlog.services.ActivityRecognitionService;
+import se.magnulund.dev.movementlog.services.LocationRequestService;
 
 public class MainActivity extends Activity implements MainFragment.MainFragmentListener {
 
@@ -108,14 +109,18 @@ public class MainActivity extends Activity implements MainFragment.MainFragmentL
 
     @Override
     public void stopButtonClicked() {
-        Intent startIntent = ActivityRecognitionService.getStopIntent(this);
-        startService(startIntent);
+        Intent startRecognitionIntent = ActivityRecognitionService.getStopIntent(this);
+        startService(startRecognitionIntent);
+        Intent startLocationIntent = LocationRequestService.getStartUpdatesIntent(this);
+        startService(startLocationIntent);
     }
 
     @Override
     public void startButtonClicked() {
         Intent startIntent = ActivityRecognitionService.getStartIntent(this);
         startService(startIntent);
+        Intent stopLocationIntent = LocationRequestService.getStopUpdatesIntent(this);
+        startService(stopLocationIntent);
     }
 
 }

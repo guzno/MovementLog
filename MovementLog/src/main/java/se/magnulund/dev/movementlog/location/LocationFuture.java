@@ -1,32 +1,33 @@
 package se.magnulund.dev.movementlog.location;// Created by Gustav on 27/01/2014.
 
 import android.location.Location;
-import android.location.LocationListener;
-import android.location.LocationProvider;
-import android.os.Bundle;
-import android.os.RemoteException;
+import android.util.Log;
 
-import java.security.ProviderException;
+import com.google.android.gms.location.LocationListener;
+
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-public class LocationFuture implements Future, LocationListener {
+import se.magnulund.dev.movementlog.utils.DateTimeUtil;
 
-    public static LocationFuture newInstance(String fromProvider) {
-        LocationFuture l = new LocationFuture();
-        l.providerName = fromProvider;
-        return l;
+public class LocationFuture implements Future<Location>, LocationListener {
+
+    private static final String TAG ="LocationFuture";
+
+    public static LocationFuture newInstance() {
+        LocationFuture lf = new LocationFuture();
+        lf.locationReceived = false;
+        Log.d(TAG, "Location future created");
+        return lf;
     }
 
     private LocationFuture() {
     }
 
     private Location location;
-    private boolean locationReceived = false;
-    private String providerName;
-    private Exception mException;
+    private boolean locationReceived;
 
     @Override
     public boolean cancel(boolean mayInterruptIfRunning) {
@@ -59,6 +60,8 @@ public class LocationFuture implements Future, LocationListener {
 
     private synchronized Location getLocation(Long timeoutMs) throws InterruptedException, TimeoutException, ExecutionException {
 
+        Log.d(TAG, "Trying to get location");
+
         if (locationReceived) {
 
             return location;
@@ -75,12 +78,8 @@ public class LocationFuture implements Future, LocationListener {
 
         }
 
-        if (mException != null) {
-            throw new ExecutionException(mException);
-        }
-
         if (!locationReceived) {
-
+            Log.d(TAG, "Locationrequest timeout; throwing...");
             throw new TimeoutException();
 
         }
@@ -88,35 +87,17 @@ public class LocationFuture implements Future, LocationListener {
         return location;
     }
 
+    public void clearResult() {
+        location = null;
+        locationReceived = false;
+    }
+
     @Override
-    public synchronized void onLocationChanged(android.location.Location locationResult) {
+    public synchronized void onLocationChanged(Location locationResult) {
+        Log.d(TAG, "Location received! "+locationResult.getProvider()+" @ "+ locationResult.getTime());
         if (locationResult != null) {
             locationReceived = true;
             location = locationResult;
-            ((Object) this).notifyAll();
-        }
-    }
-
-    @Override
-    public synchronized void onStatusChanged(String provider, int status, Bundle extras) {
-        if (provider.equals(providerName) && status == LocationProvider.OUT_OF_SERVICE){
-            locationReceived = false;
-            ((Object) this).notifyAll();
-        }
-
-        mException = new RemoteException("Provider is out of service");
-    }
-
-    @Override
-    public void onProviderEnabled(String provider) {
-
-    }
-
-    @Override
-    public synchronized void onProviderDisabled(String provider) {
-        if (provider.equals(providerName)){
-            locationReceived = false;
-            mException = new ProviderException("Provider was disabled");
             ((Object) this).notifyAll();
         }
     }

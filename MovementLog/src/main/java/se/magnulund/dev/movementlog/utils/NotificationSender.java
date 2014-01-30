@@ -8,7 +8,7 @@ import android.content.Intent;
 
 import se.magnulund.dev.movementlog.MainActivity;
 import se.magnulund.dev.movementlog.R;
-import se.magnulund.dev.movementlog.services.LocationRequestIntentService;
+import se.magnulund.dev.movementlog.services.LocationRequestService;
 import se.magnulund.dev.movementlog.trips.Trip;
 
 public class NotificationSender {
@@ -62,12 +62,12 @@ public class NotificationSender {
         String text;
 
         switch (tripState) {
-            case LocationRequestIntentService.START_LOCATION:
+            case LocationRequestService.COMMAND_STORE_START_LOCATION:
                 title = "Trip started!";
                 text = "@ "+DateTimeUtil.getDateTimeString(trip.getStartTime(), DateTimeUtil.TIME_HOUR_MINUTE);
                 mapsIntent = PendingIntent.getActivity(context, 0, mIntentBuilder.getMapsIntent("Trip start", trip.getStartCoords()), PendingIntent.FLAG_UPDATE_CURRENT);
                 break;
-            case LocationRequestIntentService.END_LOCATION:
+            case LocationRequestService.COMMAND_STORE_END_LOCATION:
                 title = "Trip ended!";
                 text = "@ "+DateTimeUtil.getDateTimeString(trip.getEndTime(), DateTimeUtil.TIME_HOUR_MINUTE);
                 mapsIntent = PendingIntent.getActivity(context, 0, mIntentBuilder.getMapsIntent("Trip end", trip.getEndCoords()), PendingIntent.FLAG_UPDATE_CURRENT);
