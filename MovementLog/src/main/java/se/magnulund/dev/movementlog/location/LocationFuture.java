@@ -23,6 +23,11 @@ public class LocationFuture implements Future<Location>, LocationListener {
         return lf;
     }
 
+    public void initLocation(Location location) {
+        this.location = location;
+        locationReceived = location != null;
+    }
+
     private LocationFuture() {
     }
 
@@ -81,7 +86,6 @@ public class LocationFuture implements Future<Location>, LocationListener {
         if (!locationReceived) {
             Log.d(TAG, "Locationrequest timeout; throwing...");
             throw new TimeoutException();
-
         }
 
         return location;
@@ -94,7 +98,7 @@ public class LocationFuture implements Future<Location>, LocationListener {
 
     @Override
     public synchronized void onLocationChanged(Location locationResult) {
-        Log.d(TAG, "Location received! "+locationResult.getProvider()+" @ "+ locationResult.getTime());
+        Log.e(TAG, "Location received! "+locationResult.getProvider()+" @ "+ locationResult.getTime());
         if (locationResult != null) {
             locationReceived = true;
             location = locationResult;
