@@ -6,6 +6,7 @@ import com.google.android.gms.location.DetectedActivity;
 
 import se.magnulund.dev.movementlog.R;
 import se.magnulund.dev.movementlog.contracts.TripLogContract;
+import se.magnulund.dev.movementlog.location.TripCoords;
 
 public class Trip {
     private static final String TAG = "Trip";

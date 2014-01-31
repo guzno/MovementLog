@@ -5,7 +5,6 @@ import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.database.Cursor;
-import android.location.Location;
 import android.net.Uri;
 import android.provider.BaseColumns;
 
@@ -15,7 +14,6 @@ import java.util.Calendar;
 
 import se.magnulund.dev.movementlog.providers.MovementDataProvider;
 import se.magnulund.dev.movementlog.trips.Trip;
-import se.magnulund.dev.movementlog.trips.TripCoords;
 
 /**
  * A provider of detected activity raw data (TripLogContract.Columns) and

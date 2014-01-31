@@ -170,13 +170,20 @@ public class MainFragment extends Fragment implements LoaderManager.LoaderCallba
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-        mAdapter.swapCursor(data);
+        Cursor oldCursor = mAdapter.swapCursor(data);
         mAdapter.notifyDataSetChanged();
+        if (oldCursor != null){
+            oldCursor.close();
+        }
     }
 
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
-        mAdapter.swapCursor(null);
+        Cursor oldCursor = mAdapter.swapCursor(null);
+
+        if (oldCursor != null){
+            oldCursor.close();
+        }
     }
 
     public interface MainFragmentListener {

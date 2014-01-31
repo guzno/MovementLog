@@ -31,7 +31,7 @@ import se.magnulund.dev.movementlog.contracts.TripLogContract;
 import se.magnulund.dev.movementlog.location.LocationFuture;
 import se.magnulund.dev.movementlog.location.LocationUtils;
 import se.magnulund.dev.movementlog.trips.Trip;
-import se.magnulund.dev.movementlog.trips.TripCoords;
+import se.magnulund.dev.movementlog.location.TripCoords;
 import se.magnulund.dev.movementlog.utils.DateTimeUtil;
 import se.magnulund.dev.movementlog.utils.NotificationSender;
 

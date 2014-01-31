@@ -1,18 +1,12 @@
 package se.magnulund.dev.movementlog.trips;// Created by Gustav on 20/01/2014.
 
 import android.content.Context;
-import android.content.Intent;
 import android.database.Cursor;
-import android.location.Location;
-import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CursorAdapter;
 import android.widget.TextView;
-
-import java.text.SimpleDateFormat;
-import java.util.Date;
 
 import se.magnulund.dev.movementlog.R;
 import se.magnulund.dev.movementlog.utils.DateTimeUtil;

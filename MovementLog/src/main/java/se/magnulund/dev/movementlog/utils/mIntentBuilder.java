@@ -1,10 +1,9 @@
 package se.magnulund.dev.movementlog.utils;// Created by Gustav on 26/01/2014.
 
 import android.content.Intent;
-import android.location.Location;
 import android.net.Uri;
 
-import se.magnulund.dev.movementlog.trips.TripCoords;
+import se.magnulund.dev.movementlog.location.TripCoords;
 
 public class mIntentBuilder {
     private static final String TAG = "mIntentBuilder";

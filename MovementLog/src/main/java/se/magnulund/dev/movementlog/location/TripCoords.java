@@ -1,4 +1,4 @@
-package se.magnulund.dev.movementlog.trips;// Created by Gustav on 26/01/2014.
+package se.magnulund.dev.movementlog.location;// Created by Gustav on 26/01/2014.
 
 import android.location.Location;
 
