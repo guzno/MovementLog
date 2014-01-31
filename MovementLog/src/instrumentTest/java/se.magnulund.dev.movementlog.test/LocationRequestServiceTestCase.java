@@ -2,15 +2,20 @@ package se.magnulund.dev.movementlog.test;// Created by Gustav on 28/01/2014.
 
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.test.ServiceTestCase;
+import android.util.Log;
 
+import com.google.android.gms.location.DetectedActivity;
+
+import se.magnulund.dev.movementlog.contracts.TripLogContract;
 import se.magnulund.dev.movementlog.services.LocationRequestService;
+import se.magnulund.dev.movementlog.trips.Trip;
 
 public class LocationRequestServiceTestCase extends ServiceTestCase<LocationRequestService> {
     private static final String TAG = "TripRecognitionIntentServiceTestCase";
     private static final String TESTING = "testing";
     private Context context;
-    //private CountDownLatch latch;
 
     /**
      * Constructor
@@ -29,13 +34,17 @@ public class LocationRequestServiceTestCase extends ServiceTestCase<LocationRequ
     protected void setupService() {
         super.setupService();
 
-        //latch = new CountDownLatch(1);
-        //getService().setLatch(latch);
     }
 
     public synchronized void testLocationRequest(){
 
-        Intent intent = LocationRequestService.getStoreStartLocationIntent(context,0);
+        Trip trip = new Trip(System.currentTimeMillis(), DetectedActivity.IN_VEHICLE);
+
+        Uri uri = TripLogContract.addTrip(context.getContentResolver(), trip);
+
+        trip = TripLogContract.getTrip(context.getContentResolver(), uri);
+
+        Intent intent = LocationRequestService.getStoreStartLocationIntent(context,trip.getID());
 
         intent.putExtra(TESTING, true);
 
@@ -45,6 +54,10 @@ public class LocationRequestServiceTestCase extends ServiceTestCase<LocationRequ
 
         }
 
+        trip = TripLogContract.getTrip(context.getContentResolver(), uri);
+
+        Log.e(TAG, "Trip info: "+trip.getStartCoords().getProvider()+" @ "+trip.getStartCoords().getTimestamp());
+
         try {
             wait(10000);
         } catch (InterruptedException e) {
@@ -53,9 +66,7 @@ public class LocationRequestServiceTestCase extends ServiceTestCase<LocationRequ
 
         startService(intent);
 
-        while(!getService().requestHandled) {
-
-        }
+        Log.e(TAG, "startService done!");
 
         try {
             wait(21000);
@@ -65,9 +76,7 @@ public class LocationRequestServiceTestCase extends ServiceTestCase<LocationRequ
 
         startService(intent);
 
-        while(!getService().requestHandled) {
-
-        }
+        Log.e(TAG, "startService done!");
 
         try {
             wait(5000);
@@ -77,17 +86,7 @@ public class LocationRequestServiceTestCase extends ServiceTestCase<LocationRequ
 
         startService(intent);
 
-        while(!getService().requestHandled) {
+        Log.e(TAG, "startService done!");
 
-        }
-
-/*
-
-        try {
-            latch.await();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        */
     }
 }

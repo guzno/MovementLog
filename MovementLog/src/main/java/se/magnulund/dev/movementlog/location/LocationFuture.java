@@ -28,9 +28,6 @@ public class LocationFuture implements Future<Location>, LocationListener {
         locationReceived = location != null;
     }
 
-    private LocationFuture() {
-    }
-
     private Location location;
     private boolean locationReceived;
 
@@ -68,19 +65,13 @@ public class LocationFuture implements Future<Location>, LocationListener {
         Log.d(TAG, "Trying to get location");
 
         if (locationReceived) {
-
             return location;
-
         }
 
         if (timeoutMs == null) {
-
             ((Object) this).wait(0);
-
         } else if (timeoutMs > 0) {
-
             ((Object) this).wait(timeoutMs);
-
         }
 
         if (!locationReceived) {

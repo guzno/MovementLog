@@ -56,8 +56,6 @@ public class LocationRequestService extends Service implements GooglePlayService
     private LocationRequest updatedLocationRequest;
 
     private ExecutorService mThreadPool;
-    private LocationThread locationThread;
-    private LooperThread looperThread;
     private Handler looperHandler;
 
     public static Intent getStartUpdatesIntent(Context context) {
@@ -90,36 +88,26 @@ public class LocationRequestService extends Service implements GooglePlayService
     public void onCreate() {
 
         backgroundLocationRequest = new LocationRequest();
-
         backgroundLocationRequest.setFastestInterval(5 * DateTimeUtil.MILLIS_PER_SECOND);
-
         backgroundLocationRequest.setInterval(30 * DateTimeUtil.MILLIS_PER_MINUTE);
-
         backgroundLocationRequest.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
 
         updatedLocationRequest = new LocationRequest();
-
         updatedLocationRequest.setFastestInterval(DateTimeUtil.MILLIS_PER_SECOND);
-
         updatedLocationRequest.setInterval(5 * DateTimeUtil.MILLIS_PER_SECOND);
-
         updatedLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-
-        locationFuture = LocationFuture.newInstance();
 
         locationClient = new LocationClient(this, this, this);
 
-        mThreadPool = Executors.newFixedThreadPool(2);
-
-        locationThread = new LocationThread();
-
-        looperThread = new LooperThread();
+        LooperThread looperThread = new LooperThread();
         looperThread.setPriority(Thread.MAX_PRIORITY);
 
+        mThreadPool = Executors.newSingleThreadExecutor();
         mThreadPool.execute(looperThread);
 
-        updatesRequested = false;
+        locationFuture = LocationFuture.newInstance();
 
+        updatesRequested = false;
     }
 
     @Override
@@ -132,148 +120,84 @@ public class LocationRequestService extends Service implements GooglePlayService
     public int onStartCommand(Intent intent, int flags, int startId) {
 
         requestHandled = false;
-
         testing = intent.getBooleanExtra(TESTING, false);
-
-        testing = true;
-
         requestType = intent.getIntExtra(COMMAND, -1);
-
         tripId = intent.getIntExtra(EXTRA_TRIP_ID, -1);
 
-        if (testing) {
-            Log.d(TAG, "type" + requestType);
-            Log.d(TAG, "id:" + tripId);
-        }
+        if (testing) { Log.d(TAG, "type" + requestType); Log.d(TAG, "id:" + tripId); }
 
         if (servicesConnected() && locationClient.isConnected()) {
-
             handleRequest();
-
         } else {
-            Log.d(TAG, "connecting locationClient");
+            if(testing){Log.d(TAG, "connecting locationClient");}
             locationClient.connect();
-
         }
 
         return START_STICKY;
-
     }
 
     private void handleRequest() {
 
         switch (requestType) {
-
             case COMMAND_START_UPDATES:
-
                 initLocationUpdates();
-
                 break;
-
             case COMMAND_STORE_START_LOCATION:
             case COMMAND_STORE_END_LOCATION:
-
                 if (!updatesRequested) {
-
                     initLocationUpdates();
-
                 }
-
-                try {
-
-                    storeLocation();
-
-                } catch (ExecutionException | InterruptedException | TimeoutException e) {
-
-                    e.printStackTrace();
-
-                }
-
+                storeLocation();
                 break;
-
             case COMMAND_STOP_UPDATES:
-
                 locationClient.removeLocationUpdates(locationFuture);
-
                 updatesRequested = false;
-
                 break;
-
             default:
-
                 Log.d(TAG, "Unhandled intent");
         }
 
         requestHandled = true;
-
     }
 
     private void initLocationUpdates() {
 
         locationFuture.clearResult();
-
         locationFuture.initLocation(locationClient.getLastLocation());
 
         sendLocationRequest(backgroundLocationRequest);
 
         updatesRequested = true;
-
     }
 
-    private void storeLocation() throws ExecutionException, InterruptedException, TimeoutException {
+    private void storeLocation() {
 
         Location location;
 
-        location = locationFuture.get(2, TimeUnit.SECONDS);
-
-        if (testing && location != null) {
-            Log.d(TAG, "stored Location from: " + location.getProvider() + " @ " + location.getTime());
-            Log.d(TAG, "location is this old: " + Long.toString(LocationUtils.getLocationAgeInSeconds(location)) + " s");
-        }
-
-        if (location == null || LocationUtils.getLocationAgeInSeconds(location) > 20) {
-
-            locationFuture.clearResult();
-
-            sendLocationRequest(updatedLocationRequest);
-
-            Location newLocation = locationFuture.get(30, TimeUnit.SECONDS);
-
-            sendLocationRequest(backgroundLocationRequest);
-
-            if (testing && newLocation != null) {
-                Log.d(TAG, "new Location from: " + newLocation.getProvider() + " @ " + newLocation.getTime());
-            }
-
-            if (newLocation != null) {
-                location = newLocation;
-            }
-
+        try {
+            location = getCurrentLocation();
+        } catch (InterruptedException | ExecutionException | TimeoutException e) {
+            location = null;
+            e.printStackTrace();
         }
 
         if (location != null) {
-
             ContentResolver resolver = getContentResolver();
-
             Trip trip = TripLogContract.getTrip(resolver, ContentUris.withAppendedId(TripLogContract.CONTENT_URI, tripId));
 
             if (trip != null) {
-
                 switch (requestType) {
                     case COMMAND_STORE_START_LOCATION:
                         trip.setStartCoords(TripCoords.fromLocation(location));
                         assert trip.hasStartCoords();
                         if (trip.isStartConfirmed()) {
-
                             NotificationSender.sendTripStateNotification(this, COMMAND_STORE_START_LOCATION, trip);
-
                         }
                         break;
                     case COMMAND_STORE_END_LOCATION:
                         trip.setEndCoords(TripCoords.fromLocation(location));
                         assert trip.hasEndCoords();
                         if (trip.isEndConfirmed()) {
-
                             NotificationSender.sendTripStateNotification(this, COMMAND_STORE_END_LOCATION, trip);
 
                         }
@@ -297,21 +221,50 @@ public class LocationRequestService extends Service implements GooglePlayService
 
     }
 
+    private Location getCurrentLocation() throws InterruptedException, ExecutionException, TimeoutException {
+
+        Location location = locationFuture.get(2, TimeUnit.SECONDS);
+
+        if (testing && location != null) {
+            Log.d(TAG, "stored Location from: " + location.getProvider() + " @ " + location.getTime());
+            Log.d(TAG, "location is this old: " + Long.toString(LocationUtils.getLocationAgeInSeconds(location)) + " s");
+        }
+
+        if (location == null || LocationUtils.getLocationAgeInSeconds(location) > 20) {
+            locationFuture.clearResult();
+            sendLocationRequest(updatedLocationRequest);
+            Location newLocation = locationFuture.get(30, TimeUnit.SECONDS);
+            sendLocationRequest(backgroundLocationRequest);
+
+            if (testing && newLocation != null) {
+                Log.d(TAG, "new Location from: " + newLocation.getProvider() + " @ " + newLocation.getTime());
+            }
+
+            if (newLocation != null) {
+                location = newLocation;
+            }
+        }
+
+        return location;
+    }
+
 
     @Override
     public void onDestroy() {
-        looperHandler.getLooper().quit();
 
         locationClient.removeLocationUpdates(locationFuture);
 
+        looperHandler.getLooper().quit();
+
+        locationClient.disconnect();
+
         super.onDestroy();
+
     }
 
     private void sendLocationRequest(LocationRequest request) {
 
-        locationThread.setRequest(request);
-
-        mThreadPool.execute(locationThread);
+        locationClient.requestLocationUpdates(request, locationFuture, looperHandler.getLooper());
 
     }
 
@@ -381,26 +334,6 @@ public class LocationRequestService extends Service implements GooglePlayService
             Log.d(TAG, "looperthread " + this.getId() + " in loop");
             Looper.loop();
             Log.d(TAG, "looperthread " + this.getId() + " stopping");
-        }
-
-        public Looper getLooper() {
-            return looperHandler.getLooper();
-        }
-    }
-
-    private class LocationThread extends Thread {
-
-        public LocationRequest mRequest;
-
-        public void setRequest(LocationRequest mRequest) {
-            this.mRequest = mRequest;
-        }
-
-        @Override
-        public void run() {
-            Log.d(TAG, "locationthread " + this.getId() + " running");
-            locationClient.requestLocationUpdates(mRequest, locationFuture, looperThread.getLooper());
-            Log.d(TAG, "locationthread " + this.getId() + " stopping");
         }
     }
 
