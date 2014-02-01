@@ -25,5 +25,7 @@
     <string name="perm_read_desc">Read data from MovementLog</string>
     <string name="perm_control_lbl">Control apps</string>
     <string name="perm_control_desc">Control services in MovementLog</string>
+    <string name="trip_show_start">Show start</string>
+    <string name="trip_show_end">Show end</string>
 
 </resources>

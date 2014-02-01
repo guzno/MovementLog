@@ -33,6 +33,7 @@
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="se.magnulund.permission.READ_DATA_LOG" />
     <uses-permission android:name="se.magnulund.permission.CONTROL_SERVICE" />
+    <uses-permission android:name="android.permission.BLUETOOTH"/>
 
     <application
         android:allowBackup="true"
@@ -76,11 +77,21 @@
             android:permission="se.magnulund.permission.CONTROL_SERVICE"
             android:process=":services" />
         <service
-            android:name=".services.LocationRequestService"
+            android:name="se.magnulund.dev.movementlog.services.LocationRequestService"
             android:enabled="true"
             android:exported="true"
             android:permission="se.magnulund.permission.CONTROL_SERVICE"
             android:process=":services" />
+
+        <receiver
+            android:name=".bluetooth.BluetoothReceiver"
+            android:enabled="true"
+            android:exported="true" >
+            <intent-filter>
+                <action android:name="android.bluetooth.adapter.action.CONNECTION_STATE_CHANGED"/>
+                <action android:name="android.bluetooth.adapter.action.STATE_CHANGED"/>
+            </intent-filter>
+        </receiver>
     </application>
 
 </manifest>

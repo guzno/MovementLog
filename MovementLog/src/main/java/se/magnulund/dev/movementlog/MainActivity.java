@@ -28,13 +28,13 @@ public class MainActivity extends Activity implements MainFragment.MainFragmentL
 
             Bundle arguments = new Bundle();
 
-            arguments.putInt(MainFragment.FRAGMENT_TYPE, MainFragment.TYPE_RAWDATA);
+            arguments.putInt(MainFragment.FRAGMENT_TYPE, MainFragment.TYPE_TRIPS);
 
-            rawDataFragment = MainFragment.newInstance(arguments);
+            tripsFragment = MainFragment.newInstance(arguments);
 
-            getFragmentManager().beginTransaction().add(R.id.container, rawDataFragment).commit();
+            getFragmentManager().beginTransaction().add(R.id.container, tripsFragment).commit();
 
-            currentFragment = MainFragment.TYPE_RAWDATA;
+            currentFragment = MainFragment.TYPE_TRIPS;
         }
 
     }

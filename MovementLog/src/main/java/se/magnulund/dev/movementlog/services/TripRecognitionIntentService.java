@@ -46,19 +46,8 @@ public class TripRecognitionIntentService extends IntentService {
 
         testing = intent.getBooleanExtra(TESTING, false);
 
-        testing = true;
-
         if (ActivityRecognitionResult.hasResult(intent)) {
-            /*
-            Bundle extras = intent.getExtras();
-            if (extras != null) {
 
-                Set<String> keys = extras.keySet();
-                for (String key : keys) {
-                    Log.e(TAG, key);
-                }
-            }
-            */
             processActivityRecognitionResult(intent);
 
         } else {
