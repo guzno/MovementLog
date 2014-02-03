@@ -7,7 +7,7 @@ import java.util.HashMap;
 
 import se.magnulund.dev.movementlog.contracts.TripLogContract;
 
-public class Trips {
+public class TripsTable {
 
     public static final String TABLE = "trips";
     private static final String TABLE_CREATE =

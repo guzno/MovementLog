@@ -244,7 +244,7 @@ public class TripRecognitionIntentService extends IntentService {
 
         }
 
-        if (trip.getEndedByID() < 0) {
+        if (trip.getEndedByID() == Trip.FIELD_NOT_SET) {
 
             trip.setEndedByID(endedBy.getId());
 

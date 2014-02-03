@@ -145,6 +145,9 @@ public class Trip {
 
     public void setEndConfirmedByID(int endConfirmedByID) {
         this.endConfirmedByID = endConfirmedByID;
+        if (isStartConfirmed() && isEndConfirmed()) {
+            confirmedAs = TRIP_CONFIRMED_AS_CORRECT;
+        }
     }
 
     public void setConfirmedAs(int confirmedType) {

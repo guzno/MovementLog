@@ -10,7 +10,7 @@ import android.provider.BaseColumns;
 
 import java.util.Arrays;
 
-import se.magnulund.dev.movementlog.providers.MovementDataProvider;
+import se.magnulund.dev.movementlog.providers.TripLogProvider;
 import se.magnulund.dev.movementlog.rawdata.RawData;
 
 public class RawDataContract {
@@ -18,7 +18,7 @@ public class RawDataContract {
     /**
      * Authority string for this provider.
      */
-    public static final String AUTHORITY = MovementDataProvider.AUTHORITY;
+    public static final String AUTHORITY = TripLogProvider.AUTHORITY;
 
     public static final String URI_PART_ALL_CONTENT = "rawdata";
     /**
@@ -43,7 +43,6 @@ public class RawDataContract {
      * @param context   the current application context
      * @param rawData   the detected activity rawdata
      */
-    // TODO add "confirmed" int (1|0)
     public static Uri addEntry(Context context, RawData rawData) {
         final ContentResolver resolver = context.getContentResolver();
 

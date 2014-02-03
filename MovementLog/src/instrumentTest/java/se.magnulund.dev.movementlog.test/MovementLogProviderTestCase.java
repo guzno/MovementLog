@@ -11,9 +11,9 @@ import com.google.android.gms.location.DetectedActivity;
 import se.magnulund.dev.movementlog.contracts.RawDataContract;
 import se.magnulund.dev.movementlog.contracts.TripLogContract;
 import se.magnulund.dev.movementlog.rawdata.RawData;
-import se.magnulund.dev.movementlog.providers.MovementDataProvider;
+import se.magnulund.dev.movementlog.providers.TripLogProvider;
 
-public class MovementLogProviderTestCase extends ProviderTestCase2<MovementDataProvider> {
+public class MovementLogProviderTestCase extends ProviderTestCase2<TripLogProvider> {
 
     private static final String TAG = "MovementLogProviderTestCase";
 
@@ -24,7 +24,7 @@ public class MovementLogProviderTestCase extends ProviderTestCase2<MovementDataP
      * Constructor.
      */
     public MovementLogProviderTestCase() {
-        super(MovementDataProvider.class, TripLogContract.AUTHORITY);
+        super(TripLogProvider.class, TripLogContract.AUTHORITY);
     }
 
 

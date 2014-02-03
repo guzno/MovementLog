@@ -41,7 +41,7 @@
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
         <activity
-            android:name="se.magnulund.dev.movementlog.MainActivity"
+            android:name=".MainActivity"
             android:label="@string/app_name" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -50,7 +50,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="se.magnulund.dev.movementlog.SettingsActivity"
+            android:name=".SettingsActivity"
             android:label="@string/title_activity_settings" />
 
         <meta-data
@@ -58,33 +58,40 @@
             android:value="@integer/google_play_services_version" />
 
         <provider
-            android:name="se.magnulund.dev.movementlog.providers.MovementDataProvider"
+            android:name=".providers.TripLogProvider"
             android:authorities="se.magnulund.dev.movementlog.providers"
             android:enabled="true"
             android:exported="true"
             android:permission="se.magnulund.permission.READ_DATA_LOG" />
 
+        <provider
+            android:name=".providers.BTDataProvider"
+            android:authorities="se.magnulund.dev.movementlog.providers.bt"
+            android:enabled="true"
+            android:exported="true"
+            android:permission="se.magnulund.permission.READ_DATA_LOG" />
+
         <service
-            android:name="se.magnulund.dev.movementlog.services.TripRecognitionIntentService"
+            android:name=".services.TripRecognitionIntentService"
             android:enabled="true"
             android:exported="true"
             android:permission="se.magnulund.permission.CONTROL_SERVICE"
             android:process=":services" />
         <service
-            android:name="se.magnulund.dev.movementlog.services.ActivityRecognitionService"
+            android:name=".services.ActivityRecognitionService"
             android:enabled="true"
             android:exported="true"
             android:permission="se.magnulund.permission.CONTROL_SERVICE"
             android:process=":services" />
         <service
-            android:name="se.magnulund.dev.movementlog.services.LocationRequestService"
+            android:name=".services.LocationRequestService"
             android:enabled="true"
             android:exported="true"
             android:permission="se.magnulund.permission.CONTROL_SERVICE"
             android:process=":services" />
 
         <receiver
-            android:name=".bluetooth.BluetoothReceiver"
+            android:name=".bluetooth.BTReceiver"
             android:enabled="true"
             android:exported="true" >
             <intent-filter>

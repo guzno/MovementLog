@@ -7,7 +7,7 @@ import java.util.HashMap;
 
 import se.magnulund.dev.movementlog.contracts.RawDataContract;
 
-public class BTConnections {
+public class RawDataTable {
     public static final String TABLE = "rawdata";
     public static HashMap<String, String> projectionMap;
 

@@ -13,13 +13,13 @@ import android.text.TextUtils;
 
 import se.magnulund.dev.movementlog.contracts.TripLogContract;
 import se.magnulund.dev.movementlog.contracts.RawDataContract;
-import se.magnulund.dev.movementlog.databases.MovementsDatabase;
-import se.magnulund.dev.movementlog.databases.tables.RawData;
-import se.magnulund.dev.movementlog.databases.tables.Trips;
+import se.magnulund.dev.movementlog.databases.TripLogDatabase;
+import se.magnulund.dev.movementlog.databases.tables.RawDataTable;
+import se.magnulund.dev.movementlog.databases.tables.TripsTable;
 
-public class MovementDataProvider extends ContentProvider {
+public class TripLogProvider extends ContentProvider {
 
-    public static final String TAG = "MovementDataProvider";
+    public static final String TAG = "TripLogProvider";
 
     public static final String AUTHORITY = "se.magnulund.dev.movementlog.providers";
 
@@ -29,11 +29,12 @@ public class MovementDataProvider extends ContentProvider {
     private static final int TRIPS = 3;
     private static final int TRIP_ENTRY = 4;
 
-    private MovementsDatabase dbHelper;
+
+    private TripLogDatabase dbHelper;
 
     @Override
     public boolean onCreate() {
-        dbHelper = new MovementsDatabase(getContext());
+        dbHelper = new TripLogDatabase(getContext());
         return true;
     }
 
@@ -45,8 +46,8 @@ public class MovementDataProvider extends ContentProvider {
 
         switch (uriMatcher.match(uri)) {
             case RAWDATA_ENTRY:
-                qb.setTables(RawData.TABLE);
-                qb.setProjectionMap(RawData.projectionMap);
+                qb.setTables(RawDataTable.TABLE);
+                qb.setProjectionMap(RawDataTable.projectionMap);
 
                 if (uri.getPathSegments() != null) {
                     qb.appendWhere(
@@ -54,12 +55,12 @@ public class MovementDataProvider extends ContentProvider {
                 }
                 break;
             case RAWDATA:
-                qb.setTables(RawData.TABLE);
-                qb.setProjectionMap(RawData.projectionMap);
+                qb.setTables(RawDataTable.TABLE);
+                qb.setProjectionMap(RawDataTable.projectionMap);
                 break;
             case TRIP_ENTRY:
-                qb.setTables(Trips.TABLE);
-                qb.setProjectionMap(Trips.projectionMap);
+                qb.setTables(TripsTable.TABLE);
+                qb.setProjectionMap(TripsTable.projectionMap);
 
                 if (uri.getPathSegments() != null) {
                     qb.appendWhere(
@@ -67,8 +68,8 @@ public class MovementDataProvider extends ContentProvider {
                 }
                 break;
             case TRIPS:
-                qb.setTables(Trips.TABLE);
-                qb.setProjectionMap(Trips.projectionMap);
+                qb.setTables(TripsTable.TABLE);
+                qb.setProjectionMap(TripsTable.projectionMap);
                 break;
             default:
         }
@@ -163,7 +164,7 @@ public class MovementDataProvider extends ContentProvider {
                     throw new SQLException("Confidence rank must be specified");
                 }
 
-                dbTable = RawData.TABLE;
+                dbTable = RawDataTable.TABLE;
 
                 break;
             case TRIPS:
@@ -174,7 +175,7 @@ public class MovementDataProvider extends ContentProvider {
                     throw new SQLException("Trip type must be specified");
                 }
 
-                dbTable = Trips.TABLE;
+                dbTable = TripsTable.TABLE;
 
                 break;
             default:
@@ -209,14 +210,14 @@ public class MovementDataProvider extends ContentProvider {
         switch (uriMatcher.match(uri)) {
             case RAWDATA:
                 count = db.delete(
-                        RawData.TABLE,
+                        RawDataTable.TABLE,
                         selection,
                         selectionArgs);
                 break;
             case RAWDATA_ENTRY:
                 if (uri.getPathSegments() != null) {
                     count = db.delete(
-                            RawData.TABLE,
+                            RawDataTable.TABLE,
                             RawDataContract.Columns._ID + " = "
                                     + uri.getPathSegments().get(1)
                                     + (!TextUtils.isEmpty(selection) ?
@@ -228,14 +229,14 @@ public class MovementDataProvider extends ContentProvider {
                 break;
             case TRIPS:
                 count = db.delete(
-                        Trips.TABLE,
+                        TripsTable.TABLE,
                         selection,
                         selectionArgs);
                 break;
             case TRIP_ENTRY:
                 if (uri.getPathSegments() != null) {
                     count = db.delete(
-                            Trips.TABLE,
+                            TripsTable.TABLE,
                             TripLogContract.Columns._ID + " = "
                                     + uri.getPathSegments().get(1)
                                     + (!TextUtils.isEmpty(selection) ?
@@ -264,7 +265,7 @@ public class MovementDataProvider extends ContentProvider {
         switch (uriMatcher.match(uri)) {
             case RAWDATA:
                 count = db.update(
-                        RawData.TABLE,
+                        RawDataTable.TABLE,
                         values,
                         selection,
                         selectionArgs);
@@ -272,7 +273,7 @@ public class MovementDataProvider extends ContentProvider {
             case RAWDATA_ENTRY:
                 if (uri.getPathSegments() != null) {
                     count = db.update(
-                            RawData.TABLE,
+                            RawDataTable.TABLE,
                             values,
                             RawDataContract.Columns._ID + " = "
                                     + uri.getPathSegments().get(1)
@@ -285,7 +286,7 @@ public class MovementDataProvider extends ContentProvider {
                 break;
             case TRIPS:
                 count = db.update(
-                        Trips.TABLE,
+                        TripsTable.TABLE,
                         values,
                         selection,
                         selectionArgs);
@@ -293,7 +294,7 @@ public class MovementDataProvider extends ContentProvider {
             case TRIP_ENTRY:
                 if (uri.getPathSegments() != null) {
                     count = db.update(
-                            Trips.TABLE,
+                            TripsTable.TABLE,
                             values,
                             TripLogContract.Columns._ID + " = "
                                     + uri.getPathSegments().get(1)

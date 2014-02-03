@@ -6,6 +6,8 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 
+import com.google.common.base.Joiner;
+
 import se.magnulund.dev.movementlog.MainActivity;
 import se.magnulund.dev.movementlog.R;
 import se.magnulund.dev.movementlog.services.LocationRequestService;
@@ -89,5 +91,27 @@ public class NotificationSender {
                 .addAction(android.R.drawable.ic_dialog_map, "Show on map", mapsIntent).build();
 
         sendNotification(context, notification);
+    }
+
+    private static Notification getBigTextNotification(Context context, String title, String text, String extraContent){
+        return new Notification.Builder(context)
+                .setContentTitle(title)
+                .setContentText(text)
+                .setSmallIcon(R.drawable.ic_launcher)
+                .setStyle(new Notification.BigTextStyle().bigText(extraContent))
+                .build();
+    }
+
+    public static void sendBigTextNotification(Context context, String title, String text, String extraContent){
+        sendNotification(context, getBigTextNotification(context, title, text, extraContent));
+    }
+
+    public static void sendBigTextNotification(Context context, String title, String text, String[] extraContent){
+
+        Joiner joiner = Joiner.on("\n").skipNulls();
+
+        String bigText = joiner.join(extraContent);
+
+        sendNotification(context, getBigTextNotification(context, title, text, bigText));
     }
 }

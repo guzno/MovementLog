@@ -12,7 +12,7 @@ import org.json.JSONException;
 
 import java.util.Calendar;
 
-import se.magnulund.dev.movementlog.providers.MovementDataProvider;
+import se.magnulund.dev.movementlog.providers.TripLogProvider;
 import se.magnulund.dev.movementlog.trips.Trip;
 
 /**
@@ -25,7 +25,7 @@ public class TripLogContract {
     /**
      * Authority string for this provider.
      */
-    public static final String AUTHORITY = MovementDataProvider.AUTHORITY;
+    public static final String AUTHORITY = TripLogProvider.AUTHORITY;
     public static final String URI_PART_ALL_CONTENT = "trips";
     public static final String URI_PART_SINGLE_ITEM = URI_PART_ALL_CONTENT + "/#";
 
@@ -102,6 +102,7 @@ public class TripLogContract {
                 return null;
             }
         } else {
+            if (c!=null) {c.close();}
             return null;
         }
     }
@@ -122,20 +123,15 @@ public class TripLogContract {
      */
     public static Trip getLatestUnfinishedTrip(ContentResolver resolver) {
 
-        String selection = Columns.END_CONFIRMED_BY_ID + " = ? AND " + Columns.CONFIRMED_AS + " > ?";
+        String selection = Columns.CONFIRMED_AS + " = ?";
 
-        String[] selectionArgs = {Integer.toString(Trip.FIELD_NOT_SET), Integer.toString(Trip.TRIP_CONFIRMED_AS_INCORRECT)};
+        String[] selectionArgs = {Integer.toString(Trip.TRIP_UNCONFIRMED)};
 
         String sortOrderWithLimit = DEFAULT_SORT_ORDER + " LIMIT 1";
 
         Cursor c = resolver.query(CONTENT_URI, DEFAULT_PROJECTION, selection, selectionArgs, sortOrderWithLimit);
 
-        if (c == null || c.getCount() == 0) {
-
-            return null;
-
-        } else {
-
+        if (c != null && c.getCount() > 0) {
             c.moveToFirst();
 
             try {
@@ -146,6 +142,9 @@ public class TripLogContract {
                 e.printStackTrace();
                 return null;
             }
+        } else {
+            if (c!=null) {c.close();}
+            return null;
         }
     }
 
