@@ -1,6 +1,6 @@
 package se.magnulund.dev.movementlog;
 
-import android.app.Activity;
+import androidx.appcompat.app.AppCompatActivity; // Changed from android.app.Activity
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
@@ -10,7 +10,7 @@ import se.magnulund.dev.movementlog.fragments.MainFragment;
 import se.magnulund.dev.movementlog.services.ActivityRecognitionService;
 import se.magnulund.dev.movementlog.services.LocationRequestService;
 
-public class MainActivity extends Activity implements MainFragment.MainFragmentListener {
+public class MainActivity extends AppCompatActivity implements MainFragment.MainFragmentListener { // Changed to AppCompatActivity
 
     private static final String TAG = "MainActivity";
 
@@ -32,7 +32,7 @@ public class MainActivity extends Activity implements MainFragment.MainFragmentL
 
             tripsFragment = MainFragment.newInstance(arguments);
 
-            getFragmentManager().beginTransaction().add(R.id.container, tripsFragment).commit();
+            getSupportFragmentManager().beginTransaction().add(R.id.container, tripsFragment).commit(); // Changed to getSupportFragmentManager
 
             currentFragment = MainFragment.TYPE_TRIPS;
         }
@@ -75,7 +75,7 @@ public class MainActivity extends Activity implements MainFragment.MainFragmentL
             }
 
             // replace fragment
-            getFragmentManager().beginTransaction().replace(R.id.container, newFragment).commit();
+            getSupportFragmentManager().beginTransaction().replace(R.id.container, newFragment).commit(); // Changed to getSupportFragmentManager
 
             currentFragment = newFragmentType;
         }
@@ -95,13 +95,12 @@ public class MainActivity extends Activity implements MainFragment.MainFragmentL
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
-        switch (id) {
-            case R.id.action_settings:
-                startActivity(new Intent(this, SettingsActivity.class), null);
-                break;
-            case R.id.switch_fragment:
-                switchFragment();
-                break;
+        if (id == R.id.action_settings) {
+            startActivity(new Intent(this, SettingsActivity.class)); // Removed null options bundle
+            return true;
+        } else if (id == R.id.switch_fragment) {
+            switchFragment();
+            return true;
         }
 
         return super.onOptionsItemSelected(item);

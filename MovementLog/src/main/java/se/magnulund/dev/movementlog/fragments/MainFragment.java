@@ -1,10 +1,10 @@
 package se.magnulund.dev.movementlog.fragments;
 
-import android.app.Activity;
-import android.app.Fragment;
-import android.app.LoaderManager;
-import android.content.CursorLoader;
-import android.content.Loader;
+import android.content.Context; // Changed from android.app.Activity
+import androidx.fragment.app.Fragment; // Changed from android.app.Fragment
+import androidx.loader.app.LoaderManager; // Changed from android.app.LoaderManager
+import androidx.loader.content.CursorLoader; // Changed from android.content.CursorLoader
+import androidx.loader.content.Loader; // Changed from android.content.Loader
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
@@ -24,12 +24,10 @@ import se.magnulund.dev.movementlog.rawdata.RawDataAdapter;
 import se.magnulund.dev.movementlog.trips.Trip;
 import se.magnulund.dev.movementlog.trips.TripsAdapter;
 
-import static se.magnulund.dev.movementlog.R.string.rawdata_title;
-import static se.magnulund.dev.movementlog.R.string.trips_title;
+// Removed static imports for R.string as they might not be necessary or could be simplified
+// import static se.magnulund.dev.movementlog.R.string.rawdata_title;
+// import static se.magnulund.dev.movementlog.R.string.trips_title;
 
-/**
- * Created by erikeelde on 17/12/2013.
- */
 public class MainFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
 
     private MainFragmentListener mListener;
@@ -56,39 +54,44 @@ public class MainFragment extends Fragment implements LoaderManager.LoaderCallba
 
         setHasOptionsMenu(true);
 
-        LoaderManager loaderManager = getLoaderManager();
-        if (null != loaderManager) {
-            loaderManager.initLoader(R.id.main_fragment_loader, arguments, this);
+        // LoaderManager loaderManager = getLoaderManager(); // Old way
+        if (arguments != null) { // arguments needed for initLoader
+             LoaderManager.getInstance(this).initLoader(R.id.main_fragment_loader, arguments, this);
         }
+
 
         int titleID;
 
         if (arguments != null) {
             switch (arguments.getInt(FRAGMENT_TYPE)) {
                 case TYPE_TRIPS:
-                    titleID = trips_title;
-                    mAdapter = new TripsAdapter(getActivity(), null, 0);
+                    titleID = R.string.trips_title; // Use R.string directly
+                    mAdapter = new TripsAdapter(requireContext(), null, 0); // Use requireContext()
                     break;
                 case TYPE_RAWDATA:
                 default:
-                    titleID = rawdata_title;
-                    mAdapter = new RawDataAdapter(getActivity(), null, 0);
+                    titleID = R.string.rawdata_title; // Use R.string directly
+                    mAdapter = new RawDataAdapter(requireContext(), null, 0); // Use requireContext()
             }
         } else {
-            mAdapter = new RawDataAdapter(getActivity(), null, 0);
-            titleID = -1;
+            mAdapter = new RawDataAdapter(requireContext(), null, 0); // Use requireContext()
+            titleID = -1; // Or some default title
         }
 
-        if (getActivity() != null && titleID >= 0) {
+        if (getActivity() != null && titleID != -1) { // Check titleID for valid resource
             getActivity().setTitle(titleID);
         }
     }
 
     @Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
-        assert activity instanceof MainFragmentListener;
-        mListener = (MainFragmentListener) activity;
+    public void onAttach(Context context) { // Changed from Activity to Context
+        super.onAttach(context);
+        if (context instanceof MainFragmentListener) {
+            mListener = (MainFragmentListener) context;
+        } else {
+            throw new RuntimeException(context.toString()
+                    + " must implement MainFragmentListener");
+        }
     }
 
     @Override
@@ -138,6 +141,10 @@ public class MainFragment extends Fragment implements LoaderManager.LoaderCallba
 
         String sortOrder;
 
+        if (args == null) { // Guard against null args
+            return null;
+        }
+
         switch (args.getInt(FRAGMENT_TYPE)) {
             case TYPE_TRIPS:
                 uri = TripLogContract.CONTENT_URI;
@@ -165,7 +172,7 @@ public class MainFragment extends Fragment implements LoaderManager.LoaderCallba
                 return null;
         }
 
-        return new CursorLoader(getActivity(), uri, projection, selection, selectionArgs, sortOrder);
+        return new CursorLoader(requireContext(), uri, projection, selection, selectionArgs, sortOrder); // Use requireContext()
     }
 
     @Override

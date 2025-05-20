@@ -2,6 +2,10 @@ package se.magnulund.dev.movementlog.test;// Created by Gustav on 28/01/2014.
 
 import android.content.Intent;
 
+import android.content.Intent;
+import android.os.Binder; // Import Binder
+import android.os.IBinder; // Import IBinder
+
 import java.util.concurrent.CountDownLatch;
 
 import se.magnulund.dev.movementlog.services.TripRecognitionIntentService;

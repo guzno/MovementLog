@@ -6,7 +6,7 @@
 
     <uses-sdk
         android:minSdkVersion="19"
-        android:targetSdkVersion="19" />
+        android:targetSdkVersion="34" />
 
     <permission-group
         android:name="se.magnulund.permission-group.MOVEMENT_LOG"
@@ -28,12 +28,23 @@
         android:permissionGroup="se.magnulund.permission-group.MOVEMENT_LOG"
         android:protectionLevel="signature" />
 
-    <uses-permission android:name="com.google.android.gms.permission.ACTIVITY_RECOGNITION" />
+    <!-- Changed from com.google.android.gms.permission.ACTIVITY_RECOGNITION -->
+    <uses-permission android:name="android.permission.ACTIVITY_RECOGNITION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="se.magnulund.permission.READ_DATA_LOG" />
     <uses-permission android:name="se.magnulund.permission.CONTROL_SERVICE" />
-    <uses-permission android:name="android.permission.BLUETOOTH"/>
+
+    <!-- Bluetooth Permissions for Android 12+ -->
+    <uses-permission android:name="android.permission.BLUETOOTH"/> <!-- Kept for compatibility if needed, but new ones are primary -->
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN"/> <!-- If any admin tasks like discovery were done -->
+    <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
+    <uses-permission android:name="android.permission.BLUETOOTH_SCAN" /> <!-- If scanning for devices -->
+
+    <!-- Foreground Service Permission -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_LOCATION" />
+
 
     <application
         android:allowBackup="true"
@@ -88,7 +99,8 @@
             android:enabled="true"
             android:exported="true"
             android:permission="se.magnulund.permission.CONTROL_SERVICE"
-            android:process=":services" />
+            android:process=":services"
+            android:foregroundServiceType="location" /> <!-- Specify foreground service type -->
 
         <receiver
             android:name=".bluetooth.BTReceiver"

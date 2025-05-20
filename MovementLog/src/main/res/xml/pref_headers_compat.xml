@@ -1,0 +1,22 @@
+<PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <Preference
+        app:fragment="se.magnulund.dev.movementlog.SettingsActivity$GeneralPreferenceFragment"
+        app:icon="@android:drawable/ic_menu_preferences"
+        app:key="pref_header_general"
+        app:title="@string/pref_header_general" />
+
+    <Preference
+        app:fragment="se.magnulund.dev.movementlog.SettingsActivity$NotificationPreferenceFragment"
+        app:icon="@android:drawable/ic_popup_reminder"
+        app:key="pref_header_notifications"
+        app:title="@string/pref_header_notifications" />
+
+    <Preference
+        app:fragment="se.magnulund.dev.movementlog.SettingsActivity$DataSyncPreferenceFragment"
+        app:icon="@android:drawable/stat_notify_sync"
+        app:key="pref_header_data_sync"
+        app:title="@string/pref_header_data_sync" />
+
+</PreferenceScreen>

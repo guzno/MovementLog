@@ -3,16 +3,18 @@ package se.magnulund.dev.movementlog.location;// Created by Gustav on 27/01/2014
 import android.location.Location;
 import android.util.Log;
 
-import com.google.android.gms.location.LocationListener;
+import com.google.android.gms.location.LocationCallback; // Changed from LocationListener
+import com.google.android.gms.location.LocationResult;   // Added for onLocationResult
 
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-import se.magnulund.dev.movementlog.utils.DateTimeUtil;
+// Removed DateTimeUtil import as it's not used in this file.
+// import se.magnulund.dev.movementlog.utils.DateTimeUtil;
 
-public class LocationFuture implements Future<Location>, LocationListener {
+public class LocationFuture extends LocationCallback implements Future<Location> { // Changed to extend LocationCallback
 
     private static final String TAG ="LocationFuture";
 
@@ -88,12 +90,16 @@ public class LocationFuture implements Future<Location>, LocationListener {
     }
 
     @Override
-    public synchronized void onLocationChanged(Location locationResult) {
-        Log.e(TAG, "Location received! "+locationResult.getProvider()+" @ "+ locationResult.getTime());
-        if (locationResult != null) {
-            locationReceived = true;
-            location = locationResult;
-            ((Object) this).notifyAll();
+    public synchronized void onLocationResult(LocationResult locationResult) {
+        if (locationResult == null || locationResult.getLastLocation() == null) {
+            return;
         }
+        Location lastLocation = locationResult.getLastLocation();
+        Log.e(TAG, "Location received! " + lastLocation.getProvider() + " @ " + lastLocation.getTime());
+        locationReceived = true;
+        location = lastLocation;
+        ((Object) this).notifyAll();
     }
+
+    // onLocationAvailability can be overridden if needed, but not strictly necessary for this refactor.
 }
