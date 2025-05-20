@@ -1,16 +1,7 @@
-buildscript {
-    repositories {
-        mavenCentral()
-    }
-    dependencies {
-        classpath 'com.android.tools.build:gradle:0.7.+'
-    }
-}
-apply plugin: 'android'
+apply plugin: 'com.android.application'
 
-repositories {
-    mavenCentral()
-}
+// Repositories are defined in settings.gradle
+// The buildscript block for AGP is now in the root build.gradle
 
 def gitSha() {
     def res = 'git rev-parse HEAD'.execute([], project.rootDir).text.trim()
@@ -24,44 +15,57 @@ def gitSha() {
 }
 
 android {
-    compileSdkVersion "Google Inc.:Google APIs:19"
-    buildToolsVersion "19.0.0"
+    buildFeatures {
+        buildConfig true
+    }
+    namespace "se.magnulund.dev"
+    flavorDimensions "version" // Added flavor dimension
+    compileSdkVersion 34
+    // buildToolsVersion is removed as AGP 8.10.0 uses a default
 
     defaultConfig {
+        applicationId "se.magnulund.dev"
         minSdkVersion 19
-        targetSdkVersion 19
-        testInstrumentationRunner "com.google.android.apps.common.testing.testrunner.GoogleInstrumentationTestRunner"
+        targetSdkVersion 34
+        versionCode 1
+        versionName "1.0"
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         buildConfigField "String", "GIT_SHA", "\"${gitSha()}\""
     }
     buildTypes {
         release {
-            runProguard false
-            proguardFile getDefaultProguardFile('proguard-android.txt')
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
     productFlavors {
         defaultFlavor {
+            dimension "version" // Assign to dimension
             proguardFile 'proguard-project.txt'
         }
 
         full {
-            packageName "se.magnulund.dev.full"
+            dimension "version" // Assign to dimension
+            applicationIdSuffix ".full"
         }
 
         lite {
-            packageName "se.magnulund.dev.lite"
+            dimension "version" // Assign to dimension
+            applicationIdSuffix ".lite"
         }
     }
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_7
-        targetCompatibility JavaVersion.VERSION_1_7
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
     }
 }
 
 dependencies {
-    compile 'com.google.guava:guava:16.0'
-    compile 'com.android.support:support-v4:+'
-    compile 'com.google.android.gms:play-services:4.1.32'
-    compile 'com.android.support:support-v13:+'
-    instrumentTestCompile files('libs/espresso-1.1-bundled.jar')
+    implementation 'com.google.guava:guava:32.1.3-android'
+    implementation 'androidx.legacy:legacy-support-v4:1.0.0'
+    implementation 'com.google.android.gms:play-services-location:21.0.1'
+    implementation 'androidx.legacy:legacy-support-v13:1.0.0'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
+    androidTestImplementation 'androidx.test:runner:1.5.2'
+    androidTestImplementation 'androidx.test:rules:1.5.0'
 }

@@ -27,6 +27,12 @@ public class BTReceiver extends BroadcastReceiver {
 
         mContext = context;
 
+        // TODO: For Android 12 (API 31+) and targetSdkVersion 34, BLUETOOTH_CONNECT permission
+        // is required in AndroidManifest.xml to receive BluetoothDevice from this intent.
+        // Also, runtime permission request for BLUETOOTH_CONNECT might be needed if the app
+        // performs Bluetooth operations like fetching device name/address directly,
+        // though this receiver primarily reacts to system broadcasts.
+
         switch (intent.getAction()) {
             case BluetoothAdapter.ACTION_CONNECTION_STATE_CHANGED:
                 Log.d(TAG, "BT DEVICE CONNECTION CHANGE");
@@ -84,6 +90,9 @@ public class BTReceiver extends BroadcastReceiver {
     }
 
     private void logDeviceConnectionStateChange(Intent intent, int state) {
+        // TODO: For Android 12 (API 31+), if BLUETOOTH_CONNECT permission is not granted,
+        // getParcelableExtra(BluetoothDevice.EXTRA_DEVICE) may return null or a device
+        // with limited information (e.g., no name/address).
         BluetoothDevice bluetoothDevice = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
 
         //int previousState = intent.getIntExtra(BluetoothAdapter.EXTRA_PREVIOUS_CONNECTION_STATE, -1);
@@ -97,6 +106,11 @@ public class BTReceiver extends BroadcastReceiver {
             device = BTContract.Devices.getDevice(resolver, bluetoothDevice.getAddress());
 
             if (device == null) {
+                // Ensure bluetoothDevice is not null and has an address before proceeding
+                if (bluetoothDevice == null || bluetoothDevice.getAddress() == null) {
+                    Log.w(TAG, "BluetoothDevice is null or has no address, cannot process connection change.");
+                    return;
+                }
 
                 device = new BTDevice(bluetoothDevice);
 
@@ -104,11 +118,24 @@ public class BTReceiver extends BroadcastReceiver {
 
                 if (uri != null && uri.getPathSegments() != null) {
                     device.setId(Integer.valueOf(uri.getPathSegments().get(1)));
+                    // Potentially check for BLUETOOTH_CONNECT before accessing device name/class for notification
+                    String deviceName = "";
+                    String deviceClassInfo = "";
+                    try {
+                         // These might require BLUETOOTH_CONNECT if the device wasn't discovered by this app.
+                         // However, since it's from a system broadcast, it might be okay. Test thoroughly.
+                        deviceName = device.getName() != null ? device.getName() : "Unknown Device";
+                        deviceClassInfo = BTUtils.getDeviceMajorClassName(device.getMajorClass()) + " - " + BTUtils.getDeviceClassName(device.getSubClass());
+                    } catch (SecurityException e) {
+                        Log.e(TAG, "Bluetooth permission issue when getting device details for notification: " + e.getMessage());
+                        deviceName = "Device"; // Fallback
+                        deviceClassInfo = "Details unavailable (permission)";
+                    }
                     NotificationSender.sendBigTextNotification(
                         mContext,
                         "BT device detected",
-                        BTUtils.getDeviceMajorClassName(device.getMajorClass()),
-                        BTUtils.getDeviceClassName(device.getSubClass())
+                        deviceName, // Use potentially permission-restricted name
+                        deviceClassInfo
                     );
                 }
             }

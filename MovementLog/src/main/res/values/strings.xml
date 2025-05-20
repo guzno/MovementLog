@@ -28,4 +28,7 @@
     <string name="trip_show_start">Show start</string>
     <string name="trip_show_end">Show end</string>
 
+    <string name="channel_name">Movement Log Notifications</string>
+    <string name="channel_description">Channel for Movement Log app notifications</string>
+
 </resources>
